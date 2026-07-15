@@ -686,11 +686,16 @@ export default function Home() {
       const updatedQuotes = [...quotes, fullQuote];
       syncState(clients, updatedQuotes, invoices);
       showToast(`Created Quote ${quoteNum} locally.`);
+
+      // Auto-navigate to client simulator with the new quote pre-selected
+      setActiveClientSimQuoteId(fullQuote.id);
+      setSimSignedName("");
+      setSimSignedCheckbox(false);
     }
 
     setBuilderRows([{ description: "", qty: 1, rate: 0 }]);
     setBuilderNotes("");
-    setActiveView("billing");
+    setActiveView("client");
   };
 
   const convertQuoteToInvoice = async (quoteId: string) => {
@@ -823,10 +828,15 @@ export default function Home() {
     });
 
     syncState(clients, updatedQuotes, [...invoices, newInvoice]);
-    showToast(`Proposal accepted. Invoice ${invNum} compiled.`);
+    showToast(`Proposal accepted. Invoice ${invNum} compiled. PDF download initiated.`);
     
     setSimSignedName("");
     setSimSignedCheckbox(false);
+
+    // Auto-generate and download PDF after the state renders (matching old prototype behavior)
+    setTimeout(() => {
+      generateOpsPdf();
+    }, 1200);
   };
 
   // Client Simulation: Decline Proposal
@@ -897,7 +907,7 @@ export default function Home() {
 
     showToast("Generating PDF... Please wait.");
     try {
-      const html2canvas = (await import("html2canvas")).default;
+      const html2canvas = (await import("html2canvas-pro")).default;
       const { jsPDF } = await import("jspdf");
 
       // Temporarily hide elements with 'print-hide' class for the PDF capture
@@ -955,7 +965,7 @@ export default function Home() {
 
     showToast("Generating PDF... Please wait.");
     try {
-      const html2canvas = (await import("html2canvas")).default;
+      const html2canvas = (await import("html2canvas-pro")).default;
       const { jsPDF } = await import("jspdf");
 
       // Temporarily hide elements with 'print-hide' class for the PDF capture
@@ -1471,6 +1481,8 @@ export default function Home() {
                                   ? "bg-emerald-50 text-emerald-800 border-emerald-200" 
                                   : q.status === "sent"
                                   ? "bg-sky-50 text-sky-800 border-sky-200"
+                                  : q.status === "declined"
+                                  ? "bg-rose-50 text-rose-800 border-rose-200"
                                   : "bg-slate-100 text-slate-700 border-slate-300"
                               }`}>
                                 {q.status}
@@ -1485,6 +1497,13 @@ export default function Home() {
                                   Convert
                                 </button>
                               )}
+                              <button 
+                                onClick={() => triggerWhatsAppShare("quote", q.id)}
+                                className="text-[10px] font-mono font-bold uppercase bg-white hover:bg-sky-50 text-sky-700 border border-sky-200 px-2 py-1 transition-colors"
+                                title="Share via WhatsApp"
+                              >
+                                <i className="fa-brands fa-whatsapp text-sm"></i>
+                              </button>
                               <button 
                                 onClick={() => { setActiveClientSimQuoteId(q.id); setActiveView("client"); }}
                                 className="text-[10px] font-mono font-bold uppercase bg-white hover:bg-slate-100 text-slate-700 border border-[#DCDBCF] px-2 py-1 transition-colors"
@@ -1546,9 +1565,10 @@ export default function Home() {
                                   </button>
                                   <button 
                                     onClick={() => triggerWhatsAppShare("invoice", inv.id)}
-                                    className="text-[10px] font-mono font-bold uppercase bg-white hover:bg-slate-100 text-slate-700 border border-[#DCDBCF] px-2 py-1 transition-colors"
+                                    className="text-[10px] font-mono font-bold uppercase bg-white hover:bg-sky-50 text-sky-700 border border-sky-200 px-2 py-1 transition-colors"
+                                    title="Share via WhatsApp"
                                   >
-                                    Send link
+                                    <i className="fa-brands fa-whatsapp text-sm mr-1"></i>Send
                                   </button>
                                 </>
                               ) : (
