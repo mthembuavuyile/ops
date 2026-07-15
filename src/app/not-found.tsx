@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen bg-[#FAF9F5] flex items-center justify-center p-6 relative overflow-hidden font-sans text-slate-800">
+    <main className="min-h-screen bg-ui-lightGray flex items-center justify-center p-6 relative overflow-hidden font-sans text-slate-800">
       
       {/* Background grid pattern */}
       <div 
@@ -37,7 +37,7 @@ export default function NotFound() {
           href="/" 
           className="text-xl font-bold tracking-widest text-[#111111] uppercase inline-block hover:opacity-80 transition-opacity"
         >
-          VYLEX <span className="text-[#C6A052]">OPS</span>
+          VYLEX <span className="text-brand-orange">OPS</span>
         </Link>
 
         {/* Error Code */}
@@ -47,8 +47,8 @@ export default function NotFound() {
               4
             </span>
             <span className="relative flex items-center justify-center">
-              <span className="w-20 h-20 sm:w-28 sm:h-28 border-4 border-[#DCDBCF] rounded-full flex items-center justify-center">
-                <i className="fa-solid fa-link-slash text-3xl sm:text-4xl text-[#C6A052] opacity-70"></i>
+              <span className="w-20 h-20 sm:w-28 sm:h-28 border-4 border-ui-lightSlate rounded-full flex items-center justify-center">
+                <i className="fa-solid fa-link-slash text-3xl sm:text-4xl text-brand-orange opacity-70"></i>
               </span>
             </span>
             <span className="text-[120px] sm:text-[160px] font-black leading-none text-[#111111] tracking-tighter font-mono opacity-90">
@@ -56,7 +56,7 @@ export default function NotFound() {
             </span>
           </div>
 
-          <span className="inline-block font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-[#8E8C82] bg-[#EAE9E2] border border-[#DCDBCF] px-3 py-1 rounded-none">
+          <span className="inline-block font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-[#8E8C82] bg-[#EAE9E2] border border-ui-lightSlate px-3 py-1 rounded-none">
             Route Not Found
           </span>
         </div>
@@ -83,7 +83,7 @@ export default function NotFound() {
 
           <Link 
             href="/login"
-            className="bg-white hover:bg-[#FAF9F5] text-[#111111] text-xs font-mono font-bold uppercase tracking-wider px-6 py-3.5 rounded-none border border-[#DCDBCF] transition-all flex items-center gap-2.5 min-w-[180px] justify-center"
+            className="bg-white hover:bg-ui-lightGray text-[#111111] text-xs font-mono font-bold uppercase tracking-wider px-6 py-3.5 rounded-none border border-ui-lightSlate transition-all flex items-center gap-2.5 min-w-[180px] justify-center"
           >
             <i className="fa-solid fa-right-to-bracket text-[10px]"></i>
             <span>Go to Login</span>

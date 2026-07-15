@@ -237,6 +237,7 @@ export default function Home() {
 
   // ================= STATE HOOKS =================
   const [activeView, setActiveView] = useState<string>("dashboard");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [session, setSession] = useState<any>(null);
   const [loadingSession, setLoadingSession] = useState<boolean>(true);
 
@@ -1036,7 +1037,7 @@ export default function Home() {
 
   if (loadingSession) {
     return (
-      <div className="min-h-screen bg-[#1E1D19] flex items-center justify-center font-sans text-slate-400">
+      <div className="min-h-screen bg-brand-navy flex items-center justify-center font-sans text-slate-400">
         <div className="text-center space-y-2">
           <i className="fa-solid fa-spinner animate-spin text-2xl text-amber-500"></i>
           <p className="text-[10px] font-mono font-bold uppercase tracking-wider">Verifying Session...</p>
@@ -1046,26 +1047,44 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen md:h-screen flex flex-col md:flex-row md:overflow-hidden bg-[#FAF9F5] text-[#2E2D27] font-sans">
+    <div className="min-h-screen md:h-screen flex flex-col md:flex-row md:overflow-hidden bg-ui-lightGray text-ui-darkSlate font-sans">
       
       {/* ================= TOAST BANNER (Flat, Sharp, Editorial) ================= */}
       <div 
         className={`fixed top-0 left-0 right-0 z-50 p-4 font-mono font-bold text-xs transition-all duration-300 text-center uppercase tracking-wider border-b ${
           toastVisible 
-            ? "translate-y-0 opacity-100 bg-[#1E1D19] text-[#FAF9F5] border-slate-700" 
-            : "-translate-y-full opacity-0 pointer-events-none bg-[#1E1D19] text-[#FAF9F5] border-slate-700"
+            ? "translate-y-0 opacity-100 bg-brand-navy text-[#FAF9F5] border-slate-700" 
+            : "-translate-y-full opacity-0 pointer-events-none bg-brand-navy text-[#FAF9F5] border-slate-700"
         }`}
       >
         <span>{toastMsg}</span>
       </div>
 
+      {/* ================= MOBILE HEADER ================= */}
+      <div className="md:hidden flex items-center justify-between bg-brand-navy p-4 border-b border-brand-lightNavy shrink-0">
+        <span className="text-xl font-bold tracking-widest text-[#FAF9F5]">
+          VYLEX <span className="text-brand-orange">OPS</span>
+        </span>
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-ui-lightSlate text-2xl focus:outline-none px-2 py-1">
+          <i className={`fa-solid ${isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+        </button>
+      </div>
+
+      {/* ================= MOBILE OVERLAY ================= */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-30 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* ================= SIDEBAR / NAVIGATION (Sharp, Natural Slate/Charcoal) ================= */}
-      <aside className="w-full md:w-64 bg-[#1E1D19] text-[#CCCCCC] flex flex-col justify-between shrink-0 border-b md:border-b-0 md:border-r border-[#2C2B25] z-30 rounded-none">
+      <aside className={`fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 w-64 bg-brand-navy text-ui-lightSlate flex flex-col justify-between shrink-0 border-r border-brand-lightNavy rounded-none ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div>
           {/* Header */}
-          <div className="p-6 flex items-center justify-between border-b border-[#2C2B25] rounded-none">
+          <div className="p-6 flex items-center justify-between border-b border-brand-lightNavy rounded-none">
             <span className="text-xl font-bold tracking-widest text-[#FAF9F5]">
-              VYLEX <span className="text-[#C6A052]">OPS</span>
+              VYLEX <span className="text-brand-orange">OPS</span>
             </span>
             <span className="border border-[#4A483E] text-[#FAF9F5] text-[9px] uppercase font-mono font-bold px-2.5 py-0.5 rounded-none">
               SAAS L2
@@ -1079,11 +1098,11 @@ export default function Home() {
             </div>
             
             <button 
-              onClick={() => setActiveView("dashboard")}
+              onClick={() => { setActiveView("dashboard"); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-3 text-xs font-mono font-bold uppercase tracking-wider transition-all duration-150 rounded-none ${
                 activeView === "dashboard" 
-                  ? "bg-[#2C2B25] text-[#FAF9F5] border-l-2 border-[#C6A052]" 
-                  : "hover:bg-[#25241F] hover:text-[#FAF9F5]"
+                  ? "bg-brand-lightNavy text-[#FAF9F5] border-l-2 border-brand-orange" 
+                  : "hover:bg-brand-lightNavy hover:text-[#FAF9F5]"
               }`}
             >
               <i className="fa-solid fa-chart-line w-4 text-center"></i>
@@ -1091,11 +1110,11 @@ export default function Home() {
             </button>
 
             <button 
-              onClick={() => setActiveView("billing")}
+              onClick={() => { setActiveView("billing"); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-3 text-xs font-mono font-bold uppercase tracking-wider transition-all duration-150 rounded-none ${
                 activeView === "billing" 
-                  ? "bg-[#2C2B25] text-[#FAF9F5] border-l-2 border-[#C6A052]" 
-                  : "hover:bg-[#25241F] hover:text-[#FAF9F5]"
+                  ? "bg-brand-lightNavy text-[#FAF9F5] border-l-2 border-brand-orange" 
+                  : "hover:bg-brand-lightNavy hover:text-[#FAF9F5]"
               }`}
             >
               <i className="fa-solid fa-file-invoice-dollar w-4 text-center"></i>
@@ -1103,11 +1122,11 @@ export default function Home() {
             </button>
 
             <button 
-              onClick={() => setActiveView("builder")}
+              onClick={() => { setActiveView("builder"); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-3 text-xs font-mono font-bold uppercase tracking-wider transition-all duration-150 rounded-none ${
                 activeView === "builder" 
-                  ? "bg-[#2C2B25] text-[#FAF9F5] border-l-2 border-[#C6A052]" 
-                  : "hover:bg-[#25241F] hover:text-[#FAF9F5]"
+                  ? "bg-brand-lightNavy text-[#FAF9F5] border-l-2 border-brand-orange" 
+                  : "hover:bg-brand-lightNavy hover:text-[#FAF9F5]"
               }`}
             >
               <i className="fa-solid fa-file-signature w-4 text-center"></i>
@@ -1115,11 +1134,11 @@ export default function Home() {
             </button>
 
             <button 
-              onClick={() => setActiveView("invoice-maker")}
+              onClick={() => { setActiveView("invoice-maker"); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-3 text-xs font-mono font-bold uppercase tracking-wider transition-all duration-150 rounded-none ${
                 activeView === "invoice-maker" 
-                  ? "bg-[#2C2B25] text-[#FAF9F5] border-l-2 border-[#C6A052]" 
-                  : "hover:bg-[#25241F] hover:text-[#FAF9F5]"
+                  ? "bg-brand-lightNavy text-[#FAF9F5] border-l-2 border-brand-orange" 
+                  : "hover:bg-brand-lightNavy hover:text-[#FAF9F5]"
               }`}
             >
               <i className="fa-solid fa-file-invoice w-4 text-center"></i>
@@ -1127,11 +1146,11 @@ export default function Home() {
             </button>
 
             <button 
-              onClick={() => setActiveView("settings")}
+              onClick={() => { setActiveView("settings"); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-3 text-xs font-mono font-bold uppercase tracking-wider transition-all duration-150 rounded-none ${
                 activeView === "settings" 
-                  ? "bg-[#2C2B25] text-[#FAF9F5] border-l-2 border-[#C6A052]" 
-                  : "hover:bg-[#25241F] hover:text-[#FAF9F5]"
+                  ? "bg-brand-lightNavy text-[#FAF9F5] border-l-2 border-brand-orange" 
+                  : "hover:bg-brand-lightNavy hover:text-[#FAF9F5]"
               }`}
             >
               <i className="fa-solid fa-gears w-4 text-center"></i>
@@ -1143,8 +1162,8 @@ export default function Home() {
             </div>
 
             <button 
-              onClick={() => setActiveView("client")}
-              className="w-full flex items-center gap-3 px-3 py-3.5 text-xs font-mono font-bold uppercase tracking-wider bg-[#2C2B25] text-amber-400 border border-dashed border-amber-500/20 hover:bg-[#38362E] rounded-none"
+              onClick={() => { setActiveView("client"); setIsMobileMenuOpen(false); }}
+              className="w-full flex items-center gap-3 px-3 py-3.5 text-xs font-mono font-bold uppercase tracking-wider bg-brand-lightNavy text-amber-400 border border-dashed border-amber-500/20 hover:bg-[#38362E] rounded-none"
             >
               <i className="fa-solid fa-link w-4 text-center"></i>
               <span>Client Portal Link</span>
@@ -1153,7 +1172,7 @@ export default function Home() {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-[#2C2B25] bg-[#171613] space-y-3 rounded-none">
+        <div className="p-4 border-t border-brand-lightNavy bg-[#171613] space-y-3 rounded-none">
           <div className="flex items-center justify-between text-xs font-mono">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-500 rounded-none"></div>
@@ -1169,7 +1188,7 @@ export default function Home() {
           </div>
           <button 
             onClick={handleSignOut}
-            className="w-full bg-[#2C2B25] hover:bg-rose-950/20 hover:text-rose-400 border border-[#3C3A33] py-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 rounded-none"
+            className="w-full bg-brand-lightNavy hover:bg-rose-950/20 hover:text-rose-400 border border-[#3C3A33] py-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 rounded-none"
           >
             <span>Sign Out</span>
           </button>
@@ -1184,13 +1203,13 @@ export default function Home() {
           <div className="space-y-8 animate-fadeIn">
             
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 border-b border-[#DCDBCF] pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 border-b border-ui-lightSlate pb-4">
               <div>
                 <h1 className="text-2xl font-bold tracking-tight text-[#111111] uppercase font-sans">Operations Dashboard</h1>
                 <p className="text-[#6E6C5F] text-xs font-medium mt-1">Real-time tracking of B2B payment schedules.</p>
               </div>
               <button 
-                onClick={() => setActiveView("builder")} 
+                onClick={() => { setActiveView("builder"); setIsMobileMenuOpen(false); }} 
                 className="bg-[#111111] hover:bg-[#252525] text-white text-xs font-mono font-bold uppercase tracking-wider px-5 py-3 rounded-none transition-all shadow-none flex items-center gap-2"
               >
                 New Quote
@@ -1203,32 +1222,32 @@ export default function Home() {
                 <span>Active Server Connection: PostgreSQL Database Enabled.</span>
               </div>
             ) : (
-              <div className="border border-[#E3DFCA] bg-[#FAF8EE] text-[#705E32] text-xs font-mono px-4 py-3 rounded-none flex items-center gap-2">
+              <div className="border border-ui-lightSlate bg-ui-white text-ui-darkGray text-xs font-mono px-4 py-3 rounded-none flex items-center gap-2">
                 <span>Local Sandbox Mode Active (Local Storage database). Complete `.env.local` to go live.</span>
               </div>
             )}
 
             {/* Metric Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white border border-[#DCDBCF] p-6 rounded-none shadow-none hover:border-[#BEBDAD] transition-all">
+              <div className="bg-white border border-ui-lightSlate p-6 rounded-none shadow-none hover:border-[#BEBDAD] transition-all">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#6E6C5F]">Pending Collection</span>
                 <div className="text-2xl font-bold text-[#111111] mt-2 font-mono">{formatZAR(pendingZar)}</div>
                 <p className="text-[#8E8C82] text-[10px] font-mono mt-1">{pendingCount} unpaid invoices</p>
               </div>
 
-              <div className="bg-white border border-[#DCDBCF] p-6 rounded-none shadow-none hover:border-rose-400 transition-all">
+              <div className="bg-white border border-ui-lightSlate p-6 rounded-none shadow-none hover:border-rose-400 transition-all">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#6E6C5F]">Overdue Balances</span>
                 <div className="text-2xl font-bold text-rose-600 mt-2 font-mono">{formatZAR(overdueZar)}</div>
                 <p className="text-rose-500/80 text-[10px] font-mono mt-1">{overdueCount} accounts past due</p>
               </div>
 
-              <div className="bg-white border border-[#DCDBCF] p-6 rounded-none shadow-none hover:border-emerald-400 transition-all">
+              <div className="bg-white border border-ui-lightSlate p-6 rounded-none shadow-none hover:border-emerald-400 transition-all">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#6E6C5F]">Collected (MTD)</span>
                 <div className="text-2xl font-bold text-emerald-700 mt-2 font-mono">{formatZAR(collectedZar)}</div>
                 <p className="text-emerald-600/80 text-[10px] font-mono mt-1">{collectedCount} accounts settled</p>
               </div>
 
-              <div className="bg-[#1E1D19] border border-[#2C2B25] p-6 rounded-none shadow-none text-white">
+              <div className="bg-brand-navy border border-brand-lightNavy p-6 rounded-none shadow-none text-white">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8E8C82]">Active Proposals</span>
                 <div className="text-2xl font-bold text-sky-400 mt-2 font-mono">{activeQuotesCount}</div>
                 <p className="text-slate-400 text-[10px] font-mono mt-1">Awaiting client signature</p>
@@ -1238,8 +1257,8 @@ export default function Home() {
             {/* Tables Area */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
-              <div className="bg-white border border-[#DCDBCF] rounded-none shadow-none overflow-hidden lg:col-span-2">
-                <div className="p-5 border-b border-[#DCDBCF] flex justify-between items-center bg-[#FAF9F5]">
+              <div className="bg-white border border-ui-lightSlate rounded-none shadow-none overflow-hidden lg:col-span-2">
+                <div className="p-5 border-b border-ui-lightSlate flex justify-between items-center bg-ui-lightGray">
                   <h3 className="font-bold text-[#111111] text-sm uppercase tracking-wider">Invoices Awaiting Collection</h3>
                   <span className="text-[9px] border border-amber-300 bg-amber-50 text-amber-800 font-mono font-bold px-2 py-0.5 rounded-none uppercase tracking-wider">
                     Attention
@@ -1248,7 +1267,7 @@ export default function Home() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                      <tr className="border-b border-[#DCDBCF] text-[9px] text-[#6E6C5F] font-mono font-bold uppercase tracking-wider bg-[#FAF9F5]/50">
+                      <tr className="border-b border-ui-lightSlate text-[9px] text-[#6E6C5F] font-mono font-bold uppercase tracking-wider bg-ui-lightGray/50">
                         <th className="p-4">Invoice #</th>
                         <th className="p-4">Client</th>
                         <th className="p-4">Due Date</th>
@@ -1269,7 +1288,7 @@ export default function Home() {
                           const client = clients.find(c => c.id === inv.client_id);
                           const isOverdue = inv.due_at < todayStr;
                           return (
-                            <tr key={inv.id} className="hover:bg-[#FAF9F5]/40 transition-colors">
+                            <tr key={inv.id} className="hover:bg-ui-lightGray/40 transition-colors">
                               <td className="p-4 font-mono font-bold text-[#111111]">{inv.invoice_number}</td>
                               <td className="p-4 text-slate-900 font-semibold">{client ? client.name : "Unknown"}</td>
                               <td className="p-4 font-mono text-slate-500">{formatDateLabel(inv.due_at)}</td>
@@ -1300,7 +1319,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#DCDBCF] rounded-none p-5 flex flex-col justify-between">
+              <div className="bg-white border border-ui-lightSlate rounded-none p-5 flex flex-col justify-between">
                 <div>
                   <div className="flex justify-between items-center border-b border-[#FAF9F5] pb-2">
                     <div>
@@ -1316,8 +1335,8 @@ export default function Home() {
                   </div>
 
                   {showAddClientForm && (
-                    <form onSubmit={handleCreateClient} className="mt-4 p-4 border border-[#DCDBCF] bg-[#FAF9F5]/60 space-y-3 animate-fadeIn">
-                      <h4 className="font-bold text-[#111111] text-[10px] font-mono uppercase tracking-wider border-b border-[#DCDBCF] pb-1.5">
+                    <form onSubmit={handleCreateClient} className="mt-4 p-4 border border-ui-lightSlate bg-ui-lightGray/60 space-y-3 animate-fadeIn">
+                      <h4 className="font-bold text-[#111111] text-[10px] font-mono uppercase tracking-wider border-b border-ui-lightSlate pb-1.5">
                         New Client Profile
                       </h4>
                       
@@ -1330,7 +1349,7 @@ export default function Home() {
                             placeholder="e.g. Acme Corp" 
                             value={newClientName}
                             onChange={(e) => setNewClientName(e.target.value)}
-                            className="w-full bg-white border border-[#DCDBCF] p-2 text-xs focus:outline-none focus:border-black font-semibold"
+                            className="w-full bg-white border border-ui-lightSlate p-2 text-xs focus:outline-none focus:border-black font-semibold"
                           />
                         </div>
                         <div className="space-y-1">
@@ -1340,7 +1359,7 @@ export default function Home() {
                             placeholder="e.g. AC (Auto if blank)" 
                             value={newClientPrefix}
                             onChange={(e) => setNewClientPrefix(e.target.value)}
-                            className="w-full bg-white border border-[#DCDBCF] p-2 text-xs focus:outline-none focus:border-black font-mono font-bold"
+                            className="w-full bg-white border border-ui-lightSlate p-2 text-xs focus:outline-none focus:border-black font-mono font-bold"
                           />
                         </div>
                       </div>
@@ -1353,7 +1372,7 @@ export default function Home() {
                             placeholder="e.g. John Doe" 
                             value={newClientContactName}
                             onChange={(e) => setNewClientContactName(e.target.value)}
-                            className="w-full bg-white border border-[#DCDBCF] p-2 text-xs focus:outline-none focus:border-black font-semibold"
+                            className="w-full bg-white border border-ui-lightSlate p-2 text-xs focus:outline-none focus:border-black font-semibold"
                           />
                         </div>
                         <div className="space-y-1">
@@ -1364,7 +1383,7 @@ export default function Home() {
                             placeholder="e.g. john@acme.com" 
                             value={newClientEmail}
                             onChange={(e) => setNewClientEmail(e.target.value)}
-                            className="w-full bg-white border border-[#DCDBCF] p-2 text-xs focus:outline-none focus:border-black font-semibold"
+                            className="w-full bg-white border border-ui-lightSlate p-2 text-xs focus:outline-none focus:border-black font-semibold"
                           />
                         </div>
                       </div>
@@ -1376,7 +1395,7 @@ export default function Home() {
                           placeholder="e.g. +27 82 123 4567" 
                           value={newClientPhone}
                           onChange={(e) => setNewClientPhone(e.target.value)}
-                          className="w-full bg-white border border-[#DCDBCF] p-2 text-xs focus:outline-none focus:border-black font-semibold"
+                          className="w-full bg-white border border-ui-lightSlate p-2 text-xs focus:outline-none focus:border-black font-semibold"
                         />
                       </div>
 
@@ -1387,7 +1406,7 @@ export default function Home() {
                           placeholder="e.g. 123 Main Rd, Cape Town, 8001" 
                           value={newClientAddress}
                           onChange={(e) => setNewClientAddress(e.target.value)}
-                          className="w-full bg-white border border-[#DCDBCF] p-2 text-xs focus:outline-none focus:border-black resize-none font-semibold"
+                          className="w-full bg-white border border-ui-lightSlate p-2 text-xs focus:outline-none focus:border-black resize-none font-semibold"
                         />
                       </div>
 
@@ -1404,7 +1423,7 @@ export default function Home() {
                   
                   <div className="mt-5 space-y-4">
                     {clients.map(client => (
-                      <div key={client.id} className="p-4 rounded-none border border-[#DCDBCF] bg-[#FAF9F5]/30 hover:bg-[#FAF9F5]/60 transition-all duration-150">
+                      <div key={client.id} className="p-4 rounded-none border border-ui-lightSlate bg-ui-lightGray/30 hover:bg-ui-lightGray/60 transition-all duration-150">
                         <div className="flex justify-between items-baseline">
                           <h4 className="font-bold text-[#111111] text-xs uppercase tracking-wide">{client.name}</h4>
                           <div className="flex items-center gap-2">
@@ -1442,15 +1461,15 @@ export default function Home() {
         {/* ================= VIEW 2: BILLING MANAGER ================= */}
         {activeView === "billing" && (
           <div className="space-y-8 animate-fadeIn">
-            <div className="border-b border-[#DCDBCF] pb-4">
+            <div className="border-b border-ui-lightSlate pb-4">
               <h1 className="text-2xl font-bold tracking-tight text-[#111111] uppercase">Billing Ledger</h1>
               <p className="text-[#6E6C5F] text-xs font-medium mt-1">Audit status of proposal pipelines and tax entries.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               
-              <div className="bg-white border border-[#DCDBCF] rounded-none shadow-none overflow-hidden">
-                <div className="p-5 border-b border-[#DCDBCF] bg-[#FAF9F5]">
+              <div className="bg-white border border-ui-lightSlate rounded-none shadow-none overflow-hidden">
+                <div className="p-5 border-b border-ui-lightSlate bg-ui-lightGray">
                   <h3 className="font-bold text-[#111111] text-sm uppercase tracking-wider flex items-center gap-2">
                     <i className="fa-solid fa-file-lines text-slate-400"></i>
                     <span>Proposal Log</span>
@@ -1459,7 +1478,7 @@ export default function Home() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                      <tr className="border-b border-[#DCDBCF] text-[9px] text-[#6E6C5F] font-mono font-bold uppercase tracking-wider bg-[#FAF9F5]/50">
+                      <tr className="border-b border-ui-lightSlate text-[9px] text-[#6E6C5F] font-mono font-bold uppercase tracking-wider bg-ui-lightGray/50">
                         <th className="p-4">Quote #</th>
                         <th className="p-4">Client</th>
                         <th className="p-4 text-right">Total</th>
@@ -1471,7 +1490,7 @@ export default function Home() {
                       {quotes.map(q => {
                         const client = clients.find(c => c.id === q.client_id);
                         return (
-                          <tr key={q.id} className="hover:bg-[#FAF9F5]/30 transition-colors">
+                          <tr key={q.id} className="hover:bg-ui-lightGray/30 transition-colors">
                             <td className="p-4 font-mono font-bold text-[#111111]">{q.quote_number}</td>
                             <td className="p-4 font-semibold text-slate-900">{client ? client.name : "Unknown"}</td>
                             <td className="p-4 text-right font-mono font-bold text-[#111111]">{formatZAR(q.total)}</td>
@@ -1506,7 +1525,7 @@ export default function Home() {
                               </button>
                               <button 
                                 onClick={() => { setActiveClientSimQuoteId(q.id); setActiveView("client"); }}
-                                className="text-[10px] font-mono font-bold uppercase bg-white hover:bg-slate-100 text-slate-700 border border-[#DCDBCF] px-2 py-1 transition-colors"
+                                className="text-[10px] font-mono font-bold uppercase bg-white hover:bg-slate-100 text-slate-700 border border-ui-lightSlate px-2 py-1 transition-colors"
                               >
                                 Simulate
                               </button>
@@ -1519,8 +1538,8 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#DCDBCF] rounded-none shadow-none overflow-hidden">
-                <div className="p-5 border-b border-[#DCDBCF] bg-[#FAF9F5]">
+              <div className="bg-white border border-ui-lightSlate rounded-none shadow-none overflow-hidden">
+                <div className="p-5 border-b border-ui-lightSlate bg-ui-lightGray">
                   <h3 className="font-bold text-[#111111] text-sm uppercase tracking-wider flex items-center gap-2">
                     <i className="fa-solid fa-file-invoice text-slate-400"></i>
                     <span>Tax Invoices Log</span>
@@ -1529,7 +1548,7 @@ export default function Home() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                      <tr className="border-b border-[#DCDBCF] text-[9px] text-[#6E6C5F] font-mono font-bold uppercase tracking-wider bg-[#FAF9F5]/50">
+                      <tr className="border-b border-ui-lightSlate text-[9px] text-[#6E6C5F] font-mono font-bold uppercase tracking-wider bg-ui-lightGray/50">
                         <th className="p-4">Invoice #</th>
                         <th className="p-4">Client</th>
                         <th className="p-4 text-right">Total</th>
@@ -1541,7 +1560,7 @@ export default function Home() {
                       {invoices.map(inv => {
                         const client = clients.find(c => c.id === inv.client_id);
                         return (
-                          <tr key={inv.id} className="hover:bg-[#FAF9F5]/30 transition-colors">
+                          <tr key={inv.id} className="hover:bg-ui-lightGray/30 transition-colors">
                             <td className="p-4 font-mono font-bold text-[#111111]">{inv.invoice_number}</td>
                             <td className="p-4 font-semibold text-slate-900">{client ? client.name : "Unknown"}</td>
                             <td className="p-4 text-right font-mono font-bold text-[#111111]">{formatZAR(inv.total)}</td>
@@ -1590,12 +1609,12 @@ export default function Home() {
         {/* ================= VIEW 3: QUOTE BUILDER ================= */}
         {activeView === "builder" && (
           <div className="space-y-8 animate-fadeIn max-w-4xl">
-            <div className="border-b border-[#DCDBCF] pb-4">
+            <div className="border-b border-ui-lightSlate pb-4">
               <h1 className="text-2xl font-bold tracking-tight text-[#111111] uppercase">Create a Quote</h1>
               <p className="text-[#6E6C5F] text-xs font-medium mt-1">Compile service scope list with live-calculating ledger rows.</p>
             </div>
 
-            <div className="bg-white border border-[#DCDBCF] p-6 md:p-8 rounded-none">
+            <div className="bg-white border border-ui-lightSlate p-6 md:p-8 rounded-none">
               <form onSubmit={handleQuoteSubmit} className="space-y-8">
                 
                 {/* Header Inputs */}
@@ -1620,7 +1639,7 @@ export default function Home() {
                           setBuilderClientId(e.target.value);
                         }
                       }}
-                      className="w-full border border-[#DCDBCF] bg-[#FAF9F5]/40 rounded-none p-3 text-xs font-mono font-bold focus:outline-none focus:border-black"
+                      className="w-full border border-ui-lightSlate bg-ui-lightGray/40 rounded-none p-3 text-xs font-mono font-bold focus:outline-none focus:border-black"
                       required
                     >
                       {clients.map(c => (
@@ -1635,7 +1654,7 @@ export default function Home() {
                     <select 
                       value={builderExpiryDays}
                       onChange={(e) => setBuilderExpiryDays(parseInt(e.target.value))}
-                      className="w-full border border-[#DCDBCF] bg-[#FAF9F5]/40 rounded-none p-3 text-xs font-mono font-bold focus:outline-none focus:border-black"
+                      className="w-full border border-ui-lightSlate bg-ui-lightGray/40 rounded-none p-3 text-xs font-mono font-bold focus:outline-none focus:border-black"
                       required
                     >
                       <option value={7}>Valid for 7 Days</option>
@@ -1646,7 +1665,7 @@ export default function Home() {
 
                   <div>
                     <label className="block text-[9px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-2">Quote Number</label>
-                    <div className="border border-[#DCDBCF] bg-[#FAF9F5] text-slate-800 font-mono font-bold p-3 text-xs flex justify-between rounded-none">
+                    <div className="border border-ui-lightSlate bg-ui-lightGray text-slate-800 font-mono font-bold p-3 text-xs flex justify-between rounded-none">
                       <span>Q-2026-{String(quotes.length + 1).padStart(3, "0")}</span>
                       <span className="text-[9px] uppercase font-bold text-slate-400">System generated</span>
                     </div>
@@ -1655,7 +1674,7 @@ export default function Home() {
 
                 {/* Line Items */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-[#DCDBCF] pb-3">
+                  <div className="flex items-center justify-between border-b border-ui-lightSlate pb-3">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#6E6C5F]">Line Items</span>
                     <button 
                       type="button" 
@@ -1675,14 +1694,14 @@ export default function Home() {
 
                   <div className="space-y-3">
                     {builderRows.map((row, index) => (
-                      <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center bg-[#FAF9F5]/20 p-3 md:p-0 border md:border-0 border-[#DCDBCF] rounded-none">
+                      <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center bg-ui-lightGray/20 p-3 md:p-0 border md:border-0 border-ui-lightSlate rounded-none">
                         <div className="col-span-7">
                           <input 
                             type="text" 
                             placeholder="Item description / Service scope..."
                             value={row.description}
                             onChange={(e) => handleBuilderRowChange(index, "description", e.target.value)}
-                            className="w-full border border-[#DCDBCF] bg-white rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
+                            className="w-full border border-ui-lightSlate bg-white rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
                             required
                           />
                         </div>
@@ -1692,7 +1711,7 @@ export default function Home() {
                             min="1"
                             value={row.qty}
                             onChange={(e) => handleBuilderRowChange(index, "qty", parseInt(e.target.value) || 1)}
-                            className="w-full border border-[#DCDBCF] bg-white rounded-none p-3 text-xs text-center font-mono font-bold focus:outline-none"
+                            className="w-full border border-ui-lightSlate bg-white rounded-none p-3 text-xs text-center font-mono font-bold focus:outline-none"
                             required
                           />
                         </div>
@@ -1704,7 +1723,7 @@ export default function Home() {
                             placeholder="0.00"
                             value={row.rate || ""}
                             onChange={(e) => handleBuilderRowChange(index, "rate", parseFloat(e.target.value) || 0)}
-                            className="w-full border border-[#DCDBCF] bg-white rounded-none p-3 text-xs text-right font-mono font-bold focus:outline-none"
+                            className="w-full border border-ui-lightSlate bg-white rounded-none p-3 text-xs text-right font-mono font-bold focus:outline-none"
                             required
                           />
                         </div>
@@ -1724,7 +1743,7 @@ export default function Home() {
                 </div>
 
                 {/* Subtotals & Notes */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-4 border-t border-[#DCDBCF]">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-4 border-t border-ui-lightSlate">
                   <div className="md:col-span-8 space-y-2">
                     <label className="block text-[9px] font-mono font-bold uppercase tracking-wider text-slate-500">Terms & Notes</label>
                     <textarea 
@@ -1732,10 +1751,10 @@ export default function Home() {
                       value={builderNotes}
                       onChange={(e) => setBuilderNotes(e.target.value)}
                       rows={3}
-                      className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs focus:outline-none focus:border-black"
+                      className="w-full border border-ui-lightSlate rounded-none p-3 text-xs focus:outline-none focus:border-black"
                     />
                   </div>
-                  <div className="md:col-span-4 bg-[#FAF9F5] p-6 border border-[#DCDBCF] space-y-3 font-medium rounded-none">
+                  <div className="md:col-span-4 bg-ui-lightGray p-6 border border-ui-lightSlate space-y-3 font-medium rounded-none">
                     <div className="flex justify-between text-xs text-slate-500">
                       <span>Subtotal:</span>
                       <span className="font-bold font-mono text-slate-700">
@@ -1746,7 +1765,7 @@ export default function Home() {
                       <span>VAT (VAT Exempt):</span>
                       <span className="font-bold font-mono text-slate-400">R 0.00</span>
                     </div>
-                    <div className="flex justify-between border-t border-[#DCDBCF] pt-3 text-sm text-slate-900 font-extrabold">
+                    <div className="flex justify-between border-t border-ui-lightSlate pt-3 text-sm text-slate-900 font-extrabold">
                       <span>Total Value:</span>
                       <span className="font-mono text-base text-slate-900">
                         {settings.currency} {builderRows.reduce((a, b) => a + (b.qty * b.rate), 0).toFixed(2)}
@@ -1759,8 +1778,8 @@ export default function Home() {
                 <div className="flex gap-4 justify-end">
                   <button 
                     type="button" 
-                    onClick={() => setActiveView("dashboard")}
-                    className="border border-[#DCDBCF] hover:bg-[#FAF9F5] text-slate-700 font-mono font-bold uppercase tracking-wider px-6 py-3 rounded-none transition text-xs"
+                    onClick={() => { setActiveView("dashboard"); setIsMobileMenuOpen(false); }}
+                    className="border border-ui-lightSlate hover:bg-ui-lightGray text-slate-700 font-mono font-bold uppercase tracking-wider px-6 py-3 rounded-none transition text-xs"
                   >
                     Cancel
                   </button>
@@ -1780,7 +1799,7 @@ export default function Home() {
         {activeView === "invoice-maker" && (
           <div className="space-y-8 animate-fadeIn">
             
-            <div className="border-b border-[#DCDBCF] pb-4">
+            <div className="border-b border-ui-lightSlate pb-4">
               <h1 className="text-2xl font-bold tracking-tight text-[#111111] uppercase">Quick Invoice Maker</h1>
               <p className="text-[#6E6C5F] text-xs font-medium mt-1">Generate a quick PDF invoice on-the-fly without saving to CRM database.</p>
             </div>
@@ -1788,7 +1807,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               
               {/* Form Input Editor (Exact fields from prototype layout) */}
-              <div className="bg-white border border-[#DCDBCF] p-6 rounded-none lg:col-span-5 space-y-6">
+              <div className="bg-white border border-ui-lightSlate p-6 rounded-none lg:col-span-5 space-y-6">
                 
                 {/* 1. Style & Brand */}
                 <div className="space-y-4">
@@ -1800,7 +1819,7 @@ export default function Home() {
                         type="color" 
                         value={makerAccentColor}
                         onChange={(e) => setMakerAccentColor(e.target.value)}
-                        className="w-full h-10 border border-[#DCDBCF] rounded-none cursor-pointer p-0.5 bg-white focus:outline-none"
+                        className="w-full h-10 border border-ui-lightSlate rounded-none cursor-pointer p-0.5 bg-white focus:outline-none"
                       />
                     </div>
                     <div>
@@ -1808,7 +1827,7 @@ export default function Home() {
                       <select 
                         value={makerCurrency}
                         onChange={(e) => setMakerCurrency(e.target.value)}
-                        className="w-full border border-[#DCDBCF] bg-[#FAF9F5]/40 rounded-none p-3 text-xs font-mono font-bold focus:outline-none"
+                        className="w-full border border-ui-lightSlate bg-ui-lightGray/40 rounded-none p-3 text-xs font-mono font-bold focus:outline-none"
                       >
                         <option value="R">R (ZAR)</option>
                         <option value="$">$ (USD)</option>
@@ -1829,7 +1848,7 @@ export default function Home() {
                         type="text" 
                         value={makerCompany}
                         onChange={(e) => setMakerCompany(e.target.value)}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
                       />
                     </div>
                     <div>
@@ -1838,7 +1857,7 @@ export default function Home() {
                         value={makerAddress}
                         onChange={(e) => setMakerAddress(e.target.value)}
                         rows={2}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
                       />
                     </div>
                   </div>
@@ -1854,7 +1873,7 @@ export default function Home() {
                         type="text" 
                         value={makerClient}
                         onChange={(e) => setMakerClient(e.target.value)}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
                       />
                     </div>
                     <div>
@@ -1863,7 +1882,7 @@ export default function Home() {
                         value={makerClientAddress}
                         onChange={(e) => setMakerClientAddress(e.target.value)}
                         rows={2}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black"
                       />
                     </div>
                   </div>
@@ -1879,7 +1898,7 @@ export default function Home() {
                         type="text" 
                         value={makerInvNumber}
                         onChange={(e) => setMakerInvNumber(e.target.value)}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-mono font-bold focus:outline-none"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-mono font-bold focus:outline-none"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -1889,7 +1908,7 @@ export default function Home() {
                           type="date" 
                           value={makerDate}
                           onChange={(e) => setMakerDate(e.target.value)}
-                          className="w-full border border-[#DCDBCF] rounded-none p-2.5 text-xs font-mono focus:outline-none"
+                          className="w-full border border-ui-lightSlate rounded-none p-2.5 text-xs font-mono focus:outline-none"
                         />
                       </div>
                       <div>
@@ -1898,7 +1917,7 @@ export default function Home() {
                           type="date" 
                           value={makerDueDate}
                           onChange={(e) => setMakerDueDate(e.target.value)}
-                          className="w-full border border-[#DCDBCF] rounded-none p-2.5 text-xs font-mono focus:outline-none"
+                          className="w-full border border-ui-lightSlate rounded-none p-2.5 text-xs font-mono focus:outline-none"
                         />
                       </div>
                     </div>
@@ -1914,28 +1933,28 @@ export default function Home() {
                       placeholder="Bank Name"
                       value={makerBank}
                       onChange={(e) => setMakerBank(e.target.value)}
-                      className="w-full border border-[#DCDBCF] rounded-none p-2.5 text-xs focus:outline-none"
+                      className="w-full border border-ui-lightSlate rounded-none p-2.5 text-xs focus:outline-none"
                     />
                     <input 
                       type="text" 
                       placeholder="Account Name"
                       value={makerAccount}
                       onChange={(e) => setMakerAccount(e.target.value)}
-                      className="w-full border border-[#DCDBCF] rounded-none p-2.5 text-xs focus:outline-none"
+                      className="w-full border border-ui-lightSlate rounded-none p-2.5 text-xs focus:outline-none"
                     />
                     <input 
                       type="text" 
                       placeholder="Account Number"
                       value={makerAccountNumber}
                       onChange={(e) => setMakerAccountNumber(e.target.value)}
-                      className="w-full border border-[#DCDBCF] rounded-none p-2.5 text-xs font-mono focus:outline-none"
+                      className="w-full border border-ui-lightSlate rounded-none p-2.5 text-xs font-mono focus:outline-none"
                     />
                     <input 
                       type="text" 
                       placeholder="Branch Code"
                       value={makerBranch}
                       onChange={(e) => setMakerBranch(e.target.value)}
-                      className="w-full border border-[#DCDBCF] rounded-none p-2.5 text-xs font-mono focus:outline-none"
+                      className="w-full border border-ui-lightSlate rounded-none p-2.5 text-xs font-mono focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1961,7 +1980,7 @@ export default function Home() {
                           placeholder="Description"
                           value={row.description}
                           onChange={(e) => handleMakerRowChange(idx, "description", e.target.value)}
-                          className="flex-grow border border-[#DCDBCF] rounded-none p-2.5 text-xs font-semibold focus:outline-none"
+                          className="flex-grow border border-ui-lightSlate rounded-none p-2.5 text-xs font-semibold focus:outline-none"
                         />
                         <input 
                           type="number" 
@@ -1969,7 +1988,7 @@ export default function Home() {
                           placeholder="Amount"
                           value={row.rate || ""}
                           onChange={(e) => handleMakerRowChange(idx, "rate", parseFloat(e.target.value) || 0)}
-                          className="w-28 border border-[#DCDBCF] rounded-none p-2.5 text-xs text-right font-mono font-semibold focus:outline-none"
+                          className="w-28 border border-ui-lightSlate rounded-none p-2.5 text-xs text-right font-mono font-semibold focus:outline-none"
                         />
                         <button 
                           type="button" 
@@ -1988,7 +2007,7 @@ export default function Home() {
                   <button 
                     type="button" 
                     onClick={generateMakerPdf}
-                    className="w-full bg-[#C6A052] hover:bg-[#B38E45] text-slate-955 text-xs font-mono font-bold uppercase tracking-wider py-3.5 flex items-center justify-center gap-2 rounded-none transition"
+                    className="w-full bg-brand-orange hover:bg-[#B38E45] text-slate-955 text-xs font-mono font-bold uppercase tracking-wider py-3.5 flex items-center justify-center gap-2 rounded-none transition"
                   >
                     <i className="fa-solid fa-file-pdf"></i>
                     <span>Download PDF Invoice</span>
@@ -1999,19 +2018,19 @@ export default function Home() {
 
               {/* Dynamic Live Print Preview */}
               <div className="lg:col-span-7 flex flex-col gap-4">
-                <div className="flex justify-between items-center bg-[#1E1D19] text-white rounded-none p-4 border border-[#2C2B25] print-hide">
+                <div className="flex justify-between items-center bg-brand-navy text-white rounded-none p-4 border border-brand-lightNavy print-hide">
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">A4 Live Print Sheet</span>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => window.print()}
-                      className="bg-[#2C2B25] hover:bg-[#3C3A33] border border-[#3C3A33] text-white text-xs font-mono font-bold uppercase tracking-wider px-4 py-2.5 rounded-none flex items-center gap-1.5 shadow-none"
+                      className="bg-brand-lightNavy hover:bg-[#3C3A33] border border-[#3C3A33] text-white text-xs font-mono font-bold uppercase tracking-wider px-4 py-2.5 rounded-none flex items-center gap-1.5 shadow-none"
                     >
                       <i className="fa-solid fa-print"></i>
                       <span>Print Page</span>
                     </button>
                     <button 
                       onClick={generateMakerPdf}
-                      className="bg-[#C6A052] hover:bg-[#B38E45] text-slate-950 text-xs font-mono font-bold uppercase tracking-wider px-4 py-2.5 rounded-none flex items-center gap-1.5 shadow-none"
+                      className="bg-brand-orange hover:bg-[#B38E45] text-slate-950 text-xs font-mono font-bold uppercase tracking-wider px-4 py-2.5 rounded-none flex items-center gap-1.5 shadow-none"
                     >
                       <i className="fa-solid fa-file-pdf"></i>
                       <span>Download PDF</span>
@@ -2021,7 +2040,7 @@ export default function Home() {
 
                 <div 
                   id="maker-print-template" 
-                  className="bg-white border border-[#DCDBCF] rounded-none p-8 md:p-12 shadow-none relative font-sans print:border-none print:shadow-none"
+                  className="bg-white border border-ui-lightSlate rounded-none p-8 md:p-12 shadow-none relative font-sans print:border-none print:shadow-none"
                   style={{ borderTop: `6px solid ${makerAccentColor}` }}
                 >
                   <div className="flex justify-between items-start">
@@ -2093,7 +2112,7 @@ export default function Home() {
                   </div>
 
                   {/* Bank EFT Instructions */}
-                  <div className="mt-12 bg-[#FAF9F5] p-6 rounded-none border border-[#DCDBCF] space-y-2 text-xs">
+                  <div className="mt-12 bg-ui-lightGray p-6 rounded-none border border-ui-lightSlate space-y-2 text-xs">
                     <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-1">EFT PAYMENT INSTRUCTIONS</span>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 font-medium text-slate-500 font-mono">
                       <div>Bank Name: <span className="font-bold text-slate-700">{makerBank}</span></div>
@@ -2116,12 +2135,12 @@ export default function Home() {
         {/* ================= VIEW 5: SETTINGS ================= */}
         {activeView === "settings" && (
           <div className="space-y-8 animate-fadeIn max-w-3xl">
-            <div className="border-b border-[#DCDBCF] pb-4">
+            <div className="border-b border-ui-lightSlate pb-4">
               <h1 className="text-2xl font-bold tracking-tight text-[#111111] uppercase">System Settings</h1>
               <p className="text-[#6E6C5F] text-xs font-medium mt-1">Configure corporate branding metadata and banking targets.</p>
             </div>
 
-            <div className="bg-white border border-[#DCDBCF] p-6 md:p-8 rounded-none">
+            <div className="bg-white border border-ui-lightSlate p-6 md:p-8 rounded-none">
               <form 
                 onSubmit={async (e) => {
                   e.preventDefault();
@@ -2146,7 +2165,7 @@ export default function Home() {
                 className="space-y-8"
               >
                 <div>
-                  <h3 className="text-[10px] font-mono font-bold uppercase text-[#C6A052] tracking-wider border-b border-[#FAF9F5] pb-2 mb-4">Business Details</h3>
+                  <h3 className="text-[10px] font-mono font-bold uppercase text-brand-orange tracking-wider border-b border-[#FAF9F5] pb-2 mb-4">Business Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[9px] font-mono font-bold uppercase text-slate-500 mb-1.5">Company Name</label>
@@ -2154,7 +2173,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.company_name}
                         onChange={(e) => setSettingsForm({ ...settingsForm, company_name: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
                         required
                       />
                     </div>
@@ -2164,7 +2183,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.contact_name}
                         onChange={(e) => setSettingsForm({ ...settingsForm, contact_name: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
                         required
                       />
                     </div>
@@ -2174,7 +2193,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.company_address}
                         onChange={(e) => setSettingsForm({ ...settingsForm, company_address: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
                         required
                       />
                     </div>
@@ -2184,7 +2203,7 @@ export default function Home() {
                         type="email" 
                         value={settingsForm.email}
                         onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
                         required
                       />
                     </div>
@@ -2194,7 +2213,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.phone}
                         onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
                         required
                       />
                     </div>
@@ -2202,7 +2221,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] font-mono font-bold uppercase text-[#C6A052] tracking-wider border-b border-[#FAF9F5] pb-2 mb-4">EFT & PayShap Details</h3>
+                  <h3 className="text-[10px] font-mono font-bold uppercase text-brand-orange tracking-wider border-b border-[#FAF9F5] pb-2 mb-4">EFT & PayShap Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[9px] font-mono font-bold uppercase text-slate-500 mb-1.5">Bank Name</label>
@@ -2210,7 +2229,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.bank_name}
                         onChange={(e) => setSettingsForm({ ...settingsForm, bank_name: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
                         required
                       />
                     </div>
@@ -2220,7 +2239,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.account_name}
                         onChange={(e) => setSettingsForm({ ...settingsForm, account_name: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
                         required
                       />
                     </div>
@@ -2230,7 +2249,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.account_number}
                         onChange={(e) => setSettingsForm({ ...settingsForm, account_number: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-mono font-bold focus:outline-none bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-mono font-bold focus:outline-none bg-white"
                         required
                       />
                     </div>
@@ -2240,7 +2259,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.branch_code}
                         onChange={(e) => setSettingsForm({ ...settingsForm, branch_code: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-mono font-bold focus:outline-none bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-mono font-bold focus:outline-none bg-white"
                         required
                       />
                     </div>
@@ -2250,7 +2269,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.payshap_id}
                         onChange={(e) => setSettingsForm({ ...settingsForm, payshap_id: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold focus:outline-none focus:border-black bg-white"
                         required
                       />
                     </div>
@@ -2258,7 +2277,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] font-mono font-bold uppercase text-[#C6A052] tracking-wider border-b border-[#FAF9F5] pb-2 mb-4">Localization & Theme Color</h3>
+                  <h3 className="text-[10px] font-mono font-bold uppercase text-brand-orange tracking-wider border-b border-[#FAF9F5] pb-2 mb-4">Localization & Theme Color</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[9px] font-mono font-bold uppercase text-slate-500 mb-1.5">Currency Prefix</label>
@@ -2266,7 +2285,7 @@ export default function Home() {
                         type="text" 
                         value={settingsForm.currency}
                         onChange={(e) => setSettingsForm({ ...settingsForm, currency: e.target.value })}
-                        className="w-full border border-[#DCDBCF] rounded-none p-3 text-xs font-semibold text-center focus:outline-none bg-white"
+                        className="w-full border border-ui-lightSlate rounded-none p-3 text-xs font-semibold text-center focus:outline-none bg-white"
                         required
                       />
                     </div>
@@ -2277,7 +2296,7 @@ export default function Home() {
                           type="color" 
                           value={settingsForm.accent_color}
                           onChange={(e) => setSettingsForm({ ...settingsForm, accent_color: e.target.value })}
-                          className="h-10 w-16 border border-[#DCDBCF] cursor-pointer rounded-none bg-white"
+                          className="h-10 w-16 border border-ui-lightSlate cursor-pointer rounded-none bg-white"
                         />
                         <span className="font-mono text-xs text-slate-500 font-bold">{settingsForm.accent_color}</span>
                       </div>
@@ -2285,11 +2304,11 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3 border-t border-[#DCDBCF] pt-6">
+                <div className="flex justify-end gap-3 border-t border-ui-lightSlate pt-6">
                   <button 
                     type="button" 
-                    onClick={() => setActiveView("dashboard")}
-                    className="border border-[#DCDBCF] hover:bg-[#FAF9F5] text-slate-700 font-mono font-bold uppercase tracking-wider px-6 py-2.5 rounded-none transition text-xs"
+                    onClick={() => { setActiveView("dashboard"); setIsMobileMenuOpen(false); }}
+                    className="border border-ui-lightSlate hover:bg-ui-lightGray text-slate-700 font-mono font-bold uppercase tracking-wider px-6 py-2.5 rounded-none transition text-xs"
                   >
                     Cancel
                   </button>
@@ -2309,7 +2328,7 @@ export default function Home() {
         {activeView === "client" && (
           <div className="space-y-8 animate-fadeIn">
             
-            <div className="bg-[#FAF9F5] text-slate-900 p-5 rounded-none border border-[#DCDBCF] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print-hide">
+            <div className="bg-ui-lightGray text-slate-900 p-5 rounded-none border border-ui-lightSlate flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print-hide">
               <div className="flex-grow">
                 <h2 className="font-bold text-xs uppercase font-mono tracking-wider flex items-center gap-2">
                   <i className="fa-solid fa-display"></i> Sandbox Client View Mode
@@ -2329,7 +2348,7 @@ export default function Home() {
                       setSimSignedName("");
                       setSimSignedCheckbox(false);
                     }}
-                    className="bg-white text-slate-900 font-bold text-xs p-2 border border-[#DCDBCF] focus:outline-none rounded-none"
+                    className="bg-white text-slate-900 font-bold text-xs p-2 border border-ui-lightSlate focus:outline-none rounded-none"
                   >
                     {quotes.map(q => {
                       const client = clients.find(c => c.id === q.client_id);
@@ -2363,15 +2382,15 @@ export default function Home() {
 
                   <button 
                     onClick={generateOpsPdf}
-                    className="bg-[#C6A052] hover:bg-[#B38E45] text-slate-950 px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 rounded-none"
+                    className="bg-brand-orange hover:bg-[#B38E45] text-slate-950 px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 rounded-none"
                   >
                     <i className="fa-solid fa-file-pdf"></i>
                     <span>Download PDF</span>
                   </button>
 
                   <button 
-                    onClick={() => setActiveView("dashboard")}
-                    className="bg-slate-800 hover:bg-[#25241F] text-white px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 rounded-none"
+                    onClick={() => { setActiveView("dashboard"); setIsMobileMenuOpen(false); }}
+                    className="bg-slate-800 hover:bg-brand-lightNavy text-white px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 rounded-none"
                   >
                     <i className="fa-solid fa-arrow-left"></i>
                     <span>Exit Sandbox</span>
@@ -2394,7 +2413,7 @@ export default function Home() {
                   <div className="lg:col-span-8 flex flex-col gap-6">
                     <div 
                       id="client-invoice-card" 
-                      className="bg-white border border-[#DCDBCF] rounded-none p-8 md:p-12 relative font-sans shadow-none overflow-hidden"
+                      className="bg-white border border-ui-lightSlate rounded-none p-8 md:p-12 relative font-sans shadow-none overflow-hidden"
                       style={{ borderTop: `8px solid ${settings.accent_color}` }}
                     >
                       {/* Floating Watermark/Badge for simulator status if quote is already converted */}
@@ -2510,7 +2529,7 @@ export default function Home() {
                       </div>
 
                       {isAccepted ? (
-                        <div className="mt-10 bg-[#FAF9F5] border border-[#DCDBCF] p-6 space-y-3 text-xs">
+                        <div className="mt-10 bg-ui-lightGray border border-ui-lightSlate p-6 space-y-3 text-xs">
                           <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-1">
                             EFT BANKING INSTRUCTIONS
                           </span>
@@ -2519,14 +2538,14 @@ export default function Home() {
                             <div>Holder: <span className="font-bold text-slate-700">{settings.account_name}</span></div>
                             <div>Account: <span className="font-bold text-slate-700">{settings.account_number}</span></div>
                             <div>Branch: <span className="font-bold text-slate-700">{settings.branch_code}</span></div>
-                            <div className="col-span-2 mt-2 pt-2 border-t border-[#DCDBCF]/60">
+                            <div className="col-span-2 mt-2 pt-2 border-t border-ui-lightSlate/60">
                               PayShap Cell / ID: <span className="font-bold text-slate-700">{settings.payshap_id}</span>
                             </div>
                           </div>
                         </div>
                       ) : (
                         quote.notes && (
-                          <div className="mt-8 bg-[#FAF9F5] p-4 border border-[#DCDBCF] text-xs leading-relaxed text-slate-500 rounded-none font-medium">
+                          <div className="mt-8 bg-ui-lightGray p-4 border border-ui-lightSlate text-xs leading-relaxed text-slate-500 rounded-none font-medium">
                             <span className="font-bold text-slate-700 block mb-1">Terms & Notes:</span>
                             {quote.notes}
                           </div>
@@ -2541,7 +2560,7 @@ export default function Home() {
 
                   <div className="lg:col-span-4 space-y-6">
                     {!isAccepted && quote.status !== "declined" ? (
-                      <div className="bg-white border border-[#DCDBCF] p-6 space-y-4 rounded-none">
+                      <div className="bg-white border border-ui-lightSlate p-6 space-y-4 rounded-none">
                         <h3 className="font-bold text-[#111111] text-xs uppercase tracking-wide">Approve Proposal</h3>
                         <p className="text-xs text-slate-500 leading-relaxed font-medium">
                           Accepting this proposal generates a tax invoice dynamically in our backend ledger.
@@ -2554,7 +2573,7 @@ export default function Home() {
                             placeholder="Type full legal name..."
                             value={simSignedName}
                             onChange={(e) => setSimSignedName(e.target.value)}
-                            className="w-full border border-[#DCDBCF] p-2.5 text-xs font-semibold focus:outline-none rounded-none focus:border-black"
+                            className="w-full border border-ui-lightSlate p-2.5 text-xs font-semibold focus:outline-none rounded-none focus:border-black"
                           />
                         </div>
 
@@ -2585,7 +2604,7 @@ export default function Home() {
                         </button>
                       </div>
                     ) : quote.status === "declined" ? (
-                      <div className="bg-white border border-[#DCDBCF] p-6 text-center space-y-3 rounded-none">
+                      <div className="bg-white border border-ui-lightSlate p-6 text-center space-y-3 rounded-none">
                         <div className="w-12 h-12 rounded-none bg-rose-50 text-rose-600 flex items-center justify-center mx-auto text-xl border border-rose-200">
                           <i className="fa-solid fa-circle-xmark"></i>
                         </div>
@@ -2604,7 +2623,7 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-white border border-[#DCDBCF] p-6 text-center space-y-3 rounded-none">
+                      <div className="bg-white border border-ui-lightSlate p-6 text-center space-y-3 rounded-none">
                         <div className="w-12 h-12 rounded-none bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-xl border border-emerald-200">
                           <i className="fa-solid fa-circle-check"></i>
                         </div>
@@ -2639,7 +2658,7 @@ export default function Home() {
       {/* ================= MODAL: ADD CLIENT (For Quote Builder) ================= */}
       {showBuilderAddClientModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn">
-          <div className="bg-white border border-[#DCDBCF] w-full max-w-lg rounded-none p-6 md:p-8 space-y-6 shadow-2xl">
+          <div className="bg-white border border-ui-lightSlate w-full max-w-lg rounded-none p-6 md:p-8 space-y-6 shadow-2xl">
             <div className="flex justify-between items-center border-b border-[#FAF9F5] pb-3">
               <div>
                 <h3 className="font-bold text-[#111111] text-sm uppercase tracking-wider">New Client Profile</h3>
@@ -2663,7 +2682,7 @@ export default function Home() {
                     placeholder="e.g. Acme Corp" 
                     value={newClientName}
                     onChange={(e) => setNewClientName(e.target.value)}
-                    className="w-full bg-white border border-[#DCDBCF] p-2.5 text-xs focus:outline-none focus:border-black font-semibold rounded-none"
+                    className="w-full bg-white border border-ui-lightSlate p-2.5 text-xs focus:outline-none focus:border-black font-semibold rounded-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -2673,7 +2692,7 @@ export default function Home() {
                     placeholder="e.g. AC (Auto if blank)" 
                     value={newClientPrefix}
                     onChange={(e) => setNewClientPrefix(e.target.value)}
-                    className="w-full bg-white border border-[#DCDBCF] p-2.5 text-xs focus:outline-none focus:border-black font-mono font-bold rounded-none"
+                    className="w-full bg-white border border-ui-lightSlate p-2.5 text-xs focus:outline-none focus:border-black font-mono font-bold rounded-none"
                   />
                 </div>
               </div>
@@ -2686,7 +2705,7 @@ export default function Home() {
                     placeholder="e.g. John Doe" 
                     value={newClientContactName}
                     onChange={(e) => setNewClientContactName(e.target.value)}
-                    className="w-full bg-white border border-[#DCDBCF] p-2.5 text-xs focus:outline-none focus:border-black font-semibold rounded-none"
+                    className="w-full bg-white border border-ui-lightSlate p-2.5 text-xs focus:outline-none focus:border-black font-semibold rounded-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -2697,7 +2716,7 @@ export default function Home() {
                     placeholder="e.g. john@acme.com" 
                     value={newClientEmail}
                     onChange={(e) => setNewClientEmail(e.target.value)}
-                    className="w-full bg-white border border-[#DCDBCF] p-2.5 text-xs focus:outline-none focus:border-black font-semibold rounded-none"
+                    className="w-full bg-white border border-ui-lightSlate p-2.5 text-xs focus:outline-none focus:border-black font-semibold rounded-none"
                   />
                 </div>
               </div>
@@ -2709,7 +2728,7 @@ export default function Home() {
                   placeholder="e.g. +27 82 123 4567" 
                   value={newClientPhone}
                   onChange={(e) => setNewClientPhone(e.target.value)}
-                  className="w-full bg-white border border-[#DCDBCF] p-2.5 text-xs focus:outline-none focus:border-black font-semibold rounded-none"
+                  className="w-full bg-white border border-ui-lightSlate p-2.5 text-xs focus:outline-none focus:border-black font-semibold rounded-none"
                 />
               </div>
 
@@ -2720,7 +2739,7 @@ export default function Home() {
                   placeholder="e.g. 123 Main Rd, Cape Town, 8001" 
                   value={newClientAddress}
                   onChange={(e) => setNewClientAddress(e.target.value)}
-                  className="w-full bg-white border border-[#DCDBCF] p-2.5 text-xs focus:outline-none focus:border-black resize-none font-semibold rounded-none"
+                  className="w-full bg-white border border-ui-lightSlate p-2.5 text-xs focus:outline-none focus:border-black resize-none font-semibold rounded-none"
                 />
               </div>
 
@@ -2728,7 +2747,7 @@ export default function Home() {
                 <button 
                   type="button" 
                   onClick={() => setShowBuilderAddClientModal(false)}
-                  className="w-1/2 border border-[#DCDBCF] hover:bg-[#FAF9F5] text-slate-700 font-mono font-bold uppercase tracking-wider py-3 text-xs transition rounded-none"
+                  className="w-1/2 border border-ui-lightSlate hover:bg-ui-lightGray text-slate-700 font-mono font-bold uppercase tracking-wider py-3 text-xs transition rounded-none"
                 >
                   Cancel
                 </button>

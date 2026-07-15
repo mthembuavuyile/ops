@@ -79,20 +79,20 @@ export default function Register() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FAF9F5] flex items-center justify-center p-4 relative font-sans text-slate-800">
-      <div className="w-full max-w-md bg-white border border-[#DCDBCF] p-8 md:p-10 rounded-none space-y-8">
+    <main className="min-h-screen bg-ui-lightGray flex items-center justify-center p-4 relative font-sans text-slate-800">
+      <div className="w-full max-w-md bg-white border border-ui-lightSlate p-8 md:p-10 rounded-none space-y-8">
         
         {/* Brand Header */}
         <div className="text-center">
           <Link href="/" className="text-2xl font-bold tracking-widest text-[#111111] uppercase block">
-            VYLEX <span className="text-[#C6A052]">OPS</span>
+            VYLEX <span className="text-brand-orange">OPS</span>
           </Link>
           <h2 className="text-sm font-mono font-bold uppercase tracking-wider mt-4 text-[#111111]">Register Account</h2>
           <p className="text-slate-500 text-xs mt-1">Start running your B2B billing and client workflow.</p>
         </div>
 
         {errorMsg && (
-          <div className="bg-[#FAF8EE] border border-[#E3DFCA] text-[#705E32] text-xs font-mono p-3.5 rounded-none flex items-center gap-2">
+          <div className="bg-ui-white border border-ui-lightSlate text-ui-darkGray text-xs font-mono p-3.5 rounded-none flex items-center gap-2">
             <span>{errorMsg}</span>
           </div>
         )}
@@ -110,7 +110,7 @@ export default function Register() {
                 placeholder="Apex Technologies"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full bg-white border border-[#DCDBCF] rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
+                className="w-full bg-white border border-ui-lightSlate rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
                 required
               />
             </div>
@@ -127,7 +127,7 @@ export default function Register() {
                 placeholder="owner@company.co.za"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-white border border-[#DCDBCF] rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
+                className="w-full bg-white border border-ui-lightSlate rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
                 required
               />
             </div>
@@ -144,7 +144,7 @@ export default function Register() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-white border border-[#DCDBCF] rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
+                className="w-full bg-white border border-ui-lightSlate rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
                 required
               />
             </div>
@@ -162,7 +162,7 @@ export default function Register() {
 
         <div className="text-center text-xs font-mono font-bold uppercase tracking-wider text-slate-500 pt-2 border-t border-[#EAE9E2]">
           <span>Already have an account? </span>
-          <Link href="/login" className="text-[#C6A052] hover:underline">Log in</Link>
+          <Link href="/login" className="text-brand-orange hover:underline">Log in</Link>
         </div>
 
       </div>

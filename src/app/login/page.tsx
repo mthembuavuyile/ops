@@ -51,20 +51,20 @@ export default function Login() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FAF9F5] flex items-center justify-center p-4 relative font-sans text-slate-800">
-      <div className="w-full max-w-md bg-white border border-[#DCDBCF] p-8 md:p-10 rounded-none space-y-8">
+    <main className="min-h-screen bg-ui-lightGray flex items-center justify-center p-4 relative font-sans text-slate-800">
+      <div className="w-full max-w-md bg-white border border-ui-lightSlate p-8 md:p-10 rounded-none space-y-8">
         
         {/* Brand Header */}
         <div className="text-center">
           <Link href="/" className="text-2xl font-bold tracking-widest text-[#111111] uppercase block">
-            VYLEX <span className="text-[#C6A052]">OPS</span>
+            VYLEX <span className="text-brand-orange">OPS</span>
           </Link>
           <h2 className="text-sm font-mono font-bold uppercase tracking-wider mt-4 text-[#111111]">Login Workspace</h2>
           <p className="text-slate-500 text-xs mt-1">Access client billing automation ledger.</p>
         </div>
 
         {errorMsg && (
-          <div className="bg-[#FAF8EE] border border-[#E3DFCA] text-[#705E32] text-xs font-mono p-3.5 rounded-none flex items-center gap-2">
+          <div className="bg-ui-white border border-ui-lightSlate text-ui-darkGray text-xs font-mono p-3.5 rounded-none flex items-center gap-2">
             <span>{errorMsg}</span>
           </div>
         )}
@@ -81,7 +81,7 @@ export default function Login() {
                 placeholder="avuyile@vylex.co.za"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-white border border-[#DCDBCF] rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
+                className="w-full bg-white border border-ui-lightSlate rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
                 required
               />
             </div>
@@ -90,7 +90,7 @@ export default function Login() {
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
               <label className="block text-[9px] font-mono font-bold uppercase tracking-wider text-slate-500">Password</label>
-              <a href="#" className="text-[9px] font-mono font-bold text-[#C6A052] uppercase tracking-wider hover:underline">Forgot password?</a>
+              <a href="#" className="text-[9px] font-mono font-bold text-brand-orange uppercase tracking-wider hover:underline">Forgot password?</a>
             </div>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-xs">
@@ -101,7 +101,7 @@ export default function Login() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-white border border-[#DCDBCF] rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
+                className="w-full bg-white border border-ui-lightSlate rounded-none pl-9 pr-3 py-3 text-xs font-mono font-bold focus:outline-none focus:border-black text-slate-900"
                 required
               />
             </div>
@@ -119,7 +119,7 @@ export default function Login() {
 
         <div className="text-center text-xs font-mono font-bold uppercase tracking-wider text-slate-500 pt-2 border-t border-[#EAE9E2]">
           <span>New to workspace? </span>
-          <Link href="/register" className="text-[#C6A052] hover:underline">Create Account</Link>
+          <Link href="/register" className="text-brand-orange hover:underline">Create Account</Link>
         </div>
 
       </div>
