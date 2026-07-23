@@ -17,9 +17,9 @@ let makerRowId = 0;
 export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerProps) {
   const [accentColor, setAccentColor] = useState(settings.accent_color || "#051b38");
   const [currency, setCurrency] = useState(settings.currency || "R");
-  const [companyName, setCompanyName] = useState(settings.company_name || "Vylex");
+  const [companyName, setCompanyName] = useState(settings.company_name || "My Business");
   const [companyAddress, setCompanyAddress] = useState(settings.company_address || "");
-  const [clientName, setClientName] = useState("Client Name");
+  const [clientName, setClientName] = useState("");
   const [clientAddress, setClientAddress] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("INV-2026-001");
   const [invoiceDate, setInvoiceDate] = useState(todayISO());
@@ -29,9 +29,7 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
   const [accountNumber, setAccountNumber] = useState(settings.account_number || "");
   const [branchCode, setBranchCode] = useState(settings.branch_code || "");
   const [rows, setRows] = useState<MakerRow[]>([
-    { id: ++makerRowId, description: "Mobile App Development (Android)", amount: 6500 },
-    { id: ++makerRowId, description: "Database Maintenance & Backup", amount: 1250 },
-    { id: ++makerRowId, description: "Domain Registration (1 Year)", amount: 200 },
+    { id: ++makerRowId, description: "", amount: 0 },
   ]);
 
   const addRow = () => setRows((prev) => [...prev, { id: ++makerRowId, description: "", amount: 0 }]);

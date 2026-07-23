@@ -49,6 +49,17 @@ export default function QuotesTable({ quotes, clients, currency, onOpenPortal, o
                         <button onClick={() => onOpenPortal(q.id)} className="ops-btn-secondary !py-1 !px-2 !text-[11px] !rounded-md" title="Open Portal Preview">
                           <i className="fa-solid fa-arrow-up-right-from-square" /> Open
                         </button>
+                        <button
+                          onClick={() => {
+                            const link = `${window.location.origin}/portal/quotes/${q.share_token || q.id}`;
+                            navigator.clipboard.writeText(link);
+                            alert("🔗 Unguessable portal link copied to clipboard!");
+                          }}
+                          className="ops-btn-secondary !py-1 !px-2 !text-[11px] !rounded-md"
+                          title="Copy Unguessable Link"
+                        >
+                          <i className="fa-solid fa-link" /> Link
+                        </button>
                         <button onClick={() => onShareWhatsApp("quote", q.id)} className="ops-btn-whatsapp !py-1 !px-2 !text-[11px] !rounded-md" title="Share via WhatsApp">
                           <i className="fa-brands fa-whatsapp" />
                         </button>

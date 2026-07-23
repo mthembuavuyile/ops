@@ -25,7 +25,7 @@ export default function QuotePortal() {
     const allInvoices = getInvoices();
 
     const found = allQuotes.find(
-      (q) => q.id === quoteIdOrNum || q.quote_number === quoteIdOrNum
+      (q) => q.share_token === quoteIdOrNum || q.id === quoteIdOrNum || q.quote_number === quoteIdOrNum
     );
     if (found) {
       setQuote(found);

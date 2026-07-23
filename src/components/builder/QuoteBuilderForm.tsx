@@ -56,6 +56,7 @@ export default function QuoteBuilderForm({ clients, quotes, currency, onSubmit, 
     const newQuote: Quote = {
       id: `q-${Date.now()}`,
       client_id: clientId,
+      share_token: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `tok-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       quote_number: quoteNumber,
       status: "sent",
       issued_at: todayISO(),
@@ -78,12 +79,22 @@ export default function QuoteBuilderForm({ clients, quotes, currency, onSubmit, 
       </div>
 
       <div className="ops-card-padded">
+        {clients.length === 0 && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl text-xs flex items-center justify-between">
+            <span>⚠️ You have no clients added yet. Please add a client from the Clients tab before creating a quote.</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="ops-label">Select Client *</label>
-              <select value={clientId} onChange={(e) => setClientId(e.target.value)} className="ops-input" required>
-                {clients.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.prefix})</option>)}
+              <select value={clientId} onChange={(e) => setClientId(e.target.value)} className="ops-input" required disabled={clients.length === 0}>
+                {clients.length === 0 ? (
+                  <option value="">-- Add a Client First --</option>
+                ) : (
+                  clients.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.prefix})</option>)
+                )}
               </select>
             </div>
             <div>

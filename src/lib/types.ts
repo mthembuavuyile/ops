@@ -23,6 +23,7 @@ export type QuoteStatus = "draft" | "sent" | "accepted" | "declined";
 export interface Quote {
   id: string;
   client_id: string;
+  share_token?: string;
   quote_number: string;
   status: QuoteStatus;
   issued_at: string;

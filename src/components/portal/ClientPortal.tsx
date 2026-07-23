@@ -76,19 +76,32 @@ export default function ClientPortal({
       </div>
 
       {/* Selector */}
-      <div className="flex items-center gap-3 print-hide">
-        <span className="text-xs text-slate-400 font-bold uppercase">Viewing:</span>
-        <select
-          value={activeQuoteId}
-          onChange={(e) => setActiveQuoteId(e.target.value)}
-          className="ops-input !w-auto !text-xs"
-        >
-          {quotes.map((q) => {
-            const c = clients.find((cl) => cl.id === q.client_id);
-            return <option key={q.id} value={q.id}>{q.quote_number} — {c?.name || "Unknown"} ({q.status})</option>;
-          })}
-        </select>
-      </div>
+      {quotes.length > 0 && (
+        <div className="flex items-center gap-3 print-hide">
+          <span className="text-xs text-slate-400 font-bold uppercase">Viewing:</span>
+          <select
+            value={activeQuoteId}
+            onChange={(e) => setActiveQuoteId(e.target.value)}
+            className="ops-input !w-auto !text-xs"
+          >
+            {quotes.map((q) => {
+              const c = clients.find((cl) => cl.id === q.client_id);
+              return <option key={q.id} value={q.id}>{q.quote_number} — {c?.name || "Unknown"} ({q.status})</option>;
+            })}
+          </select>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {(!quote || !client) && (
+        <div className="bg-white rounded-3xl shadow-xl p-12 max-w-4xl mx-auto border border-gray-100 text-center space-y-3">
+          <i className="fa-solid fa-folder-open text-4xl text-slate-300 block" />
+          <h3 className="font-bold text-slate-700 text-lg">No Active Quote to Display</h3>
+          <p className="text-xs text-slate-400 max-w-md mx-auto">
+            Create a quote from the Quote Builder to preview how your clients view and accept quotes in their portal.
+          </p>
+        </div>
+      )}
 
       {/* Document Card */}
       {quote && client && (
