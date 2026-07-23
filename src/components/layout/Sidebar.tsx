@@ -21,8 +21,8 @@ interface NavItem {
 const MAIN_NAV: NavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: "fa-chart-line" },
   { id: "clients", label: "Clients", icon: "fa-users" },
-  { id: "billing", label: "Quotes & Invoices", icon: "fa-file-invoice-dollar" },
   { id: "builder", label: "Create a Quote", icon: "fa-file-signature" },
+  { id: "billing", label: "Quotes & Invoices", icon: "fa-file-invoice-dollar" },
   { id: "invoice-maker", label: "Invoice Maker", icon: "fa-file-invoice" },
   { id: "reminders", label: "Payment Reminders", icon: "fa-clock" },
   { id: "history", label: "History & Credits", icon: "fa-box-archive" },
