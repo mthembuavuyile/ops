@@ -14,19 +14,61 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
 
-    setTimeout(() => {
-      if (password.length < 4) {
-        setErrorMsg("Password must be at least 4 characters.");
-        setLoading(false);
-        return;
-      }
+    if (password.length < 6) {
+      setErrorMsg("Password must be at least 6 characters.");
+      setLoading(false);
+      return;
+    }
 
-      // Create initial settings for the new user
+    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+
+    if (hasSupabaseKey) {
+      try {
+        const { supabase } = await import("@/lib/supabase");
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              company_name: companyName,
+            },
+          },
+        });
+
+        if (error) {
+          setErrorMsg(error.message);
+          setLoading(false);
+          return;
+        }
+
+        const currentSettings = getSettings();
+        saveSettings({
+          ...currentSettings,
+          company_name: companyName,
+          email: email,
+          contact_name: companyName,
+        });
+
+        setSession({
+          name: companyName,
+          email,
+          loggedInAt: new Date().toISOString(),
+        });
+
+        router.push("/");
+        return;
+      } catch (err: any) {
+        console.error("Supabase registration error:", err);
+      }
+    }
+
+    // Local Storage Fallback
+    setTimeout(() => {
       const currentSettings = getSettings();
       const newSettings: Settings = {
         ...currentSettings,

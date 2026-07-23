@@ -12,11 +12,42 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
 
+    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+
+    if (hasSupabaseKey) {
+      try {
+        const { supabase } = await import("@/lib/supabase");
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          setErrorMsg(error.message);
+          setLoading(false);
+          return;
+        }
+
+        if (data.session) {
+          setSession({
+            name: data.user.email?.split("@")[0] || email.split("@")[0],
+            email: data.user.email || email,
+            loggedInAt: new Date().toISOString(),
+          });
+          router.push("/");
+          return;
+        }
+      } catch (err: any) {
+        console.error("Supabase login error:", err);
+      }
+    }
+
+    // Local Storage Fallback
     setTimeout(() => {
       if (email.includes("@") && password.length >= 4) {
         setSession({
