@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import type { AppView } from "@/lib/types";
 
 interface SidebarProps {
@@ -119,6 +120,13 @@ export default function Sidebar({
               <span>{item.label}</span>
             </button>
           ))}
+          <Link
+            href="/landing"
+            className="ops-nav-btn hover:text-slate-900"
+          >
+            <i className="fa-solid fa-globe text-slate-400" />
+            <span>Landing Page</span>
+          </Link>
         </nav>
 
         {/* Footer */}

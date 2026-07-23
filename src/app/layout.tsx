@@ -2,9 +2,22 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ops.vylex.co.za"),
   title: "Vylex Ops | Business Billing & Client Workflow Automation",
   description:
     "The operations and billing tool built for South African service businesses. Run your quoting, invoicing, payment reminders, and client management — all in one place.",
+  alternates: {
+    canonical: "https://ops.vylex.co.za",
+  },
+  openGraph: {
+    title: "Vylex Ops | Business Billing & Client Workflow Automation",
+    description:
+      "The operations and billing tool built for South African service businesses. Run your quoting, invoicing, payment reminders, and client management — all in one place.",
+    url: "https://ops.vylex.co.za",
+    siteName: "Vylex Ops",
+    locale: "en_ZA",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
