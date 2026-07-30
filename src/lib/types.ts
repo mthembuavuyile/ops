@@ -67,6 +67,7 @@ export interface Settings {
   payshap_id: string;
   accent_color: string;
   currency: string;
+  show_verified_badge?: boolean;
 }
 
 export type ReminderTone = "gentle" | "due" | "overdue";
@@ -108,4 +109,15 @@ export interface UserSession {
   name: string;
   email: string;
   loggedInAt: string;
+  isPro?: boolean;
+}
+
+export interface AppBackupData {
+  version: string;
+  exportedAt: string;
+  clients: Client[];
+  quotes: Quote[];
+  invoices: Invoice[];
+  settings: Settings;
+  history: HistoryRecord[];
 }

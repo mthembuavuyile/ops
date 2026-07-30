@@ -7,16 +7,26 @@ interface SettingsFormProps {
   settings: Settings;
   onSave: (settings: Settings) => void;
   onCancel: () => void;
+  onExportBackup?: () => void;
+  onImportBackup?: (jsonStr: string) => void;
 }
 
-export default function SettingsForm({ settings, onSave, onCancel }: SettingsFormProps) {
+export default function SettingsForm({
+  settings,
+  onSave,
+  onCancel,
+  onExportBackup,
+  onImportBackup,
+}: SettingsFormProps) {
   const [form, setForm] = useState<Settings>({ ...settings });
+  const [importText, setImportText] = useState("");
+  const [showImportArea, setShowImportArea] = useState(false);
 
   useEffect(() => {
     setForm({ ...settings });
   }, [settings]);
 
-  const update = (field: keyof Settings, value: string) => {
+  const update = (field: keyof Settings, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -25,11 +35,24 @@ export default function SettingsForm({ settings, onSave, onCancel }: SettingsFor
     onSave(form);
   };
 
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onImportBackup) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        onImportBackup(content);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">Settings & Branding</h1>
-        <p className="text-slate-500 text-sm mt-1">Configure your business profile, banking details, and invoice template styles.</p>
+        <p className="text-slate-500 text-sm mt-1">Configure your business profile, banking details, verified badge, and data backups.</p>
       </div>
 
       <div className="ops-card-padded">
@@ -63,10 +86,10 @@ export default function SettingsForm({ settings, onSave, onCancel }: SettingsFor
             </div>
           </div>
 
-          {/* Branding */}
+          {/* Branding & Account Badges */}
           <div>
             <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-3 mb-4">
-              <i className="fa-solid fa-palette text-slate-300 mr-2" />Branding & Customisation
+              <i className="fa-solid fa-palette text-slate-300 mr-2" />Branding & Account Badges
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
@@ -85,6 +108,53 @@ export default function SettingsForm({ settings, onSave, onCancel }: SettingsFor
                   <option value="€">€ (EUR - Euro)</option>
                 </select>
               </div>
+
+              <div className="md:col-span-2 bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i className="fa-solid fa-shield-check text-emerald-500" />
+                    Display Verified Business Badge on Documents
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    Stamps PDF invoices and quotes with an official business authentication badge.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.show_verified_badge ?? true}
+                    onChange={(e) => update("show_verified_badge", e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Backup & Export Section */}
+          <div className="pt-4 border-t border-slate-200">
+            <h3 className="font-bold text-slate-900 text-lg mb-2 flex items-center gap-2">
+              <i className="fa-solid fa-database text-slate-400" /> Data Backup & Security
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">Export a complete JSON backup of all your clients, quotes, invoices, and settings or restore from a file.</p>
+            
+            <div className="flex flex-wrap gap-3">
+              {onExportBackup && (
+                <button
+                  type="button"
+                  onClick={onExportBackup}
+                  className="ops-btn-secondary !text-xs flex items-center gap-1.5"
+                >
+                  <i className="fa-solid fa-download" /> Export JSON Backup
+                </button>
+              )}
+              {onImportBackup && (
+                <label className="ops-btn-secondary !text-xs cursor-pointer flex items-center gap-1.5">
+                  <i className="fa-solid fa-upload" /> Import JSON Backup
+                  <input type="file" accept=".json" onChange={handleFileImport} className="hidden" />
+                </label>
+              )}
             </div>
           </div>
 

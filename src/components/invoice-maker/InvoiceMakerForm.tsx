@@ -148,7 +148,14 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
             {/* Header */}
             <div className="flex justify-between items-start pb-4">
               <div>
-                <div className="text-2xl font-extrabold tracking-tight" style={{ color: accentColor }}>{companyName.toUpperCase()}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-2xl font-extrabold tracking-tight" style={{ color: accentColor }}>{companyName.toUpperCase()}</div>
+                  {(settings.show_verified_badge ?? true) && (
+                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full" title="Verified Account Document">
+                      <i className="fa-solid fa-shield-check text-emerald-500 text-[10px]" /> Verified
+                    </span>
+                  )}
+                </div>
                 <p className="text-[10px] text-slate-400 mt-1 font-semibold uppercase tracking-wider">Quick Invoice</p>
               </div>
               <div className="text-right">

@@ -182,3 +182,35 @@ export function clearSession(): void {
 export function isLoggedIn(): boolean {
   return getSession() !== null;
 }
+
+// ================= BACKUP & EXPORT =================
+export function exportDataJSON(): string {
+  const backup = {
+    version: "2.0",
+    exportedAt: new Date().toISOString(),
+    clients: getClients(),
+    quotes: getQuotes(),
+    invoices: getInvoices(),
+    settings: getSettings(),
+    history: getHistory(),
+  };
+  return JSON.stringify(backup, null, 2);
+}
+
+export function importDataJSON(jsonStr: string): {
+  clients: Client[];
+  quotes: Quote[];
+  invoices: Invoice[];
+  settings: Settings;
+  history: HistoryRecord[];
+} {
+  const parsed = JSON.parse(jsonStr);
+  const clients = Array.isArray(parsed.clients) ? parsed.clients : getClients();
+  const quotes = Array.isArray(parsed.quotes) ? parsed.quotes : getQuotes();
+  const invoices = Array.isArray(parsed.invoices) ? parsed.invoices : getInvoices();
+  const settings = parsed.settings && typeof parsed.settings === "object" ? { ...getSettings(), ...parsed.settings } : getSettings();
+  const history = Array.isArray(parsed.history) ? parsed.history : getHistory();
+
+  saveAll(clients, quotes, invoices, settings, history);
+  return { clients, quotes, invoices, settings, history };
+}

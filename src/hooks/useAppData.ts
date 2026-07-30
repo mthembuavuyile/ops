@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { Client, Quote, Invoice, Settings, HistoryRecord, AppView, DebtorReminder } from "@/lib/types";
+import type { Client, Quote, Invoice, Settings, HistoryRecord, AppView, DebtorReminder, UserSession } from "@/lib/types";
 import * as db from "@/lib/data";
 
 export interface AppData {
@@ -11,6 +11,10 @@ export interface AppData {
   invoices: Invoice[];
   settings: Settings;
   history: HistoryRecord[];
+
+  // Session
+  session: UserSession | null;
+  logout: () => void;
 
   // Navigation
   activeView: AppView;
@@ -24,13 +28,15 @@ export interface AppData {
   reminder: DebtorReminder;
   setReminder: (r: DebtorReminder) => void;
 
-  // Data mutations
+  // Data mutations & backup
   updateClients: (clients: Client[]) => void;
   updateQuotes: (quotes: Quote[]) => void;
   updateInvoices: (invoices: Invoice[]) => void;
   updateSettings: (settings: Settings) => void;
   updateHistory: (history: HistoryRecord[]) => void;
   resetData: () => void;
+  exportBackup: () => string;
+  importBackup: (jsonStr: string) => boolean;
 
   // Ready state
   ready: boolean;
@@ -38,6 +44,7 @@ export interface AppData {
 
 export function useAppData(): AppData {
   const [ready, setReady] = useState(false);
+  const [session, setSessionState] = useState<UserSession | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -62,7 +69,13 @@ export function useAppData(): AppData {
     setInvoices(data.invoices);
     setSettings(data.settings);
     setHistory(data.history);
+    setSessionState(db.getSession());
     setReady(true);
+  }, []);
+
+  const logout = useCallback(() => {
+    db.clearSession();
+    setSessionState(null);
   }, []);
 
   // Persistence wrappers
@@ -100,12 +113,32 @@ export function useAppData(): AppData {
     setHistory(data.history);
   }, []);
 
+  const exportBackup = useCallback(() => {
+    return db.exportDataJSON();
+  }, []);
+
+  const importBackup = useCallback((jsonStr: string) => {
+    try {
+      const data = db.importDataJSON(jsonStr);
+      setClients(data.clients);
+      setQuotes(data.quotes);
+      setInvoices(data.invoices);
+      setSettings(data.settings);
+      setHistory(data.history);
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
   return {
     clients,
     quotes,
     invoices,
     settings,
     history,
+    session,
+    logout,
     activeView,
     setActiveView,
     activePortalQuoteId,
@@ -118,6 +151,8 @@ export function useAppData(): AppData {
     updateSettings,
     updateHistory,
     resetData,
+    exportBackup,
+    importBackup,
     ready,
   };
 }

@@ -25,10 +25,39 @@ import HistoryTable from "@/components/history/HistoryTable";
 import SettingsForm from "@/components/settings/SettingsForm";
 import ClientPortal from "@/components/portal/ClientPortal";
 
+import GuestBanner from "@/components/layout/GuestBanner";
+
 export default function OpsApp() {
   const app = useAppData();
   const { toasts, showToast, dismissToast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Backup handlers
+  const handleExportBackup = useCallback(() => {
+    const jsonStr = app.exportBackup();
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `vylex_ops_backup_${new Date().toISOString().split("T")[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("📦 Data backup exported successfully!", "success");
+  }, [app, showToast]);
+
+  const handleImportBackup = useCallback((jsonStr: string) => {
+    const ok = app.importBackup(jsonStr);
+    if (ok) {
+      showToast("📥 Backup imported successfully!", "success");
+    } else {
+      showToast("❌ Failed to parse backup file.", "error");
+    }
+  }, [app, showToast]);
+
+  const handleLogout = useCallback(() => {
+    app.logout();
+    showToast("👋 Logged out of account. Continuing in Guest Mode.", "info");
+  }, [app, showToast]);
 
   // ================= ACTION HANDLERS =================
 
@@ -235,6 +264,8 @@ export default function OpsApp() {
         companyName={app.settings.company_name}
         sidebarOpen={sidebarOpen}
         onCloseSidebar={() => setSidebarOpen(false)}
+        session={app.session}
+        onLogout={handleLogout}
       />
 
       {/* Main Content */}
@@ -252,6 +283,9 @@ export default function OpsApp() {
         </div>
 
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
+          {/* Guest Perks Callout Banner */}
+          {!app.session && <GuestBanner />}
+
           {/* DASHBOARD */}
           {app.activeView === "dashboard" && (
             <div className="space-y-6">
@@ -352,6 +386,8 @@ export default function OpsApp() {
               settings={app.settings}
               onSave={handleSaveSettings}
               onCancel={() => app.setActiveView("dashboard")}
+              onExportBackup={handleExportBackup}
+              onImportBackup={handleImportBackup}
             />
           )}
 
