@@ -55,6 +55,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* ================= SCROLLBAR ================= */
@@ -115,6 +116,8 @@ body {
   color: var(--color-slate-900);
   transition: border-color 0.15s, box-shadow 0.15s;
   outline: none;
+  /* Prevent iOS zoom on focus */
+  font-size: max(16px, 0.875rem);
 }
 .ops-input:focus {
   border-color: var(--color-brand-accent);
@@ -149,6 +152,7 @@ body {
   border: none;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
 }
 .ops-btn-primary:hover {
   background: var(--color-brand-accentDark);
@@ -171,6 +175,7 @@ body {
   border: 1px solid var(--color-slate-200);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 .ops-btn-secondary:hover {
   background: var(--color-slate-200);
@@ -191,6 +196,7 @@ body {
   border: none;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
 }
 .ops-btn-whatsapp:hover {
   background: var(--color-whatsappDark);
@@ -213,6 +219,7 @@ body {
   border: 1px solid var(--color-rose-100);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 .ops-btn-danger:hover {
   background: var(--color-rose-600);
@@ -257,6 +264,7 @@ body {
   cursor: pointer;
   transition: all 0.15s;
   text-align: left;
+  -webkit-tap-highlight-color: transparent;
 }
 .ops-nav-btn:hover {
   background: var(--color-slate-100);
@@ -289,6 +297,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-slate-400);
+  white-space: nowrap;
 }
 .ops-table tbody tr {
   border-bottom: 1px solid var(--color-slate-100);
@@ -352,6 +361,7 @@ body {
   background: white;
   color: var(--color-slate-600);
   transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 .ops-tone-pill:hover { border-color: var(--color-slate-300); }
 .ops-tone-pill.active-gentle {
@@ -381,19 +391,30 @@ body {
   color: #111;
   max-width: 100%;
   position: relative;
+  word-break: break-word;
 }
 
-/* Print styles */
+/* ================= PRINT STYLES ================= */
 @media print {
-  .print-hide, .ops-sidebar, .ops-toast {
+  .print-hide,
+  .ops-sidebar,
+  .ops-toast,
+  nav,
+  header {
     display: none !important;
   }
   body {
     background: white;
   }
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
 
-/* Mobile responsive sidebar */
+/* ================= MOBILE RESPONSIVE ================= */
+
+/* Mobile sidebar (off-canvas) */
 @media (max-width: 768px) {
   .ops-sidebar {
     position: fixed;
@@ -401,8 +422,71 @@ body {
     z-index: 50;
     transition: left 0.3s ease;
     box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+    width: 280px;
   }
   .ops-sidebar.open {
     left: 0;
+  }
+
+  /* Smaller card padding on phones */
+  .ops-card-padded {
+    padding: 16px;
+  }
+
+  /* Table cells: tighter padding */
+  .ops-table thead th {
+    padding: 10px 8px;
+    font-size: 0.5625rem;
+  }
+  .ops-table tbody td {
+    padding: 10px 8px;
+    font-size: 0.75rem;
+  }
+
+  /* Stat card compact */
+  .ops-stat-card {
+    padding: 16px;
+  }
+
+  /* Toast narrower */
+  .ops-toast {
+    padding: 12px 14px;
+    font-size: 0.75rem;
+  }
+
+  /* Tone pills smaller */
+  .ops-tone-pill {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Extra small phones (iPhone SE, small Samsungs ≤375px) */
+@media (max-width: 375px) {
+  .ops-card-padded {
+    padding: 12px;
+  }
+
+  .ops-stat-card {
+    padding: 12px 14px;
+  }
+
+  .ops-input {
+    padding: 8px 10px;
+  }
+
+  .ops-btn-primary,
+  .ops-btn-secondary,
+  .ops-btn-whatsapp {
+    padding: 8px 14px;
+    font-size: 0.75rem;
+  }
+
+  .ops-table thead th {
+    padding: 8px 6px;
+  }
+  .ops-table tbody td {
+    padding: 8px 6px;
+    font-size: 0.6875rem;
   }
 }

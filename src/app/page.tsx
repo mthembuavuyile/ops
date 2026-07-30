@@ -271,11 +271,11 @@ export default function OpsApp() {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {/* Mobile header */}
-        <div className="md:hidden sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
-          <button onClick={() => setSidebarOpen(true)} className="text-slate-600 p-1">
+        <div className="md:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-4 py-3 flex items-center justify-between" style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}>
+          <button onClick={() => setSidebarOpen(true)} className="text-slate-600 p-2 -ml-2 rounded-lg active:bg-slate-100" aria-label="Open menu">
             <i className="fa-solid fa-bars text-lg" />
           </button>
-          <span className="font-extrabold text-slate-900 tracking-tight">
+          <span className="font-extrabold text-slate-900 tracking-tight text-sm">
             {(app.settings.company_name || "VYLEX").toUpperCase()}
             <span className="text-brand-accent">OPS</span>
           </span>

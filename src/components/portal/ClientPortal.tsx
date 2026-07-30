@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import type { Quote, Invoice, Client, Settings } from "@/lib/types";
 import { formatCurrency, formatDateLabel, currencyName } from "@/lib/formatters";
 import { generatePdfFromElement } from "@/lib/pdf";
@@ -52,6 +52,52 @@ export default function ClientPortal({
     showToast(`💬 WhatsApp share link opened for ${docNum}!`, "success");
   };
 
+  // Inline styles for the PDF-capturable document card
+  const s = {
+    card: {
+      background: "#ffffff",
+      color: "#1e293b",
+      borderRadius: "24px",
+      boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
+      padding: "32px",
+      maxWidth: "900px",
+      margin: "0 auto",
+      border: "1px solid #f1f5f9",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      position: "relative" as const,
+      overflow: "hidden",
+    } as React.CSSProperties,
+    headerRow: { display: "flex", justifyContent: "space-between", alignItems: "flex-end", paddingBottom: "16px" } as React.CSSProperties,
+    companyName: { fontSize: "26px", fontWeight: 800, letterSpacing: "-0.02em", color: accentColor } as React.CSSProperties,
+    website: { fontSize: "12px", color: "#94a3b8", marginTop: "4px", fontWeight: 500 } as React.CSSProperties,
+    docTitle: { fontSize: "18px", fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.05em", color: accentColor, textAlign: "right" as const } as React.CSSProperties,
+    docNum: { fontFamily: "monospace", fontSize: "13px", color: "#64748b", marginTop: "4px", textAlign: "right" as const } as React.CSSProperties,
+    accentBar: { height: "3px", width: "100%", backgroundColor: accentColor, marginBottom: "32px" } as React.CSSProperties,
+    metaGrid: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px", marginBottom: "32px", fontSize: "12px" } as React.CSSProperties,
+    metaLabel: { fontSize: "10px", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: "4px", display: "block" } as React.CSSProperties,
+    metaValue: { fontWeight: 600, color: "#1e293b", fontSize: "13px" } as React.CSSProperties,
+    addressGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px", marginBottom: "32px", paddingBottom: "32px", borderBottom: "1px solid #f1f5f9", fontSize: "12px" } as React.CSSProperties,
+    addressLabel: { fontSize: "10px", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: "8px", display: "block" } as React.CSSProperties,
+    addressName: { fontWeight: 700, color: accentColor, marginBottom: "4px", fontSize: "13px" } as React.CSSProperties,
+    addressDetail: { color: "#475569", lineHeight: "1.6", fontSize: "11px" } as React.CSSProperties,
+    table: { width: "100%", textAlign: "left" as const, fontSize: "13px", marginBottom: "32px", borderCollapse: "collapse" as const } as React.CSSProperties,
+    th: { paddingBottom: "12px", fontSize: "10px", fontWeight: 600, textTransform: "uppercase" as const, color: "#94a3b8", borderBottom: "1px solid #e2e8f0" } as React.CSSProperties,
+    tdDesc: { padding: "16px 16px 16px 0", borderBottom: "1px solid #f1f5f9", fontWeight: 700, color: accentColor } as React.CSSProperties,
+    tdQty: { padding: "16px 0", borderBottom: "1px solid #f1f5f9", fontFamily: "monospace", color: "#475569", textAlign: "center" as const } as React.CSSProperties,
+    tdAmount: { padding: "16px 0", borderBottom: "1px solid #f1f5f9", fontFamily: "monospace", fontWeight: 700, color: "#0f172a", textAlign: "right" as const } as React.CSSProperties,
+    totalBox: { display: "flex", justifyContent: "flex-end", marginBottom: "48px" } as React.CSSProperties,
+    totalInner: { width: "288px" } as React.CSSProperties,
+    subtotalRow: { display: "flex", justifyContent: "space-between", color: "#475569", fontSize: "13px", marginBottom: "8px" } as React.CSSProperties,
+    grandTotalRow: { display: "flex", justifyContent: "space-between", color: "#0f172a", fontWeight: 700, fontSize: "16px", borderTop: "1px solid #e2e8f0", paddingTop: "8px" } as React.CSSProperties,
+    paymentSection: { marginTop: "32px", borderTop: "1px solid #e2e8f0", paddingTop: "32px" } as React.CSSProperties,
+    paymentTitle: { fontWeight: 700, fontSize: "11px", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: "16px", color: accentColor } as React.CSSProperties,
+    paymentGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", fontSize: "12px", marginBottom: "16px" } as React.CSSProperties,
+    bankName: { fontWeight: 700, marginBottom: "4px", color: accentColor, display: "block" } as React.CSSProperties,
+    paymentDetail: { color: "#475569", lineHeight: "1.8" } as React.CSSProperties,
+    refLine: { fontSize: "12px", color: "#475569" } as React.CSSProperties,
+    refBold: { fontFamily: "monospace", fontWeight: 700, color: "#0f172a" } as React.CSSProperties,
+  };
+
   return (
     <div className="space-y-5">
       {/* Top Bar */}
@@ -62,7 +108,7 @@ export default function ClientPortal({
           </div>
           <p className="text-xs opacity-80 mt-1">Simulates what your client sees when they open the link.</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2">
           <button onClick={handleWhatsAppShare} className="ops-btn-whatsapp !text-xs !py-2 !px-4">
             <i className="fa-brands fa-whatsapp" /> Share
           </button>
@@ -77,7 +123,7 @@ export default function ClientPortal({
 
       {/* Selector */}
       {quotes.length > 0 && (
-        <div className="flex items-center gap-3 print-hide">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 print-hide">
           <span className="text-xs text-slate-400 font-bold uppercase">Viewing:</span>
           <select
             value={activeQuoteId}
@@ -94,76 +140,66 @@ export default function ClientPortal({
 
       {/* Empty State */}
       {(!quote || !client) && (
-        <div className="bg-white rounded-3xl shadow-xl p-12 max-w-4xl mx-auto border border-gray-100 text-center space-y-3">
-          <i className="fa-solid fa-folder-open text-4xl text-slate-300 block" />
-          <h3 className="font-bold text-slate-700 text-lg">No Active Quote to Display</h3>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
+        <div style={{ ...s.card, textAlign: "center", padding: "48px 32px" }}>
+          <i className="fa-solid fa-folder-open text-4xl text-slate-300 block" style={{ marginBottom: "12px" }} />
+          <h3 style={{ fontWeight: 700, color: "#334155", fontSize: "18px", marginBottom: "8px" }}>No Active Quote to Display</h3>
+          <p style={{ fontSize: "12px", color: "#94a3b8", maxWidth: "400px", margin: "0 auto" }}>
             Create a quote from the Quote Builder to preview how your clients view and accept quotes in their portal.
           </p>
         </div>
       )}
 
-      {/* Document Card */}
+      {/* Document Card — fully inline styled for PDF capture */}
       {quote && client && (
-        <div
-          id="client-invoice-card"
-          className="bg-white text-slate-800 rounded-3xl shadow-xl p-6 md:p-12 max-w-4xl mx-auto border border-gray-100 relative overflow-hidden"
-        >
-          {/* Accepted Watermark */}
-          {isAccepted && (
-            <div className="absolute -right-16 -top-1 rotate-45 bg-emerald-500 text-white font-bold py-2 px-16 text-center text-xs uppercase tracking-widest shadow-md print-hide">
-              Accepted
-            </div>
-          )}
-
+        <div id="client-invoice-card" style={s.card}>
           {/* Header */}
-          <div className="flex justify-between items-end pb-4">
+          <div style={s.headerRow}>
             <div>
-              <div className="text-3xl font-extrabold tracking-tight" style={{ color: accentColor }}>
+              <div style={s.companyName}>
                 {(settings.company_name || "VYLEX").toUpperCase()}
               </div>
-              <p className="text-xs text-slate-400 mt-1 font-medium">{settings.website || ""}</p>
+              <p style={s.website}>{settings.website || ""}</p>
             </div>
-            <div className="text-right">
-              <h2 className="text-xl font-bold uppercase tracking-wider" style={{ color: accentColor }}>
+            <div>
+              <div style={s.docTitle}>
                 {isAccepted ? "Invoice" : "Project Quote"}
-              </h2>
-              <div className="font-mono text-sm text-slate-500 mt-1">
+              </div>
+              <div style={s.docNum}>
                 {linkedInvoice?.invoice_number || quote.quote_number}
               </div>
             </div>
           </div>
 
-          <div className="h-[3px] w-full mb-8" style={{ backgroundColor: accentColor }} />
+          <div style={s.accentBar} />
 
           {/* Dates */}
-          <div className="grid grid-cols-3 gap-6 mb-8 text-xs">
+          <div style={s.metaGrid}>
             <div>
-              <span className="text-slate-400 font-bold uppercase tracking-wider block mb-1">Date</span>
-              <div className="font-semibold text-slate-800 text-sm">
+              <span style={s.metaLabel}>Date</span>
+              <div style={s.metaValue}>
                 {formatDateLabel(linkedInvoice?.issued_at || quote.issued_at)}
               </div>
             </div>
             <div>
-              <span className="text-slate-400 font-bold uppercase tracking-wider block mb-1">
+              <span style={s.metaLabel}>
                 {isAccepted ? "Due Date" : "Expiry Date"}
               </span>
-              <div className="font-semibold text-slate-800 text-sm">
+              <div style={s.metaValue}>
                 {formatDateLabel(linkedInvoice?.due_at || quote.expires_at)}
               </div>
             </div>
             <div>
-              <span className="text-slate-400 font-bold uppercase tracking-wider block mb-1">Currency</span>
-              <div className="font-semibold text-slate-800 text-sm">{currencyName(settings.currency)}</div>
+              <span style={s.metaLabel}>Currency</span>
+              <div style={s.metaValue}>{currencyName(settings.currency)}</div>
             </div>
           </div>
 
           {/* Addresses */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8 pb-8 border-b border-gray-100 text-xs">
+          <div style={s.addressGrid}>
             <div>
-              <span className="text-slate-400 font-bold uppercase tracking-wider block mb-2">From</span>
-              <div className="font-bold text-sm mb-1" style={{ color: accentColor }}>{settings.company_name}</div>
-              <div className="text-slate-600 space-y-0.5">
+              <span style={s.addressLabel}>From</span>
+              <div style={s.addressName}>{settings.company_name}</div>
+              <div style={s.addressDetail}>
                 <p>{settings.contact_name}</p>
                 <p>{settings.email}</p>
                 <p>{settings.phone}</p>
@@ -171,9 +207,9 @@ export default function ClientPortal({
               </div>
             </div>
             <div>
-              <span className="text-slate-400 font-bold uppercase tracking-wider block mb-2">Bill To</span>
-              <div className="font-bold text-sm mb-1" style={{ color: accentColor }}>{client.name}</div>
-              <div className="text-slate-600 space-y-0.5">
+              <span style={s.addressLabel}>Bill To</span>
+              <div style={s.addressName}>{client.name}</div>
+              <div style={s.addressDetail}>
                 <p>{client.contact_name}</p>
                 <p>{client.phone}</p>
                 <p>{client.email}</p>
@@ -183,59 +219,55 @@ export default function ClientPortal({
           </div>
 
           {/* Line Items */}
-          <div className="mb-8">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="border-b border-gray-200 text-xs font-bold uppercase text-slate-400">
-                  <th className="pb-3 w-8/12 font-semibold">Description</th>
-                  <th className="pb-3 text-center w-1/12 font-semibold">Qty</th>
-                  <th className="pb-3 text-right w-3/12 font-semibold">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {quote.line_items.map((item, idx) => {
-                  const total = item.qty * item.rate;
-                  return (
-                    <tr key={idx} className="border-b border-gray-100 text-slate-700 align-top">
-                      <td className="py-4 pr-4">
-                        <div className="font-bold" style={{ color: accentColor }}>{item.description}</div>
-                        {item.details && item.details.length > 0 && (
-                          <ul className="list-disc pl-4 mt-1.5 space-y-0.5 text-xs text-slate-500">
-                            {item.details.map((d, i) => <li key={i}>{d}</li>)}
-                          </ul>
-                        )}
-                      </td>
-                      <td className="py-4 text-center font-mono text-slate-600">{item.qty}</td>
-                      <td className="py-4 text-right font-mono font-bold text-slate-900">
-                        {formatCurrency(total, settings.currency)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <table style={s.table}>
+            <thead>
+              <tr>
+                <th style={{ ...s.th, width: "66%" }}>Description</th>
+                <th style={{ ...s.th, width: "10%", textAlign: "center" }}>Qty</th>
+                <th style={{ ...s.th, width: "24%", textAlign: "right" }}>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {quote.line_items.map((item, idx) => {
+                const lineTotal = item.qty * item.rate;
+                return (
+                  <tr key={idx}>
+                    <td style={s.tdDesc}>
+                      {item.description}
+                      {item.details && item.details.length > 0 && (
+                        <ul style={{ listStyleType: "disc", paddingLeft: "16px", marginTop: "6px", color: "#64748b", fontSize: "11px", fontWeight: 400 }}>
+                          {item.details.map((d, i) => <li key={i} style={{ marginBottom: "2px" }}>{d}</li>)}
+                        </ul>
+                      )}
+                    </td>
+                    <td style={s.tdQty}>{item.qty}</td>
+                    <td style={s.tdAmount}>{formatCurrency(lineTotal, settings.currency)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
 
           {/* Totals */}
-          <div className="flex justify-end mb-12">
-            <div className="w-72 space-y-2 text-sm">
-              <div className="flex justify-between text-slate-600">
+          <div style={s.totalBox}>
+            <div style={s.totalInner}>
+              <div style={s.subtotalRow}>
                 <span>Subtotal</span>
-                <span className="font-semibold text-slate-900">{formatCurrency(quote.total, settings.currency)}</span>
+                <span style={{ fontWeight: 600, color: "#0f172a" }}>{formatCurrency(quote.total, settings.currency)}</span>
               </div>
-              <div className="flex justify-between text-slate-900 font-bold text-base border-t border-gray-200 pt-2">
+              <div style={s.grandTotalRow}>
                 <span>Total Due</span>
                 <span>{formatCurrency(quote.total, settings.currency)}</span>
               </div>
             </div>
           </div>
 
-          {/* Accept/Decline */}
+          {/* Accept/Decline (only in preview, hidden from PDF) */}
           {!isAccepted && (
-            <div className="mt-8 bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 print-hide">
+            <div className="print-hide" style={{ marginTop: "32px", background: "#f8fafc", padding: "24px", borderRadius: "16px", border: "1px solid #f1f5f9", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "16px" }}>
               <div>
-                <h4 className="font-bold text-slate-900 text-sm">Review Completed</h4>
-                <p className="text-xs text-slate-500 mt-1">Ready to proceed? Accept to formalise this quote.</p>
+                <h4 style={{ fontWeight: 700, color: "#0f172a", fontSize: "13px" }}>Review Completed</h4>
+                <p style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>Ready to proceed? Accept to formalise this quote.</p>
               </div>
               <div className="flex gap-3 w-full md:w-auto">
                 <button onClick={() => onDecline(quote.id)} className="ops-btn-danger w-full md:w-auto !py-2.5 !px-5 !text-xs !rounded-xl">
@@ -250,29 +282,31 @@ export default function ClientPortal({
 
           {/* Payment Details (shown when accepted) */}
           {isAccepted && (
-            <div className="mt-8 border-t border-gray-200 pt-8">
-              <h4 className="font-bold text-xs uppercase tracking-wider mb-4" style={{ color: accentColor }}>Payment Details</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs mb-4">
+            <div style={s.paymentSection}>
+              <div style={s.paymentTitle}>Payment Details</div>
+              <div style={s.paymentGrid}>
                 <div>
-                  <span className="font-bold block mb-1" style={{ color: accentColor }}>{settings.bank_name}</span>
-                  <p className="text-slate-600">Account Holder: {settings.account_name}</p>
-                  <p className="text-slate-600">Account Number: {settings.account_number}</p>
-                  <p className="text-slate-600">Branch Code: {settings.branch_code}</p>
+                  <span style={s.bankName}>{settings.bank_name}</span>
+                  <div style={s.paymentDetail}>
+                    <p>Account Holder: {settings.account_name}</p>
+                    <p>Account Number: {settings.account_number}</p>
+                    <p>Branch Code: {settings.branch_code}</p>
+                  </div>
                 </div>
                 {settings.payshap_id && (
                   <div>
-                    <span className="font-bold block mb-1" style={{ color: accentColor }}>PayShap</span>
-                    <p className="text-slate-600">ID / Cell: {settings.payshap_id}</p>
+                    <span style={s.bankName}>PayShap</span>
+                    <div style={s.paymentDetail}>
+                      <p>ID / Cell: {settings.payshap_id}</p>
+                    </div>
                   </div>
                 )}
               </div>
-              <div className="text-xs text-slate-600">
-                <p>
-                  <span className="font-bold" style={{ color: accentColor }}>Reference:</span>{" "}
-                  <span className="font-mono font-bold text-slate-900">
-                    *{linkedInvoice?.invoice_number || quote.quote_number}*
-                  </span>
-                </p>
+              <div style={s.refLine}>
+                <span style={{ fontWeight: 700, color: accentColor }}>Reference:</span>{" "}
+                <span style={s.refBold}>
+                  {linkedInvoice?.invoice_number || quote.quote_number}
+                </span>
               </div>
             </div>
           )}

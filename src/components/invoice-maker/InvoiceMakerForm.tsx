@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import type { Settings } from "@/lib/types";
-import { formatCurrency, formatDateLabel, todayISO, futureDateISO, currencyLabel } from "@/lib/formatters";
+import { formatDateLabel, todayISO, futureDateISO, currencyLabel } from "@/lib/formatters";
 import { generatePdfFromElement } from "@/lib/pdf";
 
 interface InvoiceMakerProps {
@@ -31,6 +31,7 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
   const [rows, setRows] = useState<MakerRow[]>([
     { id: ++makerRowId, description: "", amount: 0 },
   ]);
+  const [showPreview, setShowPreview] = useState(false);
 
   const addRow = () => setRows((prev) => [...prev, { id: ++makerRowId, description: "", amount: 0 }]);
   const deleteRow = (id: number) => { if (rows.length > 1) setRows((prev) => prev.filter((r) => r.id !== id)); };
@@ -47,6 +48,188 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
     else showToast("Failed to generate PDF", "error");
   }, [invoiceNumber, showToast]);
 
+  // Shared inline styles for the preview (ensures html2canvas captures them correctly)
+  const previewStyles = {
+    container: {
+      background: "#ffffff",
+      color: "#1e293b",
+      borderRadius: "16px",
+      boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
+      padding: "32px",
+      maxWidth: "640px",
+      width: "100%",
+      border: "1px solid #f1f5f9",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      fontSize: "13px",
+      lineHeight: "1.5",
+      minHeight: "700px",
+    } as React.CSSProperties,
+    headerRow: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      paddingBottom: "16px",
+    } as React.CSSProperties,
+    companyTitle: {
+      fontSize: "22px",
+      fontWeight: 800,
+      letterSpacing: "-0.02em",
+      color: accentColor,
+    } as React.CSSProperties,
+    docLabel: {
+      fontSize: "10px",
+      color: "#94a3b8",
+      marginTop: "4px",
+      fontWeight: 600,
+      textTransform: "uppercase" as const,
+      letterSpacing: "0.06em",
+    } as React.CSSProperties,
+    invoiceTitle: {
+      fontSize: "18px",
+      fontWeight: 700,
+      textTransform: "uppercase" as const,
+      letterSpacing: "0.05em",
+      color: accentColor,
+      textAlign: "right" as const,
+    } as React.CSSProperties,
+    invoiceNum: {
+      fontFamily: "monospace",
+      fontSize: "12px",
+      color: "#64748b",
+      marginTop: "4px",
+      textAlign: "right" as const,
+    } as React.CSSProperties,
+    accentBar: {
+      height: "3px",
+      width: "100%",
+      backgroundColor: accentColor,
+      marginBottom: "24px",
+    } as React.CSSProperties,
+    metaGrid: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: "16px",
+      marginBottom: "24px",
+      borderBottom: "1px solid #f1f5f9",
+      paddingBottom: "16px",
+    } as React.CSSProperties,
+    metaLabel: {
+      fontSize: "10px",
+      color: "#94a3b8",
+      fontWeight: 700,
+      textTransform: "uppercase" as const,
+      letterSpacing: "0.06em",
+      marginBottom: "4px",
+      display: "block",
+    } as React.CSSProperties,
+    metaValue: {
+      fontWeight: 600,
+      color: "#1e293b",
+      fontSize: "12px",
+    } as React.CSSProperties,
+    addressGrid: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: "24px",
+      marginBottom: "24px",
+      paddingBottom: "24px",
+      borderBottom: "1px solid #f1f5f9",
+    } as React.CSSProperties,
+    addressLabel: {
+      fontSize: "10px",
+      color: "#94a3b8",
+      fontWeight: 700,
+      textTransform: "uppercase" as const,
+      letterSpacing: "0.06em",
+      marginBottom: "6px",
+      display: "block",
+    } as React.CSSProperties,
+    addressName: {
+      fontWeight: 700,
+      color: "#0f172a",
+      marginBottom: "4px",
+      fontSize: "13px",
+    } as React.CSSProperties,
+    addressDetail: {
+      color: "#475569",
+      lineHeight: "1.6",
+      whiteSpace: "pre-line" as const,
+      fontSize: "11px",
+    } as React.CSSProperties,
+    table: {
+      width: "100%",
+      textAlign: "left" as const,
+      fontSize: "12px",
+      marginBottom: "24px",
+      borderCollapse: "collapse" as const,
+    } as React.CSSProperties,
+    th: {
+      paddingBottom: "8px",
+      fontSize: "10px",
+      fontWeight: 600,
+      textTransform: "uppercase" as const,
+      color: "#94a3b8",
+      borderBottom: "1px solid #e2e8f0",
+    } as React.CSSProperties,
+    td: {
+      padding: "12px 0",
+      borderBottom: "1px solid #f1f5f9",
+      color: "#334155",
+    } as React.CSSProperties,
+    tdDesc: {
+      padding: "12px 16px 12px 0",
+      borderBottom: "1px solid #f1f5f9",
+      fontWeight: 700,
+      color: "#1e293b",
+    } as React.CSSProperties,
+    tdAmount: {
+      padding: "12px 0",
+      borderBottom: "1px solid #f1f5f9",
+      fontFamily: "monospace",
+      fontWeight: 700,
+      color: "#0f172a",
+      textAlign: "right" as const,
+    } as React.CSSProperties,
+    totalRow: {
+      display: "flex",
+      justifyContent: "flex-end",
+      marginBottom: "32px",
+    } as React.CSSProperties,
+    totalBox: {
+      width: "192px",
+    } as React.CSSProperties,
+    totalLabel: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontWeight: 700,
+      color: "#0f172a",
+      fontSize: "14px",
+      borderTop: "1px solid #e2e8f0",
+      paddingTop: "8px",
+    } as React.CSSProperties,
+    paymentBox: {
+      background: "#f8fafc",
+      padding: "16px",
+      borderRadius: "12px",
+      border: "1px solid #f1f5f9",
+      fontSize: "10px",
+    } as React.CSSProperties,
+    paymentTitle: {
+      fontWeight: 700,
+      textTransform: "uppercase" as const,
+      letterSpacing: "0.05em",
+      marginBottom: "8px",
+      color: accentColor,
+      fontSize: "11px",
+    } as React.CSSProperties,
+    paymentGrid: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: "6px 16px",
+      color: "#475569",
+    } as React.CSSProperties,
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -54,7 +237,7 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
         <p className="text-slate-500 text-sm mt-1">Generate a quick PDF invoice on-the-fly.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Editor */}
         <div className="lg:col-span-5 ops-card-padded space-y-5">
           {/* Style */}
@@ -115,10 +298,10 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
             </div>
             <div className="space-y-2">
               {rows.map((row) => (
-                <div key={row.id} className="grid grid-cols-12 gap-2 items-center">
-                  <div className="col-span-7"><input type="text" value={row.description} onChange={(e) => updateRow(row.id, "description", e.target.value)} className="ops-input !text-xs !py-1.5" placeholder="Item description" /></div>
-                  <div className="col-span-3"><input type="number" value={row.amount || ""} onChange={(e) => updateRow(row.id, "amount", Number(e.target.value))} className="ops-input !text-xs !py-1.5 text-right font-mono" placeholder="0.00" min={0} step={0.01} /></div>
-                  <div className="col-span-2 text-center"><button type="button" onClick={() => deleteRow(row.id)} className="text-rose-400 hover:text-rose-600 transition-colors"><i className="fa-solid fa-trash-can text-xs" /></button></div>
+                <div key={row.id} className="flex gap-2 items-center">
+                  <div className="flex-1 min-w-0"><input type="text" value={row.description} onChange={(e) => updateRow(row.id, "description", e.target.value)} className="ops-input !text-xs !py-1.5" placeholder="Item description" /></div>
+                  <div className="w-24 flex-shrink-0"><input type="number" value={row.amount || ""} onChange={(e) => updateRow(row.id, "amount", Number(e.target.value))} className="ops-input !text-xs !py-1.5 text-right font-mono" placeholder="0.00" min={0} step={0.01} /></div>
+                  <button type="button" onClick={() => deleteRow(row.id)} className="text-rose-400 hover:text-rose-600 transition-colors flex-shrink-0 p-1"><i className="fa-solid fa-trash-can text-xs" /></button>
                 </div>
               ))}
             </div>
@@ -137,87 +320,92 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
             </div>
           </div>
 
+          {/* Mobile: Toggle Preview + Download */}
+          <div className="flex flex-col gap-3 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setShowPreview(!showPreview)}
+              className="ops-btn-secondary w-full !py-3"
+            >
+              <i className={`fa-solid ${showPreview ? "fa-eye-slash" : "fa-eye"}`} />
+              {showPreview ? "Hide Preview" : "Preview Invoice"}
+            </button>
+          </div>
+
           <button type="button" onClick={handleDownloadPdf} className="ops-btn-primary w-full !py-3">
             <i className="fa-solid fa-file-pdf" /> Download PDF Invoice
           </button>
         </div>
 
-        {/* Live Preview */}
-        <div className="lg:col-span-7 flex justify-center p-4 md:p-8 bg-slate-100 rounded-2xl border border-slate-200 overflow-x-auto">
-          <div id="maker-invoice-preview" className="bg-white text-slate-800 rounded-2xl shadow-xl p-8 max-w-2xl w-full border border-gray-100 text-sm" style={{ minHeight: 700 }}>
+        {/* Live Preview — hidden on mobile unless toggled, always visible on desktop */}
+        <div className={`lg:col-span-7 flex justify-center p-4 md:p-8 bg-slate-100 rounded-2xl border border-slate-200 overflow-x-auto ${showPreview ? "block" : "hidden lg:flex"}`}>
+          <div id="maker-invoice-preview" style={previewStyles.container}>
             {/* Header */}
-            <div className="flex justify-between items-start pb-4">
+            <div style={previewStyles.headerRow}>
               <div>
-                <div className="flex items-center gap-2">
-                  <div className="text-2xl font-extrabold tracking-tight" style={{ color: accentColor }}>{companyName.toUpperCase()}</div>
-                  {(settings.show_verified_badge ?? true) && (
-                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full" title="Verified Account Document">
-                      <i className="fa-solid fa-shield-check text-emerald-500 text-[10px]" /> Verified
-                    </span>
-                  )}
-                </div>
-                <p className="text-[10px] text-slate-400 mt-1 font-semibold uppercase tracking-wider">Quick Invoice</p>
+                <div style={previewStyles.companyTitle}>{companyName.toUpperCase()}</div>
+                <p style={previewStyles.docLabel}>Quick Invoice</p>
               </div>
-              <div className="text-right">
-                <h2 className="text-xl font-bold uppercase tracking-wider" style={{ color: accentColor }}>Invoice</h2>
-                <div className="font-mono text-xs text-slate-500 mt-1">No: {invoiceNumber}</div>
+              <div>
+                <div style={previewStyles.invoiceTitle}>Invoice</div>
+                <div style={previewStyles.invoiceNum}>No: {invoiceNumber}</div>
               </div>
             </div>
 
-            <div className="h-[3px] w-full mb-6" style={{ backgroundColor: accentColor }} />
+            <div style={previewStyles.accentBar} />
 
             {/* Dates */}
-            <div className="grid grid-cols-3 gap-4 mb-6 text-[11px] border-b border-gray-100 pb-4">
+            <div style={previewStyles.metaGrid}>
               <div>
-                <span className="text-slate-400 font-bold uppercase tracking-wider block mb-1">Date Issued</span>
-                <div className="font-semibold text-slate-800">{formatDateLabel(invoiceDate)}</div>
+                <span style={previewStyles.metaLabel}>Date Issued</span>
+                <div style={previewStyles.metaValue}>{formatDateLabel(invoiceDate)}</div>
               </div>
               <div>
-                <span className="text-slate-400 font-bold uppercase tracking-wider block mb-1">Due Date</span>
-                <div className="font-semibold text-slate-800">{formatDateLabel(dueDate)}</div>
+                <span style={previewStyles.metaLabel}>Due Date</span>
+                <div style={previewStyles.metaValue}>{formatDateLabel(dueDate)}</div>
               </div>
               <div>
-                <span className="text-slate-400 font-bold uppercase tracking-wider block mb-1">Currency</span>
-                <div className="font-semibold text-slate-800">{currencyLabel(currency)}</div>
+                <span style={previewStyles.metaLabel}>Currency</span>
+                <div style={previewStyles.metaValue}>{currencyLabel(currency)}</div>
               </div>
             </div>
 
             {/* Addresses */}
-            <div className="grid grid-cols-2 gap-6 mb-6 pb-6 border-b border-gray-100 text-[11px]">
+            <div style={previewStyles.addressGrid}>
               <div>
-                <span className="text-slate-400 font-bold uppercase tracking-wider block mb-1.5">From</span>
-                <div className="font-bold text-slate-900 mb-1">{companyName}</div>
-                <div className="text-slate-600 leading-relaxed whitespace-pre-line">{companyAddress}</div>
+                <span style={previewStyles.addressLabel}>From</span>
+                <div style={previewStyles.addressName}>{companyName}</div>
+                <div style={previewStyles.addressDetail}>{companyAddress}</div>
               </div>
               <div>
-                <span className="text-slate-400 font-bold uppercase tracking-wider block mb-1.5">Bill To</span>
-                <div className="font-bold text-slate-900 mb-1">{clientName}</div>
-                <div className="text-slate-600 leading-relaxed whitespace-pre-line">{clientAddress}</div>
+                <span style={previewStyles.addressLabel}>Bill To</span>
+                <div style={previewStyles.addressName}>{clientName}</div>
+                <div style={previewStyles.addressDetail}>{clientAddress}</div>
               </div>
             </div>
 
             {/* Items */}
-            <table className="w-full text-left text-xs mb-6 border-collapse">
+            <table style={previewStyles.table}>
               <thead>
-                <tr className="border-b border-gray-200 text-slate-400 font-bold uppercase">
-                  <th className="pb-2 w-8/12 font-semibold">Description</th>
-                  <th className="pb-2 text-right w-4/12 font-semibold">Amount</th>
+                <tr>
+                  <th style={{ ...previewStyles.th, width: "66%" }}>Description</th>
+                  <th style={{ ...previewStyles.th, width: "34%", textAlign: "right" }}>Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id} className="border-b border-gray-100 text-slate-700">
-                    <td className="py-3 pr-4 font-bold text-slate-800">{row.description || "—"}</td>
-                    <td className="py-3 text-right font-mono font-bold text-slate-900">{currency} {(row.amount || 0).toFixed(2)}</td>
+                  <tr key={row.id}>
+                    <td style={previewStyles.tdDesc}>{row.description || "—"}</td>
+                    <td style={previewStyles.tdAmount}>{currency} {(row.amount || 0).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
             {/* Total */}
-            <div className="flex justify-end mb-8">
-              <div className="w-48 space-y-1.5 text-xs">
-                <div className="flex justify-between text-slate-900 font-bold text-sm border-t border-gray-200 pt-2">
+            <div style={previewStyles.totalRow}>
+              <div style={previewStyles.totalBox}>
+                <div style={previewStyles.totalLabel}>
                   <span>Total Due:</span>
                   <span>{currency} {total.toLocaleString("en-ZA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
@@ -226,14 +414,14 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
 
             {/* Payment */}
             {(bankName || accountName || accountNumber) && (
-              <div className="bg-slate-50 p-4 rounded-xl border border-gray-100 text-[10px]">
-                <h4 className="font-bold uppercase tracking-wider mb-2" style={{ color: accentColor }}>Payment Instructions</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-slate-600">
+              <div style={previewStyles.paymentBox}>
+                <div style={previewStyles.paymentTitle}>Payment Instructions</div>
+                <div style={previewStyles.paymentGrid}>
                   {bankName && <p><strong>Bank:</strong> {bankName}</p>}
                   {accountName && <p><strong>Account Holder:</strong> {accountName}</p>}
                   {accountNumber && <p><strong>Account Number:</strong> {accountNumber}</p>}
                   {branchCode && <p><strong>Branch Code:</strong> {branchCode}</p>}
-                  <p className="col-span-2"><strong>Reference:</strong> <span className="font-mono font-bold text-slate-900">{invoiceNumber}</span></p>
+                  <p style={{ gridColumn: "1 / -1" }}><strong>Reference:</strong> <span style={{ fontFamily: "monospace", fontWeight: 700, color: "#0f172a" }}>{invoiceNumber}</span></p>
                 </div>
               </div>
             )}
