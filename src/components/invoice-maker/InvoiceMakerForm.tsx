@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import type { Settings } from "@/lib/types";
+import React, { useState, useCallback, useEffect } from "react";
+import type { Settings, Client, BusinessAddress, BankAccount } from "@/lib/types";
 import { formatDateLabel, todayISO, futureDateISO, currencyLabel } from "@/lib/formatters";
 import { generatePdfFromElement } from "@/lib/pdf";
 
 interface InvoiceMakerProps {
   settings: Settings;
+  clients?: Client[];
+  onSaveClient?: (client: Client) => void;
   showToast: (msg: string, type?: "info" | "success" | "warning" | "error") => void;
 }
 
@@ -14,24 +16,114 @@ interface MakerRow { id: number; description: string; amount: number; }
 
 let makerRowId = 0;
 
-export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerProps) {
+export default function InvoiceMakerForm({ settings, clients = [], onSaveClient, showToast }: InvoiceMakerProps) {
   const [accentColor, setAccentColor] = useState(settings.accent_color || "#051b38");
   const [currency, setCurrency] = useState(settings.currency || "R");
   const [companyName, setCompanyName] = useState(settings.company_name || "My Business");
-  const [companyAddress, setCompanyAddress] = useState(settings.company_address || "");
+  
+  // Addresses
+  const addresses: BusinessAddress[] = settings.business_addresses?.length
+    ? settings.business_addresses
+    : settings.company_address
+    ? [{ id: "addr-default", label: "Primary Address", address: settings.company_address, is_default: true }]
+    : [];
+
+  const defaultAddr = addresses.find((a) => a.is_default) || addresses[0];
+  const [selectedAddressId, setSelectedAddressId] = useState<string>(defaultAddr?.id || "custom");
+  const [companyAddress, setCompanyAddress] = useState(defaultAddr?.address || settings.company_address || "");
+
+  // Clients
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
   const [clientName, setClientName] = useState("");
   const [clientAddress, setClientAddress] = useState("");
+
+  // Bank Accounts
+  const bankAccounts: BankAccount[] = settings.bank_accounts?.length
+    ? settings.bank_accounts
+    : (settings.bank_name || settings.account_number)
+    ? [{
+        id: "bank-default",
+        label: "Primary Bank Account",
+        bank_name: settings.bank_name || "",
+        account_name: settings.account_name || "",
+        account_number: settings.account_number || "",
+        branch_code: settings.branch_code || "",
+        payshap_id: settings.payshap_id || "",
+        is_default: true,
+      }]
+    : [];
+
+  const defaultBank = bankAccounts.find((b) => b.is_default) || bankAccounts[0];
+  const [selectedBankId, setSelectedBankId] = useState<string>(defaultBank?.id || "custom");
+  const [bankName, setBankName] = useState(defaultBank?.bank_name || settings.bank_name || "");
+  const [accountName, setAccountName] = useState(defaultBank?.account_name || settings.account_name || "");
+  const [accountNumber, setAccountNumber] = useState(defaultBank?.account_number || settings.account_number || "");
+  const [branchCode, setBranchCode] = useState(defaultBank?.branch_code || settings.branch_code || "");
+
   const [invoiceNumber, setInvoiceNumber] = useState("INV-2026-001");
   const [invoiceDate, setInvoiceDate] = useState(todayISO());
   const [dueDate, setDueDate] = useState(futureDateISO(14));
-  const [bankName, setBankName] = useState(settings.bank_name || "");
-  const [accountName, setAccountName] = useState(settings.account_name || "");
-  const [accountNumber, setAccountNumber] = useState(settings.account_number || "");
-  const [branchCode, setBranchCode] = useState(settings.branch_code || "");
   const [rows, setRows] = useState<MakerRow[]>([
     { id: ++makerRowId, description: "", amount: 0 },
   ]);
   const [showPreview, setShowPreview] = useState(false);
+
+  // Address selection handler
+  const handleAddressSelect = (id: string) => {
+    setSelectedAddressId(id);
+    if (id === "custom") return;
+    const match = addresses.find((a) => a.id === id);
+    if (match) {
+      setCompanyAddress(match.address);
+    }
+  };
+
+  // Client selection handler
+  const handleClientSelect = (id: string) => {
+    setSelectedClientId(id);
+    if (!id || id === "custom") return;
+    const client = clients.find((c) => c.id === id);
+    if (client) {
+      setClientName(client.name);
+      setClientAddress(client.address || "");
+    }
+  };
+
+  // Quick save new client handler
+  const handleQuickSaveClient = () => {
+    if (!clientName.trim()) {
+      showToast("Please enter a client name first.", "warning");
+      return;
+    }
+    if (!onSaveClient) return;
+
+    const prefix = clientName.substring(0, 3).toUpperCase();
+    const newClient: Client = {
+      id: `cli-${Date.now()}`,
+      name: clientName.trim(),
+      prefix: prefix.length === 3 ? prefix : "CLI",
+      email: "",
+      contact_name: clientName.trim(),
+      phone: "",
+      address: clientAddress.trim(),
+    };
+
+    onSaveClient(newClient);
+    setSelectedClientId(newClient.id);
+  };
+
+  // Bank Account selection handler
+  const handleBankSelect = (id: string) => {
+    setSelectedBankId(id);
+    if (id === "custom") return;
+    const match = bankAccounts.find((b) => b.id === id);
+    if (match) {
+      setBankName(match.bank_name);
+      setAccountName(match.account_name);
+      setAccountNumber(match.account_number);
+      setBranchCode(match.branch_code);
+    }
+  };
 
   const addRow = () => setRows((prev) => [...prev, { id: ++makerRowId, description: "", amount: 0 }]);
   const deleteRow = (id: number) => { if (rows.length > 1) setRows((prev) => prev.filter((r) => r.id !== id)); };
@@ -234,7 +326,7 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">Quick Invoice Maker</h1>
-        <p className="text-slate-500 text-sm mt-1">Generate a quick PDF invoice on-the-fly.</p>
+        <p className="text-slate-500 text-sm mt-1">Generate a quick PDF invoice on-the-fly with saved clients, business addresses, and bank accounts.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -260,21 +352,84 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
             </div>
           </div>
 
-          {/* Company */}
+          {/* Company & Business Address Selector */}
           <div>
-            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2 mb-3">Your Details</h3>
+            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2 mb-3">Your Business Details</h3>
             <div className="space-y-3">
-              <div><label className="ops-label">Company / Name</label><input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="ops-input" /></div>
-              <div><label className="ops-label">Address</label><textarea value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} className="ops-input" rows={2} /></div>
+              <div><label className="ops-label">Company / Trading Name</label><input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="ops-input" /></div>
+              
+              {addresses.length > 0 && (
+                <div>
+                  <label className="ops-label">Select Business Address</label>
+                  <select
+                    value={selectedAddressId}
+                    onChange={(e) => handleAddressSelect(e.target.value)}
+                    className="ops-input text-xs font-medium"
+                  >
+                    {addresses.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.label} {a.is_default ? "★ Primary Default" : ""}
+                      </option>
+                    ))}
+                    <option value="custom">✏️ Custom / Edit Below</option>
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label className="ops-label">Address Displayed on Invoice</label>
+                <textarea value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} className="ops-input text-xs" rows={2} />
+              </div>
             </div>
           </div>
 
-          {/* Client */}
+          {/* Client Details Selector */}
           <div>
-            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2 mb-3">Client Details</h3>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+              <h3 className="font-bold text-slate-900 text-sm">Client Details</h3>
+              {clients.length > 0 && (
+                <span className="text-xs text-slate-400 font-medium">{clients.length} Saved Client{clients.length > 1 ? "s" : ""}</span>
+              )}
+            </div>
+            
             <div className="space-y-3">
-              <div><label className="ops-label">Client Name</label><input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} className="ops-input" /></div>
-              <div><label className="ops-label">Client Address</label><textarea value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} className="ops-input" rows={2} /></div>
+              {clients.length > 0 && (
+                <div>
+                  <label className="ops-label">Select Saved Client</label>
+                  <select
+                    value={selectedClientId}
+                    onChange={(e) => handleClientSelect(e.target.value)}
+                    className="ops-input text-xs font-medium"
+                  >
+                    <option value="">-- Select Saved Client or Type Below --</option>
+                    {clients.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} {c.contact_name ? `(${c.contact_name})` : ""}
+                      </option>
+                    ))}
+                    <option value="custom">✏️ Custom / Enter New Client</option>
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label className="ops-label">Client Name</label>
+                <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} className="ops-input" placeholder="e.g. Acme Corp" />
+              </div>
+              <div>
+                <label className="ops-label">Client Address</label>
+                <textarea value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} className="ops-input text-xs" rows={2} placeholder="e.g. 12 Main St, Johannesburg" />
+              </div>
+
+              {clientName.trim() !== "" && onSaveClient && !clients.some((c) => c.name.toLowerCase() === clientName.trim().toLowerCase()) && (
+                <button
+                  type="button"
+                  onClick={handleQuickSaveClient}
+                  className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-slate-200 transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <i className="fa-solid fa-user-plus text-emerald-600" /> Save &quot;{clientName.trim()}&quot; to Saved Clients
+                </button>
+              )}
             </div>
           </div>
 
@@ -307,10 +462,28 @@ export default function InvoiceMakerForm({ settings, showToast }: InvoiceMakerPr
             </div>
           </div>
 
-          {/* Payment */}
+          {/* Bank Account Selector */}
           <div>
-            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2 mb-3">Payment Details</h3>
+            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2 mb-3">Payment & Bank Details</h3>
             <div className="space-y-3">
+              {bankAccounts.length > 0 && (
+                <div>
+                  <label className="ops-label">Select Saved Bank Account</label>
+                  <select
+                    value={selectedBankId}
+                    onChange={(e) => handleBankSelect(e.target.value)}
+                    className="ops-input text-xs font-medium"
+                  >
+                    {bankAccounts.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.label} {b.bank_name ? `(${b.bank_name})` : ""} {b.is_default ? "★ Default" : ""}
+                      </option>
+                    ))}
+                    <option value="custom">✏️ Custom / Edit Bank Details</option>
+                  </select>
+                </div>
+              )}
+
               <div><label className="ops-label">Bank Name</label><input type="text" value={bankName} onChange={(e) => setBankName(e.target.value)} className="ops-input" /></div>
               <div><label className="ops-label">Account Holder</label><input type="text" value={accountName} onChange={(e) => setAccountName(e.target.value)} className="ops-input" /></div>
               <div className="grid grid-cols-2 gap-4">

@@ -58,10 +58,29 @@ export interface Invoice {
   paid_at?: string | null;
 }
 
+export interface BusinessAddress {
+  id: string;
+  label: string;
+  address: string;
+  is_default?: boolean;
+}
+
+export interface BankAccount {
+  id: string;
+  label: string;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+  branch_code: string;
+  payshap_id?: string;
+  is_default?: boolean;
+}
+
 export interface Settings {
   user_id?: string;
   company_name: string;
   company_address: string;
+  business_addresses?: BusinessAddress[];
   contact_name: string;
   phone: string;
   email: string;
@@ -71,6 +90,7 @@ export interface Settings {
   account_number: string;
   branch_code: string;
   payshap_id: string;
+  bank_accounts?: BankAccount[];
   accent_color: string;
   currency: string;
   show_verified_badge?: boolean;

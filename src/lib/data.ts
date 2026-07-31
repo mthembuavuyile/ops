@@ -20,6 +20,7 @@ const KEYS = {
 const DEFAULT_SETTINGS: Settings = {
   company_name: "My Business",
   company_address: "",
+  business_addresses: [],
   contact_name: "",
   phone: "",
   email: "",
@@ -29,10 +30,43 @@ const DEFAULT_SETTINGS: Settings = {
   account_number: "",
   branch_code: "",
   payshap_id: "",
+  bank_accounts: [],
   accent_color: "#051b38",
   currency: "R",
   show_verified_badge: true,
 };
+
+export function normalizeSettings(settings: Settings): Settings {
+  const norm = { ...settings };
+  if (!norm.business_addresses || norm.business_addresses.length === 0) {
+    if (norm.company_address) {
+      norm.business_addresses = [
+        { id: "addr-default", label: "Primary Address", address: norm.company_address, is_default: true }
+      ];
+    } else {
+      norm.business_addresses = [];
+    }
+  }
+  if (!norm.bank_accounts || norm.bank_accounts.length === 0) {
+    if (norm.bank_name || norm.account_number) {
+      norm.bank_accounts = [
+        {
+          id: "bank-default",
+          label: "Primary Bank Account",
+          bank_name: norm.bank_name || "",
+          account_name: norm.account_name || "",
+          account_number: norm.account_number || "",
+          branch_code: norm.branch_code || "",
+          payshap_id: norm.payshap_id || "",
+          is_default: true,
+        }
+      ];
+    } else {
+      norm.bank_accounts = [];
+    }
+  }
+  return norm;
+}
 
 // ================= SAFE LOCALSTORAGE HELPERS =================
 function safeGet<T>(key: string): T | null {
@@ -64,7 +98,8 @@ export function getCachedInvoices(): Invoice[] {
 }
 
 export function getCachedSettings(): Settings {
-  return safeGet<Settings>(KEYS.settings) || { ...DEFAULT_SETTINGS };
+  const cached = safeGet<Settings>(KEYS.settings);
+  return cached ? normalizeSettings(cached) : normalizeSettings({ ...DEFAULT_SETTINGS });
 }
 
 export function getCachedHistory(): HistoryRecord[] {
@@ -180,28 +215,31 @@ export async function deleteInvoiceFromDb(id: string, userId: string): Promise<v
 }
 
 export async function saveSettings(settings: Settings, userId: string): Promise<void> {
+  const norm = normalizeSettings(settings);
   const { error } = await supabase.from("settings").upsert({
     user_id: userId,
-    company_name: settings.company_name,
-    company_address: settings.company_address || "",
-    contact_name: settings.contact_name || "",
-    phone: settings.phone || "",
-    email: settings.email || "",
-    website: settings.website || "",
-    bank_name: settings.bank_name || "",
-    account_name: settings.account_name || "",
-    account_number: settings.account_number || "",
-    branch_code: settings.branch_code || "",
-    payshap_id: settings.payshap_id || "",
-    accent_color: settings.accent_color || "#051b38",
-    currency: settings.currency || "R",
-    show_verified_badge: settings.show_verified_badge ?? true,
+    company_name: norm.company_name,
+    company_address: norm.company_address || "",
+    business_addresses: norm.business_addresses || [],
+    contact_name: norm.contact_name || "",
+    phone: norm.phone || "",
+    email: norm.email || "",
+    website: norm.website || "",
+    bank_name: norm.bank_name || "",
+    account_name: norm.account_name || "",
+    account_number: norm.account_number || "",
+    branch_code: norm.branch_code || "",
+    payshap_id: norm.payshap_id || "",
+    bank_accounts: norm.bank_accounts || [],
+    accent_color: norm.accent_color || "#051b38",
+    currency: norm.currency || "R",
+    show_verified_badge: norm.show_verified_badge ?? true,
   }, { onConflict: 'user_id' });
   if (error) {
     console.error("Error saving settings to Supabase:", error);
     return;
   }
-  safeSet(KEYS.settings, settings);
+  safeSet(KEYS.settings, norm);
 }
 
 export async function saveHistory(history: HistoryRecord[], userId: string): Promise<void> {
@@ -238,7 +276,7 @@ export function resetToDefaults(): {
     clients: [] as Client[],
     quotes: [] as Quote[],
     invoices: [] as Invoice[],
-    settings: { ...DEFAULT_SETTINGS },
+    settings: normalizeSettings({ ...DEFAULT_SETTINGS }),
     history: [] as HistoryRecord[],
   };
   safeSet(KEYS.clients, data.clients);
@@ -328,7 +366,7 @@ export async function initData(userId: string): Promise<{
     }
 
     if (!finalSettings) {
-      finalSettings = { ...DEFAULT_SETTINGS };
+      finalSettings = normalizeSettings({ ...DEFAULT_SETTINGS });
       await saveSettings(finalSettings, userId);
     }
 
@@ -336,7 +374,7 @@ export async function initData(userId: string): Promise<{
       clients: finalClients,
       quotes: finalQuotes,
       invoices: finalInvoices,
-      settings: finalSettings,
+      settings: normalizeSettings(finalSettings),
       history: finalHistory,
     };
 

@@ -420,7 +420,12 @@ export default function OpsApp() {
 
           {/* INVOICE MAKER */}
           {app.activeView === "invoice-maker" && (
-            <InvoiceMakerForm settings={app.settings} showToast={showToast} />
+            <InvoiceMakerForm
+              settings={app.settings}
+              clients={app.clients}
+              onSaveClient={handleSaveClient}
+              showToast={showToast}
+            />
           )}
 
           {/* PAYMENT REMINDERS */}
