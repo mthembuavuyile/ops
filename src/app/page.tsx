@@ -31,6 +31,7 @@ export default function OpsApp() {
   const app = useAppData();
   const { toasts, showToast, dismissToast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [billingFilter, setBillingFilter] = useState<"all" | "quotes" | "invoices">("all");
 
   // Backup handlers
   const handleExportBackup = useCallback(() => {
@@ -291,8 +292,7 @@ export default function OpsApp() {
             <i className="fa-solid fa-bars text-lg" />
           </button>
           <span className="font-extrabold text-slate-900 tracking-tight text-sm">
-            {(app.settings.company_name || "VYLEX").toUpperCase()}
-            <span className="text-brand-accent">OPS</span>
+            VYLEX<span className="text-brand-accent">OPS</span>
           </span>
           <button onClick={handleSyncCloud} className="text-brand-accent p-2 rounded-lg active:bg-blue-50 text-xs font-bold flex items-center gap-1" title="Sync Cloud Data">
             <i className="fa-solid fa-rotate" />
@@ -336,25 +336,73 @@ export default function OpsApp() {
           {/* BILLING */}
           {app.activeView === "billing" && (
             <div className="space-y-6">
-              <div>
-                <h1 className="text-2xl font-extrabold text-slate-900">Quotes & Invoices Log</h1>
-                <p className="text-slate-500 text-sm mt-1">Track conversions and status of your billing pipeline.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-extrabold text-slate-900">Quotes & Invoices Log</h1>
+                  <p className="text-slate-500 text-sm mt-1">Track conversions and status of your billing pipeline.</p>
+                </div>
+                
+                {/* Toggle Filter Control */}
+                <div className="inline-flex p-1 bg-slate-200/80 rounded-xl font-medium text-xs border border-slate-200/60 shadow-inner self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => setBillingFilter("all")}
+                    className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
+                      billingFilter === "all"
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <i className="fa-solid fa-layer-group mr-1.5 text-xs" />
+                    All Logs
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBillingFilter("quotes")}
+                    className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
+                      billingFilter === "quotes"
+                        ? "bg-white text-brand-accent shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <i className="fa-solid fa-file-lines mr-1.5 text-xs" />
+                    Quotes ({app.quotes.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBillingFilter("invoices")}
+                    className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
+                      billingFilter === "invoices"
+                        ? "bg-white text-emerald-600 shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <i className="fa-solid fa-file-invoice mr-1.5 text-xs" />
+                    Invoices ({app.invoices.length})
+                  </button>
+                </div>
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <QuotesTable
-                  quotes={app.quotes}
-                  clients={app.clients}
-                  currency={app.settings.currency}
-                  onOpenPortal={handleOpenPortal}
-                  onShareWhatsApp={handleShareWhatsApp}
-                />
-                <InvoicesTable
-                  invoices={app.invoices}
-                  clients={app.clients}
-                  currency={app.settings.currency}
-                  onMarkPaid={markInvoicePaid}
-                  onShareWhatsApp={handleShareWhatsApp}
-                />
+
+              {/* Full Width Stacked Tables */}
+              <div className="space-y-6">
+                {(billingFilter === "all" || billingFilter === "quotes") && (
+                  <QuotesTable
+                    quotes={app.quotes}
+                    clients={app.clients}
+                    currency={app.settings.currency}
+                    onOpenPortal={handleOpenPortal}
+                    onShareWhatsApp={handleShareWhatsApp}
+                  />
+                )}
+                {(billingFilter === "all" || billingFilter === "invoices") && (
+                  <InvoicesTable
+                    invoices={app.invoices}
+                    clients={app.clients}
+                    currency={app.settings.currency}
+                    onMarkPaid={markInvoicePaid}
+                    onShareWhatsApp={handleShareWhatsApp}
+                  />
+                )}
               </div>
             </div>
           )}

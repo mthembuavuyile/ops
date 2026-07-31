@@ -73,7 +73,7 @@ export default function Sidebar({
             onClick={() => handleNav("dashboard")}
             className="flex items-center gap-1 text-xl font-extrabold tracking-tight text-slate-900"
           >
-            {(companyName || "VYLEX").toUpperCase()}
+            VYLEX
             <span className="text-brand-accent">OPS</span>
           </button>
           <span className="bg-brand-accentLight text-brand-accent border border-blue-200 text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded">
