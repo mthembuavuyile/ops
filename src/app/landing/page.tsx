@@ -3,14 +3,14 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Vylex Ops — Simple Business Billing & Invoicing",
-  description: "Minimalist operations tool for quotes, invoices, and client billing management.",
+  title: "Vylex Ops — Free Business Billing & Invoicing Tool",
+  description: "Free minimalist operations tool for quotes, invoices, client portal links, and billing management.",
   alternates: {
     canonical: "https://ops.vylex.co.za/landing",
   },
   openGraph: {
-    title: "Vylex Ops — Simple Business Billing & Invoicing",
-    description: "Minimalist operations tool for quotes, invoices, and client billing management.",
+    title: "Vylex Ops — Free Business Billing & Invoicing Tool",
+    description: "Free minimalist operations tool for quotes, invoices, client portal links, and billing management.",
     url: "https://ops.vylex.co.za/landing",
     siteName: "Vylex Ops",
   },
@@ -30,7 +30,7 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-600 uppercase tracking-wider">
             <a href="#features" className="hover:text-slate-900 transition-colors">Features</a>
             <a href="#workflow" className="hover:text-slate-900 transition-colors">Workflow</a>
-            <a href="#pricing" className="hover:text-slate-900 transition-colors">Pricing</a>
+            <a href="#access" className="hover:text-slate-900 transition-colors">Free Access</a>
             <a href="#faq" className="hover:text-slate-900 transition-colors">FAQ</a>
           </nav>
 
@@ -45,7 +45,7 @@ export default function LandingPage() {
               href="/"
               className="text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 px-4 py-2 rounded-lg transition-colors"
             >
-              Open Workspace
+              Open App
             </Link>
           </div>
         </div>
@@ -54,11 +54,15 @@ export default function LandingPage() {
       {/* HERO SECTION */}
       <section className="border-b border-slate-200 bg-white py-20 md:py-28">
         <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-emerald-700 text-xs font-semibold mb-6">
+            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            100% Free Software — No Subscriptions
+          </div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            Quoting, invoicing, and client billing in one place.
+            Simple quoting, invoicing, and billing for your business.
           </h1>
           <p className="mt-6 text-base md:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
-            A straightforward operations dashboard built for service businesses and independent professionals. Manage client directories, issue accepted quotes, track unpaid invoices, and export documents.
+            A practical, no-nonsense billing operations tool for freelancers and small businesses. Create quotes, convert them to invoices, share online portal links, and send WhatsApp payment reminders.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -66,13 +70,13 @@ export default function LandingPage() {
               href="/"
               className="w-full sm:w-auto text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 px-6 py-3.5 rounded-lg transition-colors text-center"
             >
-              Launch App Workspace
+              Start Using Vylex Ops (Free)
             </Link>
             <a
               href="#features"
               className="w-full sm:w-auto text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-6 py-3.5 rounded-lg transition-colors text-center"
             >
-              View System Features
+              Explore Features
             </a>
           </div>
         </div>
@@ -87,15 +91,15 @@ export default function LandingPage() {
           </div>
           <div>
             <div className="text-xs font-bold text-slate-900 uppercase tracking-wider">Quote Builder</div>
-            <div className="text-xs text-slate-500 mt-1">Itemized Scope & Pricing</div>
+            <div className="text-xs text-slate-500 mt-1">Line Items & Portal Accept</div>
           </div>
           <div>
             <div className="text-xs font-bold text-slate-900 uppercase tracking-wider">Invoice Engine</div>
-            <div className="text-xs text-slate-500 mt-1">Auto-Conversion & Due Dates</div>
+            <div className="text-xs text-slate-500 mt-1">Auto-Conversion & Payment Terms</div>
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-900 uppercase tracking-wider">Document Export</div>
-            <div className="text-xs text-slate-500 mt-1">PDF & Direct WhatsApp Links</div>
+            <div className="text-xs font-bold text-slate-900 uppercase tracking-wider">Direct Sharing</div>
+            <div className="text-xs text-slate-500 mt-1">WhatsApp & PDF Exports</div>
           </div>
         </div>
       </section>
@@ -104,32 +108,32 @@ export default function LandingPage() {
       <section id="features" className="py-20 max-w-6xl mx-auto px-6">
         <div className="mb-14">
           <h2 className="text-xs font-bold text-sky-600 uppercase tracking-widest">Core Capabilities</h2>
-          <p className="text-2xl font-bold text-slate-900 mt-2">Built for practical day-to-day operations.</p>
+          <p className="text-2xl font-bold text-slate-900 mt-2">Built for practical day-to-day business operations.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           <div className="bg-white border border-slate-200 rounded-xl p-6">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">01 / Quoting</div>
-            <h3 className="text-base font-bold text-slate-900">Quotations & Estimates</h3>
+            <h3 className="text-base font-bold text-slate-900">Quotations & Client Portal</h3>
             <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-              Create structured cost estimates with line items, tax configurations, custom notes, and expiration limits. Clients can view and accept quotes directly.
+              Create detailed quotes with itemized pricing, custom notes, and validity dates. Share an online client portal link where clients can review and accept quotes digitally.
             </p>
           </div>
 
           <div className="bg-white border border-slate-200 rounded-xl p-6">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">02 / Invoicing</div>
-            <h3 className="text-base font-bold text-slate-900">Invoice Management</h3>
+            <h3 className="text-base font-bold text-slate-900">Invoices & Auto Conversion</h3>
             <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-              Convert accepted quotes into invoices with a single click. Maintain clear payment statuses (unpaid, paid, overdue) and track outstanding balances.
+              Instantly turn accepted quotes into professional invoices or generate standalone invoices. Track status (Unpaid, Paid, Settled) and manage payment due dates.
             </p>
           </div>
 
           <div className="bg-white border border-slate-200 rounded-xl p-6">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">03 / Communication</div>
-            <h3 className="text-base font-bold text-slate-900">PDF & Reminders</h3>
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">03 / Communication & Banking</div>
+            <h3 className="text-base font-bold text-slate-900">WhatsApp & Banking Details</h3>
             <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-              Generate clean PDF documents ready for download or client distribution. Send formatted payment reminder messages via WhatsApp or email.
+              Share document links directly via WhatsApp with pre-filled messages. Include custom bank account details, branch codes, and PayShap IDs on all documents.
             </p>
           </div>
 
@@ -156,28 +160,28 @@ export default function LandingPage() {
               <tbody className="divide-y divide-slate-200 font-normal text-slate-800">
                 <tr className="hover:bg-slate-50">
                   <td className="p-4 font-bold text-slate-900">1. Client Record</td>
-                  <td className="p-4">Add client contact, email, and prefix identifier.</td>
-                  <td className="p-4 text-slate-600">Established client profile for auto-numbering.</td>
+                  <td className="p-4">Add client contact details, email, and custom prefix.</td>
+                  <td className="p-4 text-slate-600">Client profile ready for automatic document numbering.</td>
                 </tr>
                 <tr className="hover:bg-slate-50">
                   <td className="p-4 font-bold text-slate-900">2. Quote Generation</td>
-                  <td className="p-4">Define line items, rates, quantities, and scope details.</td>
+                  <td className="p-4">Add line items, quantities, pricing, tax rates, and notes.</td>
                   <td className="p-4 text-slate-600">Issued Quote record (e.g. Q-2026-001).</td>
                 </tr>
                 <tr className="hover:bg-slate-50">
-                  <td className="p-4 font-bold text-slate-900">3. Portal Review</td>
-                  <td className="p-4">Share client portal link for digital acceptance.</td>
-                  <td className="p-4 text-slate-600">Quote status set to Accepted.</td>
+                  <td className="p-4 font-bold text-slate-900">3. Portal Acceptance</td>
+                  <td className="p-4">Share unguessable link for digital client review.</td>
+                  <td className="p-4 text-slate-600">Client accepts quote directly online.</td>
                 </tr>
                 <tr className="hover:bg-slate-50">
                   <td className="p-4 font-bold text-slate-900">4. Invoice Conversion</td>
                   <td className="p-4">System auto-generates invoice from accepted quote.</td>
-                  <td className="p-4 text-slate-600">Invoice record with 14-day payment term.</td>
+                  <td className="p-4 text-slate-600">Invoice created with 14-day payment due term.</td>
                 </tr>
                 <tr className="hover:bg-slate-50">
-                  <td className="p-4 font-bold text-slate-900">5. Payment Resolution</td>
-                  <td className="p-4">Mark payment received or dispatch payment reminder.</td>
-                  <td className="p-4 text-slate-600">Updated status to Paid and balance update.</td>
+                  <td className="p-4 font-bold text-slate-900">5. Settlement & Reminders</td>
+                  <td className="p-4">Mark invoice as paid or send WhatsApp payment reminder.</td>
+                  <td className="p-4 text-slate-600">Status set to Settled/Paid and balance updated.</td>
                 </tr>
               </tbody>
             </table>
@@ -185,37 +189,38 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* PRICING SECTION */}
-      <section id="pricing" className="py-20 max-w-6xl mx-auto px-6">
+      {/* ACCESS & PRICING SECTION */}
+      <section id="access" className="py-20 max-w-6xl mx-auto px-6">
         <div className="mb-14 text-center max-w-2xl mx-auto">
-          <h2 className="text-xs font-bold text-sky-600 uppercase tracking-widest">Pricing Structure</h2>
-          <p className="text-2xl font-bold text-slate-900 mt-2">Straightforward access models.</p>
+          <h2 className="text-xs font-bold text-sky-600 uppercase tracking-widest">Free Access</h2>
+          <p className="text-2xl font-bold text-slate-900 mt-2">Choose how you want to use Vylex Ops.</p>
+          <p className="text-xs text-slate-500 mt-2">Both options are completely free to use with zero hidden fees.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           
-          {/* FREE TIER */}
+          {/* LOCAL MODE */}
           <div className="bg-white border border-slate-200 rounded-xl p-8 flex flex-col justify-between">
             <div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Local Workspace</div>
-              <div className="text-3xl font-extrabold text-slate-900 mt-2">R0</div>
-              <div className="text-xs text-slate-500 mt-1">Free forever / Local storage mode</div>
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Instant Local Mode</div>
+              <div className="text-3xl font-extrabold text-slate-900 mt-2">Free</div>
+              <div className="text-xs text-slate-500 mt-1">No sign-up required / Saved in your browser</div>
               <ul className="mt-6 space-y-3 text-xs text-slate-700 border-t border-slate-100 pt-6">
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-                  Unlimited local quotes & invoices
+                  Unlimited quotes, invoices & client profiles
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-                  Client directory management
+                  Save & print PDF documents directly
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-                  PDF exports & WhatsApp link sharing
+                  WhatsApp reminder message generator
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-                  Local browser data storage
+                  Manual JSON data backup export & import
                 </li>
               </ul>
             </div>
@@ -224,33 +229,36 @@ export default function LandingPage() {
                 href="/"
                 className="block text-center text-xs font-semibold text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-300 py-3 rounded-lg transition-colors"
               >
-                Use Local Workspace
+                Launch Local App
               </Link>
             </div>
           </div>
 
-          {/* PRO TIER */}
+          {/* CLOUD SYNC MODE */}
           <div className="bg-white border-2 border-slate-900 rounded-xl p-8 flex flex-col justify-between relative">
+            <div className="absolute -top-3 right-6 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+              Recommended
+            </div>
             <div>
-              <div className="text-xs font-bold text-sky-600 uppercase tracking-wider">Cloud Pro</div>
-              <div className="text-3xl font-extrabold text-slate-900 mt-2">R199 <span className="text-xs font-normal text-slate-500">/ month</span></div>
-              <div className="text-xs text-slate-500 mt-1">For active service businesses</div>
+              <div className="text-xs font-bold text-sky-600 uppercase tracking-wider">Cloud Sync Account</div>
+              <div className="text-3xl font-extrabold text-slate-900 mt-2">Free</div>
+              <div className="text-xs text-slate-500 mt-1">Sync your data across all your devices</div>
               <ul className="mt-6 space-y-3 text-xs text-slate-700 border-t border-slate-100 pt-6">
                 <li className="flex items-center gap-2 font-medium text-slate-900">
                   <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
-                  Everything in Local Workspace
+                  Everything included in Local Mode
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
-                  Multi-device cloud synchronization
+                  Multi-device real-time cloud synchronization
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
-                  Custom business branding & logo upload
+                  Secure account login (Supabase authentication)
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
-                  Automated email invoice dispatching
+                  Shareable client portal links for quote acceptance
                 </li>
               </ul>
             </div>
@@ -259,7 +267,7 @@ export default function LandingPage() {
                 href="/register"
                 className="block text-center text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 py-3 rounded-lg transition-colors"
               >
-                Start Cloud Account
+                Create Free Account
               </Link>
             </div>
           </div>
@@ -272,28 +280,35 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-6">
           <div className="mb-12">
             <h2 className="text-xs font-bold text-sky-600 uppercase tracking-widest">Frequently Asked Questions</h2>
-            <p className="text-2xl font-bold text-slate-900 mt-2">Technical & operational details.</p>
+            <p className="text-2xl font-bold text-slate-900 mt-2">Clear answers about how Vylex Ops works.</p>
           </div>
 
           <div className="space-y-6">
             <div className="border border-slate-200 rounded-xl p-6">
-              <h3 className="text-sm font-bold text-slate-900">Where is my workspace data stored in the free tier?</h3>
+              <h3 className="text-sm font-bold text-slate-900">Is Vylex Ops really free to use?</h3>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                In the free local workspace, all client profiles, quotes, and invoices are saved directly in your web browser&apos;s local storage (`localStorage`). No external database is required.
+                Yes. Vylex Ops is completely free. You can use it immediately without registering in Local Mode, or create a free account to sync your billing data securely across multiple devices.
               </p>
             </div>
 
             <div className="border border-slate-200 rounded-xl p-6">
-              <h3 className="text-sm font-bold text-slate-900">How does quote-to-invoice conversion work?</h3>
+              <h3 className="text-sm font-bold text-slate-900">Where is my data stored?</h3>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                When a client accepts a quote via the portal view, Vylex Ops generates an invoice record carrying over line items, totals, and client information, with an automatically assigned invoice number.
+                In Local Mode, data is stored exclusively in your browser&apos;s local storage (`localStorage`). When logged into a free account, your data syncs securely to your personal database profile on Supabase.
               </p>
             </div>
 
             <div className="border border-slate-200 rounded-xl p-6">
-              <h3 className="text-sm font-bold text-slate-900">Can I export my invoices to PDF?</h3>
+              <h3 className="text-sm font-bold text-slate-900">How do client portal links and quote acceptance work?</h3>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Yes. Built-in PDF compilation allows you to download clean document layouts directly from the quote builder, invoice viewer, or client portal.
+                When you generate a quote, Vylex Ops creates a shareable link. Clients can open this link in their browser to review the document and click &quot;Accept Quote&quot;, which automatically updates the quote status and creates a matching invoice.
+              </p>
+            </div>
+
+            <div className="border border-slate-200 rounded-xl p-6">
+              <h3 className="text-sm font-bold text-slate-900">Can I save or print documents as PDFs?</h3>
+              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+                Yes. Built-in browser print styles allow you to print clean quotes and invoices directly or save them as PDF files to send to your clients.
               </p>
             </div>
           </div>
@@ -316,7 +331,7 @@ export default function LandingPage() {
                 vylex.co.za
               </a>
             </div>
-            <p className="mt-1 text-slate-500">Business billing and operations management system.</p>
+            <p className="mt-1 text-slate-500">Free business billing and operations management system.</p>
           </div>
 
           <div className="flex items-center gap-6 text-slate-400">
