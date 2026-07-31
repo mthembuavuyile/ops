@@ -13,42 +13,23 @@ export default function ForgotPassword() {
     setLoading(true);
     setMessage(null);
 
-    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
 
-    if (hasSupabaseKey) {
-      try {
-        const { supabase } = await import("@/lib/supabase");
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-
-        if (error) {
-          // Even if email is not found, returning success prevents user enumeration.
-          console.error("Supabase reset password error:", error);
-          setMessage({
-            type: "success",
-            text: "If an account exists with this email, a password reset link has been sent.",
-          });
-        } else {
-          setMessage({
-            type: "success",
-            text: "If an account exists with this email, a password reset link has been sent.",
-          });
-        }
-      } catch (err: unknown) {
-        console.error("Supabase reset error:", err);
-        setMessage({ type: "error", text: "An unexpected error occurred. Please try again." });
+      if (error) {
+        console.error("Reset password error:", error);
       }
-    } else {
-      // Local Storage Fallback (Demo Mode)
-      setTimeout(() => {
-        setMessage({
-          type: "success",
-          text: "Demo mode: If this were connected to Supabase, an email would have been sent.",
-        });
-        setLoading(false);
-      }, 600);
-      return;
+      // Always show success to prevent user enumeration
+      setMessage({
+        type: "success",
+        text: "If an account exists with this email, a password reset link has been sent.",
+      });
+    } catch (err: unknown) {
+      console.error("Reset error:", err);
+      setMessage({ type: "error", text: "An unexpected error occurred. Please try again." });
     }
 
     setLoading(false);

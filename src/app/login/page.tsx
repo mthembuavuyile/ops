@@ -66,52 +66,35 @@ export default function Login() {
       return;
     }
 
-    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (hasSupabaseKey) {
-      try {
-        const { supabase } = await import("@/lib/supabase");
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          setErrorMsg(error.message);
-          setLoading(false);
-          return;
-        }
-
-        if (data.user) {
-          setSession({
-            id: data.user.id,
-            name: data.user.user_metadata?.company_name || data.user.email?.split("@")[0] || email.split("@")[0],
-            email: data.user.email || email,
-            loggedInAt: new Date().toISOString(),
-          });
-          router.push("/");
-          return;
-        }
-      } catch (err: unknown) {
-        console.error("Supabase login error:", err);
-        setErrorMsg("An unexpected error occurred. Please try again.");
-      }
-    } else {
-      // Local Storage Fallback (Demo Mode)
-      setTimeout(() => {
-        if (email.includes("@") && password.length >= 4) {
-          setSession({
-            name: email.split("@")[0],
-            email,
-            loggedInAt: new Date().toISOString(),
-          });
-          router.push("/");
-        } else {
-          setErrorMsg("Invalid email or password.");
-        }
+      if (error) {
+        setErrorMsg(error.message);
         setLoading(false);
-      }, 400);
+        return;
+      }
+
+      if (data.user) {
+        setSession({
+          id: data.user.id,
+          name: data.user.user_metadata?.company_name || data.user.email?.split("@")[0] || email.split("@")[0],
+          email: data.user.email || email,
+          loggedInAt: new Date().toISOString(),
+        });
+        router.push("/");
+        return;
+      }
+    } catch (err: unknown) {
+      console.error("Login error:", err);
+      setErrorMsg("An unexpected error occurred. Please try again.");
     }
+
+    setLoading(false);
   };
 
   const isLockedOut = remainingSecs > 0;

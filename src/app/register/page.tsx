@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { setSession, saveSettings, getSettings } from "@/lib/data";
+import { setSession, saveSettings, getCachedSettings as getSettings } from "@/lib/data";
 import type { Settings } from "@/lib/types";
 
 export default function Register() {
@@ -35,84 +35,63 @@ export default function Register() {
       return;
     }
 
-    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
-
-    if (hasSupabaseKey) {
-      try {
-        const { supabase } = await import("@/lib/supabase");
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              company_name: companyName,
-            },
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            company_name: companyName,
           },
-        });
+        },
+      });
 
-        if (error) {
-          setErrorMsg("Registration failed. Email may already be in use or invalid.");
-          setLoading(false);
-          return;
-        }
-        
-        if (data?.user?.identities?.length === 0) {
-          // Supabase trick: if identities is empty, the user already existed
-          setErrorMsg("Registration failed. Email may already be in use.");
-          setLoading(false);
-          return;
-        }
-
-        const currentSettings = getSettings();
-        const newSettings: Settings = {
-          ...currentSettings,
-          company_name: companyName,
-          email: email,
-          contact_name: companyName,
-        };
-        const userId = data.session?.user?.id || data.user?.id;
-        saveSettings(newSettings, userId);
-
-        // Depending on whether confirm email is on, session might be null.
-        if (data.session) {
-          setSession({
-            id: data.session.user.id,
-            name: companyName,
-            email,
-            loggedInAt: new Date().toISOString(),
-          });
-          router.push("/");
-        } else {
-          setErrorMsg("Success! Please check your email to confirm your account before logging in.");
-          setLoading(false);
-        }
+      if (error) {
+        setErrorMsg("Registration failed. Email may already be in use or invalid.");
+        setLoading(false);
         return;
-      } catch (err: unknown) {
-        console.error("Supabase registration error:", err);
-        setErrorMsg("An unexpected error occurred. Please try again.");
       }
-    } else {
-      // Local Storage Fallback (Demo Mode)
-      setTimeout(() => {
-        const currentSettings = getSettings();
-        const newSettings: Settings = {
-          ...currentSettings,
-          company_name: companyName,
-          email: email,
-          contact_name: companyName,
-        };
-        saveSettings(newSettings);
+      
+      if (data?.user?.identities?.length === 0) {
+        // Supabase trick: if identities is empty, the user already existed
+        setErrorMsg("Registration failed. Email may already be in use.");
+        setLoading(false);
+        return;
+      }
 
+      const currentSettings = getSettings();
+      const newSettings: Settings = {
+        ...currentSettings,
+        company_name: companyName,
+        email: email,
+        contact_name: companyName,
+      };
+      const userId = data.session?.user?.id || data.user?.id;
+      if (userId) {
+        saveSettings(newSettings, userId);
+      }
+
+      // Depending on whether confirm email is on, session might be null.
+      if (data.session) {
         setSession({
+          id: data.session.user.id,
           name: companyName,
           email,
           loggedInAt: new Date().toISOString(),
         });
-
         router.push("/");
+      } else {
+        setErrorMsg("Success! Please check your email to confirm your account before logging in.");
         setLoading(false);
-      }, 400);
+      }
+      return;
+    } catch (err: unknown) {
+      console.error("Registration error:", err);
+      setErrorMsg("An unexpected error occurred. Please try again.");
     }
+
+    setLoading(false);
   };
 
   return (
