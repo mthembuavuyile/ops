@@ -85,7 +85,7 @@ export default function Sidebar({
 
         {/* Account status card */}
         <div className="mx-4 mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-          {session ? (
+          {session && (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-900 truncate max-w-[130px]">
@@ -104,29 +104,6 @@ export default function Sidebar({
                   <i className="fa-solid fa-rotate text-[9px]" /> Sync Cloud Data
                 </button>
               )}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-slate-700 font-semibold text-[11px]">
-                <span className="flex items-center gap-1.5">
-                  <i className="fa-solid fa-user-clock text-amber-500" /> Guest Mode
-                </span>
-                <span className="text-[10px] text-slate-400 font-normal">Local Storage</span>
-              </div>
-              <div className="flex items-center gap-1.5 pt-1">
-                <Link
-                  href="/login"
-                  className="flex-1 text-center py-1 px-2 text-[10px] font-bold text-slate-700 bg-white border border-slate-300 rounded hover:bg-slate-100 transition-colors"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/register"
-                  className="flex-1 text-center py-1 px-2 text-[10px] font-bold text-white bg-brand-accent rounded hover:bg-blue-950 transition-colors"
-                >
-                  Sign Up
-                </Link>
-              </div>
             </div>
           )}
         </div>
@@ -185,31 +162,14 @@ export default function Sidebar({
 
         {/* Footer */}
         <div className="p-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-          {session ? (
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-1.5 hover:text-rose-600 font-medium transition-colors"
-              title="Sign out of account"
-            >
-              <i className="fa-solid fa-right-from-bracket text-rose-500" />
-              <span>Log Out</span>
-            </button>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <i className="fa-solid fa-circle-user text-slate-400" />
-              <span className="font-medium text-slate-600">Guest User</span>
-            </div>
-          )}
-          {!session && (
-            <button
-              onClick={onReset}
-              className="flex items-center gap-1 hover:text-amber-600 transition-colors"
-              title="Reset local guest data to defaults"
-            >
-              <i className="fa-solid fa-rotate-left" />
-              Reset
-            </button>
-          )}
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-1.5 hover:text-rose-600 font-medium transition-colors"
+            title="Sign out of account"
+          >
+            <i className="fa-solid fa-right-from-bracket text-rose-500" />
+            <span>Log Out</span>
+          </button>
         </div>
       </aside>
     </>

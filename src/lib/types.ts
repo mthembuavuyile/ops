@@ -111,7 +111,7 @@ export type AppView =
 
 // Session for simple localStorage login
 export interface UserSession {
-  id?: string;
+  id: string;
   name: string;
   email: string;
   loggedInAt: string;

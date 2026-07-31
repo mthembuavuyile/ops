@@ -25,7 +25,7 @@ import HistoryTable from "@/components/history/HistoryTable";
 import SettingsForm from "@/components/settings/SettingsForm";
 import ClientPortal from "@/components/portal/ClientPortal";
 
-import GuestBanner from "@/components/layout/GuestBanner";
+
 
 export default function OpsApp() {
   const app = useAppData();
@@ -237,16 +237,13 @@ export default function OpsApp() {
   );
 
   const handleReset = useCallback(() => {
-    if (app.session) {
-      showToast("🔒 Reset is only available in Guest Mode. Your cloud database is safe.", "info");
-      return;
-    }
     app.resetData();
-    showToast("🔄 Local guest workspace reset to defaults.", "warning");
+    showToast("🔄 Workspace reset to defaults.", "warning");
   }, [app, showToast]);
 
-  // Loading state
-  if (!app.ready) {
+  // Loading state or not authenticated — show loading spinner
+  // (useAppData will redirect to /login if not authenticated)
+  if (!app.ready || !app.session) {
     return (
       <div className="h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-3">
@@ -302,8 +299,6 @@ export default function OpsApp() {
         </div>
 
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
-          {/* Guest Perks Callout Banner */}
-          {!app.session && <GuestBanner />}
 
           {/* DASHBOARD */}
           {app.activeView === "dashboard" && (

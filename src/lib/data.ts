@@ -1,10 +1,11 @@
 // ================= DATA SERVICE LAYER =================
-// Supabase Cloud Sync Integration
+// Supabase Cloud — Single Source of Truth
+// LocalStorage is a read-only cache for fast initial renders
 
 import type { Client, Quote, Invoice, Settings, HistoryRecord, UserSession } from "./types";
 import { supabase } from "./supabase";
 
-// Storage keys for local caching (optimistic UI)
+// Storage keys for local caching
 const KEYS = {
   clients: "vylex_ops_clients",
   quotes: "vylex_ops_quotes",
@@ -12,13 +13,10 @@ const KEYS = {
   settings: "vylex_ops_settings",
   history: "vylex_ops_history",
   session: "vylex_ops_session",
+  migrated: "vylex_ops_migrated", // flag to track one-time guest→cloud migration
 };
 
 // ================= SEED DATA =================
-const DEFAULT_CLIENTS: Client[] = [];
-const DEFAULT_QUOTES: Quote[] = [];
-const DEFAULT_INVOICES: Invoice[] = [];
-
 const DEFAULT_SETTINGS: Settings = {
   company_name: "My Business",
   company_address: "",
@@ -34,8 +32,6 @@ const DEFAULT_SETTINGS: Settings = {
   accent_color: "#051b38",
   currency: "R",
 };
-
-const DEFAULT_HISTORY: HistoryRecord[] = [];
 
 // ================= SAFE LOCALSTORAGE HELPERS =================
 function safeGet<T>(key: string): T | null {
@@ -53,32 +49,29 @@ function safeSet(key: string, value: unknown): void {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-// ================= DATA ACCESSORS (LOCAL CACHE) =================
-export function getClients(): Client[] {
-  return safeGet<Client[]>(KEYS.clients) || [...DEFAULT_CLIENTS];
+// ================= LOCAL CACHE READERS (for fast initial render) =================
+export function getCachedClients(): Client[] {
+  return safeGet<Client[]>(KEYS.clients) || [];
 }
 
-export function getQuotes(): Quote[] {
-  return safeGet<Quote[]>(KEYS.quotes) || [...DEFAULT_QUOTES];
+export function getCachedQuotes(): Quote[] {
+  return safeGet<Quote[]>(KEYS.quotes) || [];
 }
 
-export function getInvoices(): Invoice[] {
-  return safeGet<Invoice[]>(KEYS.invoices) || [...DEFAULT_INVOICES];
+export function getCachedInvoices(): Invoice[] {
+  return safeGet<Invoice[]>(KEYS.invoices) || [];
 }
 
-export function getSettings(): Settings {
+export function getCachedSettings(): Settings {
   return safeGet<Settings>(KEYS.settings) || { ...DEFAULT_SETTINGS };
 }
 
-export function getHistory(): HistoryRecord[] {
-  return safeGet<HistoryRecord[]>(KEYS.history) || [...DEFAULT_HISTORY];
+export function getCachedHistory(): HistoryRecord[] {
+  return safeGet<HistoryRecord[]>(KEYS.history) || [];
 }
 
-// ================= DATA MUTATORS (SYNC TO SUPABASE) =================
-export async function saveClients(clients: Client[], userId?: string): Promise<void> {
-  safeSet(KEYS.clients, clients);
-  if (!userId) return;
-  
+// ================= DATA MUTATORS (Supabase first, then cache) =================
+export async function saveClients(clients: Client[], userId: string): Promise<void> {
   const payload = clients.map(c => ({
     id: c.id,
     name: c.name,
@@ -91,24 +84,26 @@ export async function saveClients(clients: Client[], userId?: string): Promise<v
   }));
   if (payload.length > 0) {
     const { error } = await supabase.from("clients").upsert(payload, { onConflict: 'id' });
-    if (error) console.error("Error saving clients to Supabase:", error);
+    if (error) {
+      console.error("Error saving clients to Supabase:", error);
+      return; // Don't update cache on failure
+    }
   }
+  safeSet(KEYS.clients, clients);
 }
 
-export async function deleteClientFromDb(id: string, userId?: string): Promise<void> {
-  const current = getClients();
-  const updated = current.filter(c => c.id !== id);
-  safeSet(KEYS.clients, updated);
-  if (!userId) return;
-
+export async function deleteClientFromDb(id: string, userId: string): Promise<void> {
   const { error } = await supabase.from("clients").delete().eq("id", id).eq("user_id", userId);
-  if (error) console.error("Error deleting client from Supabase:", error);
+  if (error) {
+    console.error("Error deleting client from Supabase:", error);
+    return;
+  }
+  // Update local cache after successful delete
+  const current = getCachedClients();
+  safeSet(KEYS.clients, current.filter(c => c.id !== id));
 }
 
-export async function saveQuotes(quotes: Quote[], userId?: string): Promise<void> {
-  safeSet(KEYS.quotes, quotes);
-  if (!userId) return;
-
+export async function saveQuotes(quotes: Quote[], userId: string): Promise<void> {
   const payload = quotes.map(q => ({
     id: q.id,
     client_id: q.client_id,
@@ -126,24 +121,25 @@ export async function saveQuotes(quotes: Quote[], userId?: string): Promise<void
   }));
   if (payload.length > 0) {
     const { error } = await supabase.from("quotes").upsert(payload, { onConflict: 'id' });
-    if (error) console.error("Error saving quotes to Supabase:", error);
+    if (error) {
+      console.error("Error saving quotes to Supabase:", error);
+      return;
+    }
   }
+  safeSet(KEYS.quotes, quotes);
 }
 
-export async function deleteQuoteFromDb(id: string, userId?: string): Promise<void> {
-  const current = getQuotes();
-  const updated = current.filter(q => q.id !== id);
-  safeSet(KEYS.quotes, updated);
-  if (!userId) return;
-
+export async function deleteQuoteFromDb(id: string, userId: string): Promise<void> {
   const { error } = await supabase.from("quotes").delete().eq("id", id).eq("user_id", userId);
-  if (error) console.error("Error deleting quote from Supabase:", error);
+  if (error) {
+    console.error("Error deleting quote from Supabase:", error);
+    return;
+  }
+  const current = getCachedQuotes();
+  safeSet(KEYS.quotes, current.filter(q => q.id !== id));
 }
 
-export async function saveInvoices(invoices: Invoice[], userId?: string): Promise<void> {
-  safeSet(KEYS.invoices, invoices);
-  if (!userId) return;
-
+export async function saveInvoices(invoices: Invoice[], userId: string): Promise<void> {
   const payload = invoices.map(i => ({
     id: i.id,
     client_id: i.client_id,
@@ -162,24 +158,25 @@ export async function saveInvoices(invoices: Invoice[], userId?: string): Promis
   }));
   if (payload.length > 0) {
     const { error } = await supabase.from("invoices").upsert(payload, { onConflict: 'id' });
-    if (error) console.error("Error saving invoices to Supabase:", error);
+    if (error) {
+      console.error("Error saving invoices to Supabase:", error);
+      return;
+    }
   }
+  safeSet(KEYS.invoices, invoices);
 }
 
-export async function deleteInvoiceFromDb(id: string, userId?: string): Promise<void> {
-  const current = getInvoices();
-  const updated = current.filter(i => i.id !== id);
-  safeSet(KEYS.invoices, updated);
-  if (!userId) return;
-
+export async function deleteInvoiceFromDb(id: string, userId: string): Promise<void> {
   const { error } = await supabase.from("invoices").delete().eq("id", id).eq("user_id", userId);
-  if (error) console.error("Error deleting invoice from Supabase:", error);
+  if (error) {
+    console.error("Error deleting invoice from Supabase:", error);
+    return;
+  }
+  const current = getCachedInvoices();
+  safeSet(KEYS.invoices, current.filter(i => i.id !== id));
 }
 
-export async function saveSettings(settings: Settings, userId?: string): Promise<void> {
-  safeSet(KEYS.settings, settings);
-  if (!userId) return;
-
+export async function saveSettings(settings: Settings, userId: string): Promise<void> {
   const { error } = await supabase.from("settings").upsert({
     user_id: userId,
     company_name: settings.company_name,
@@ -196,13 +193,14 @@ export async function saveSettings(settings: Settings, userId?: string): Promise
     accent_color: settings.accent_color || "#051b38",
     currency: settings.currency || "R",
   }, { onConflict: 'user_id' });
-  if (error) console.error("Error saving settings to Supabase:", error);
+  if (error) {
+    console.error("Error saving settings to Supabase:", error);
+    return;
+  }
+  safeSet(KEYS.settings, settings);
 }
 
-export async function saveHistory(history: HistoryRecord[], userId?: string): Promise<void> {
-  safeSet(KEYS.history, history);
-  if (!userId) return;
-
+export async function saveHistory(history: HistoryRecord[], userId: string): Promise<void> {
   const payload = history.map(h => ({
     id: h.id,
     docNumber: h.docNumber,
@@ -216,8 +214,12 @@ export async function saveHistory(history: HistoryRecord[], userId?: string): Pr
   }));
   if (payload.length > 0) {
     const { error } = await supabase.from("history").upsert(payload, { onConflict: 'id' });
-    if (error) console.error("Error saving history to Supabase:", error);
+    if (error) {
+      console.error("Error saving history to Supabase:", error);
+      return;
+    }
   }
+  safeSet(KEYS.history, history);
 }
 
 // ================= RESET / SEED =================
@@ -229,11 +231,11 @@ export function resetToDefaults(): {
   history: HistoryRecord[];
 } {
   const data = {
-    clients: [...DEFAULT_CLIENTS],
-    quotes: [...DEFAULT_QUOTES],
-    invoices: [...DEFAULT_INVOICES],
+    clients: [] as Client[],
+    quotes: [] as Quote[],
+    invoices: [] as Invoice[],
     settings: { ...DEFAULT_SETTINGS },
-    history: [...DEFAULT_HISTORY],
+    history: [] as HistoryRecord[],
   };
   safeSet(KEYS.clients, data.clients);
   safeSet(KEYS.quotes, data.quotes);
@@ -244,27 +246,16 @@ export function resetToDefaults(): {
 }
 
 /**
- * Initialise data: load from Supabase if logged in, otherwise local cache.
+ * Initialise data: always fetch from Supabase (the source of truth).
+ * On first login, migrates any existing localStorage guest data to the cloud.
  */
-export async function initData(userId?: string): Promise<{
+export async function initData(userId: string): Promise<{
   clients: Client[];
   quotes: Quote[];
   invoices: Invoice[];
   settings: Settings;
   history: HistoryRecord[];
 }> {
-  if (!userId) {
-    // Guest mode: load from local storage
-    return {
-      clients: getClients(),
-      quotes: getQuotes(),
-      invoices: getInvoices(),
-      settings: getSettings(),
-      history: getHistory(),
-    };
-  }
-
-  // Logged in: fetch from Supabase
   try {
     const [
       { data: clients, error: clientsErr },
@@ -292,35 +283,49 @@ export async function initData(userId?: string): Promise<{
     let finalSettings = settings || null;
     let finalHistory = history || [];
 
-    // Guest -> DB auto migration: if database has 0 clients/quotes/invoices but local storage has data, upload local data to Supabase for the user
-    const localClients = getClients();
-    if (finalClients.length === 0 && localClients.length > 0) {
-      await saveClients(localClients, userId);
-      finalClients = localClients;
-    }
+    // One-time guest → cloud migration: if the user has never migrated and
+    // the database is empty but localStorage has data, upload it
+    const alreadyMigrated = safeGet<boolean>(KEYS.migrated);
+    if (!alreadyMigrated) {
+      const localClients = safeGet<Client[]>(KEYS.clients) || [];
+      if (finalClients.length === 0 && localClients.length > 0) {
+        await saveClients(localClients, userId);
+        finalClients = localClients;
+      }
 
-    const localQuotes = getQuotes();
-    if (finalQuotes.length === 0 && localQuotes.length > 0) {
-      await saveQuotes(localQuotes, userId);
-      finalQuotes = localQuotes;
-    }
+      const localQuotes = safeGet<Quote[]>(KEYS.quotes) || [];
+      if (finalQuotes.length === 0 && localQuotes.length > 0) {
+        await saveQuotes(localQuotes, userId);
+        finalQuotes = localQuotes;
+      }
 
-    const localInvoices = getInvoices();
-    if (finalInvoices.length === 0 && localInvoices.length > 0) {
-      await saveInvoices(localInvoices, userId);
-      finalInvoices = localInvoices;
+      const localInvoices = safeGet<Invoice[]>(KEYS.invoices) || [];
+      if (finalInvoices.length === 0 && localInvoices.length > 0) {
+        await saveInvoices(localInvoices, userId);
+        finalInvoices = localInvoices;
+      }
+
+      if (!finalSettings) {
+        const localSettings = safeGet<Settings>(KEYS.settings);
+        if (localSettings) {
+          finalSettings = localSettings;
+          await saveSettings(finalSettings, userId);
+        }
+      }
+
+      const localHistory = safeGet<HistoryRecord[]>(KEYS.history) || [];
+      if (finalHistory.length === 0 && localHistory.length > 0) {
+        await saveHistory(localHistory, userId);
+        finalHistory = localHistory;
+      }
+
+      // Mark migration as done so it doesn't repeat
+      safeSet(KEYS.migrated, true);
     }
 
     if (!finalSettings) {
-      const localSettings = getSettings();
-      finalSettings = localSettings || DEFAULT_SETTINGS;
+      finalSettings = { ...DEFAULT_SETTINGS };
       await saveSettings(finalSettings, userId);
-    }
-
-    const localHistory = getHistory();
-    if (finalHistory.length === 0 && localHistory.length > 0) {
-      await saveHistory(localHistory, userId);
-      finalHistory = localHistory;
     }
 
     const freshData = {
@@ -331,7 +336,7 @@ export async function initData(userId?: string): Promise<{
       history: finalHistory,
     };
 
-    // Update local cache
+    // Update local cache for fast subsequent renders
     safeSet(KEYS.clients, freshData.clients);
     safeSet(KEYS.quotes, freshData.quotes);
     safeSet(KEYS.invoices, freshData.invoices);
@@ -341,12 +346,13 @@ export async function initData(userId?: string): Promise<{
     return freshData;
   } catch (err) {
     console.error("Error initialising data from Supabase:", err);
+    // Fallback to cache on network error (offline resilience)
     return {
-      clients: getClients(),
-      quotes: getQuotes(),
-      invoices: getInvoices(),
-      settings: getSettings(),
-      history: getHistory(),
+      clients: getCachedClients(),
+      quotes: getCachedQuotes(),
+      invoices: getCachedInvoices(),
+      settings: getCachedSettings(),
+      history: getCachedHistory(),
     };
   }
 }
@@ -374,11 +380,11 @@ export function exportDataJSON(): string {
   const backup = {
     version: "2.0",
     exportedAt: new Date().toISOString(),
-    clients: getClients(),
-    quotes: getQuotes(),
-    invoices: getInvoices(),
-    settings: getSettings(),
-    history: getHistory(),
+    clients: getCachedClients(),
+    quotes: getCachedQuotes(),
+    invoices: getCachedInvoices(),
+    settings: getCachedSettings(),
+    history: getCachedHistory(),
   };
   return JSON.stringify(backup, null, 2);
 }
@@ -391,13 +397,13 @@ export function importDataJSON(jsonStr: string): {
   history: HistoryRecord[];
 } {
   const parsed = JSON.parse(jsonStr);
-  const clients = Array.isArray(parsed.clients) ? parsed.clients : getClients();
-  const quotes = Array.isArray(parsed.quotes) ? parsed.quotes : getQuotes();
-  const invoices = Array.isArray(parsed.invoices) ? parsed.invoices : getInvoices();
-  const settings = parsed.settings && typeof parsed.settings === "object" ? { ...getSettings(), ...parsed.settings } : getSettings();
-  const history = Array.isArray(parsed.history) ? parsed.history : getHistory();
+  const clients = Array.isArray(parsed.clients) ? parsed.clients : getCachedClients();
+  const quotes = Array.isArray(parsed.quotes) ? parsed.quotes : getCachedQuotes();
+  const invoices = Array.isArray(parsed.invoices) ? parsed.invoices : getCachedInvoices();
+  const settings = parsed.settings && typeof parsed.settings === "object" ? { ...getCachedSettings(), ...parsed.settings } : getCachedSettings();
+  const history = Array.isArray(parsed.history) ? parsed.history : getCachedHistory();
   
-  // Note: For a logged in user, they should trigger a sync after import, handled in useAppData
+  // Update local cache — the caller is responsible for syncing to Supabase
   safeSet(KEYS.clients, clients);
   safeSet(KEYS.quotes, quotes);
   safeSet(KEYS.invoices, invoices);
@@ -406,4 +412,3 @@ export function importDataJSON(jsonStr: string): {
 
   return { clients, quotes, invoices, settings, history };
 }
-

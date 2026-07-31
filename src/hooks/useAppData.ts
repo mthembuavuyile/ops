@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type { Client, Quote, Invoice, Settings, HistoryRecord, AppView, DebtorReminder, UserSession } from "@/lib/types";
 import * as db from "@/lib/data";
+import { supabase } from "@/lib/supabase";
 
 export interface AppData {
   // Data
@@ -49,12 +51,13 @@ export interface AppData {
 }
 
 export function useAppData(): AppData {
+  const router = useRouter();
   const [ready, setReady] = useState(false);
   const [session, setSessionState] = useState<UserSession | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [settings, setSettings] = useState<Settings>(db.getSettings());
+  const [settings, setSettings] = useState<Settings>(db.getCachedSettings());
   const [history, setHistory] = useState<HistoryRecord[]>([]);
   const [activeView, setActiveView] = useState<AppView>("dashboard");
   const [activePortalQuoteId, setActivePortalQuoteId] = useState("");
@@ -79,11 +82,9 @@ export function useAppData(): AppData {
     setHistory(data.history);
   }, [session?.id]);
 
-  // Initialise data from localStorage/Supabase on mount
+  // Initialise: check Supabase auth session, redirect to /login if not authenticated
   useEffect(() => {
-    let currentUserId: string | undefined = undefined;
-
-    const loadData = async (userId?: string) => {
+    const loadData = async (userId: string) => {
       const data = await db.initData(userId);
       setClients(data.clients);
       setQuotes(data.quotes);
@@ -93,56 +94,48 @@ export function useAppData(): AppData {
       setReady(true);
     };
 
-    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
-    if (hasSupabaseKey) {
-      import("@/lib/supabase").then(({ supabase }) => {
-        // Initial session check
-        supabase.auth.getSession().then(({ data: { session: supaSession } }) => {
-          if (supaSession) {
-             const userSession = {
-                id: supaSession.user.id,
-                name: supaSession.user.user_metadata?.company_name || supaSession.user.email?.split('@')[0] || "User",
-                email: supaSession.user.email || "",
-                loggedInAt: new Date().toISOString(),
-             };
-             currentUserId = userSession.id;
-             setSessionState(userSession);
-             db.setSession(userSession);
-          } else {
-             const localSession = db.getSession();
-             if (localSession?.id) currentUserId = localSession.id;
-             setSessionState(localSession);
-          }
-          loadData(currentUserId);
-        });
+    // Check Supabase auth session
+    supabase.auth.getSession().then(({ data: { session: supaSession } }) => {
+      if (supaSession) {
+        const userSession: UserSession = {
+          id: supaSession.user.id,
+          name: supaSession.user.user_metadata?.company_name || supaSession.user.email?.split('@')[0] || "User",
+          email: supaSession.user.email || "",
+          loggedInAt: new Date().toISOString(),
+        };
+        setSessionState(userSession);
+        db.setSession(userSession);
+        loadData(userSession.id);
+      } else {
+        // No auth session — redirect to login
+        setReady(true);
+        router.push("/login");
+      }
+    });
 
-        // Listen for auth changes (login, logout, token refresh)
-        supabase.auth.onAuthStateChange((_event, supaSession) => {
-          if (supaSession) {
-             const userSession = {
-                id: supaSession.user.id,
-                name: supaSession.user.user_metadata?.company_name || supaSession.user.email?.split('@')[0] || "User",
-                email: supaSession.user.email || "",
-                loggedInAt: new Date().toISOString(),
-             };
-             setSessionState(userSession);
-             db.setSession(userSession);
-             loadData(userSession.id);
-          } else {
-             setSessionState(null);
-             db.clearSession();
-             loadData(undefined);
-          }
-        });
-      });
-    } else {
-      requestAnimationFrame(() => {
-        const localSession = db.getSession();
-        setSessionState(localSession);
-        loadData(localSession?.id);
-      });
-    }
-  }, []);
+    // Listen for auth changes (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, supaSession) => {
+      if (supaSession) {
+        const userSession: UserSession = {
+          id: supaSession.user.id,
+          name: supaSession.user.user_metadata?.company_name || supaSession.user.email?.split('@')[0] || "User",
+          email: supaSession.user.email || "",
+          loggedInAt: new Date().toISOString(),
+        };
+        setSessionState(userSession);
+        db.setSession(userSession);
+        loadData(userSession.id);
+      } else {
+        setSessionState(null);
+        db.clearSession();
+        router.push("/login");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [router]);
 
   // Window focus & interval auto-sync for multi-device sync
   useEffect(() => {
@@ -167,53 +160,49 @@ export function useAppData(): AppData {
   const logout = useCallback(() => {
     db.clearSession();
     setSessionState(null);
-    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
-    if (hasSupabaseKey) {
-       import("@/lib/supabase").then(({ supabase }) => {
-          supabase.auth.signOut();
-       });
-    }
-  }, []);
+    supabase.auth.signOut();
+    router.push("/login");
+  }, [router]);
 
-  // Persistence wrappers
+  // Persistence wrappers — always sync to Supabase
   const updateClients = useCallback((c: Client[]) => {
     setClients(c);
-    db.saveClients(c, session?.id);
+    if (session?.id) db.saveClients(c, session.id);
   }, [session]);
 
   const deleteClient = useCallback((id: string) => {
     setClients(prev => prev.filter(c => c.id !== id));
-    db.deleteClientFromDb(id, session?.id);
+    if (session?.id) db.deleteClientFromDb(id, session.id);
   }, [session]);
 
   const updateQuotes = useCallback((q: Quote[]) => {
     setQuotes(q);
-    db.saveQuotes(q, session?.id);
+    if (session?.id) db.saveQuotes(q, session.id);
   }, [session]);
 
   const deleteQuote = useCallback((id: string) => {
     setQuotes(prev => prev.filter(q => q.id !== id));
-    db.deleteQuoteFromDb(id, session?.id);
+    if (session?.id) db.deleteQuoteFromDb(id, session.id);
   }, [session]);
 
   const updateInvoices = useCallback((inv: Invoice[]) => {
     setInvoices(inv);
-    db.saveInvoices(inv, session?.id);
+    if (session?.id) db.saveInvoices(inv, session.id);
   }, [session]);
 
   const deleteInvoice = useCallback((id: string) => {
     setInvoices(prev => prev.filter(i => i.id !== id));
-    db.deleteInvoiceFromDb(id, session?.id);
+    if (session?.id) db.deleteInvoiceFromDb(id, session.id);
   }, [session]);
 
   const updateSettings = useCallback((s: Settings) => {
     setSettings(s);
-    db.saveSettings(s, session?.id);
+    if (session?.id) db.saveSettings(s, session.id);
   }, [session]);
 
   const updateHistory = useCallback((h: HistoryRecord[]) => {
     setHistory(h);
-    db.saveHistory(h, session?.id);
+    if (session?.id) db.saveHistory(h, session.id);
   }, [session]);
 
   const resetData = useCallback(() => {
@@ -238,7 +227,7 @@ export function useAppData(): AppData {
       setSettings(data.settings);
       setHistory(data.history);
       
-      // Sync to cloud if logged in
+      // Sync imported data to cloud
       if (session?.id) {
         db.saveClients(data.clients, session.id);
         db.saveQuotes(data.quotes, session.id);
