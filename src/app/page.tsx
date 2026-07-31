@@ -59,6 +59,11 @@ export default function OpsApp() {
     showToast("👋 Logged out of account. Continuing in Guest Mode.", "info");
   }, [app, showToast]);
 
+  const handleSyncCloud = useCallback(async () => {
+    await app.refreshCloudData();
+    showToast("☁️ Data synced from Cloud!", "success");
+  }, [app, showToast]);
+
   // ================= ACTION HANDLERS =================
 
   const handleSaveClient = useCallback((client: import("@/lib/types").Client) => {
@@ -269,6 +274,7 @@ export default function OpsApp() {
         onCloseSidebar={() => setSidebarOpen(false)}
         session={app.session}
         onLogout={handleLogout}
+        onSync={handleSyncCloud}
       />
 
       {/* Main Content */}
@@ -282,7 +288,13 @@ export default function OpsApp() {
             {(app.settings.company_name || "VYLEX").toUpperCase()}
             <span className="text-brand-accent">OPS</span>
           </span>
-          <div className="w-8" />
+          {app.session ? (
+            <button onClick={handleSyncCloud} className="text-brand-accent p-2 rounded-lg active:bg-blue-50 text-xs font-bold flex items-center gap-1" title="Sync Cloud Data">
+              <i className="fa-solid fa-rotate" />
+            </button>
+          ) : (
+            <div className="w-8" />
+          )}
         </div>
 
         <div className="p-4 md:p-8 max-w-7xl mx-auto">

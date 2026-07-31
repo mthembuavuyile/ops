@@ -90,7 +90,8 @@ export async function saveClients(clients: Client[], userId?: string): Promise<v
     user_id: userId,
   }));
   if (payload.length > 0) {
-    await supabase.from("clients").upsert(payload, { onConflict: 'id' });
+    const { error } = await supabase.from("clients").upsert(payload, { onConflict: 'id' });
+    if (error) console.error("Error saving clients to Supabase:", error);
   }
 }
 
@@ -100,7 +101,8 @@ export async function deleteClientFromDb(id: string, userId?: string): Promise<v
   safeSet(KEYS.clients, updated);
   if (!userId) return;
 
-  await supabase.from("clients").delete().eq("id", id).eq("user_id", userId);
+  const { error } = await supabase.from("clients").delete().eq("id", id).eq("user_id", userId);
+  if (error) console.error("Error deleting client from Supabase:", error);
 }
 
 export async function saveQuotes(quotes: Quote[], userId?: string): Promise<void> {
@@ -123,7 +125,8 @@ export async function saveQuotes(quotes: Quote[], userId?: string): Promise<void
     user_id: userId,
   }));
   if (payload.length > 0) {
-    await supabase.from("quotes").upsert(payload, { onConflict: 'id' });
+    const { error } = await supabase.from("quotes").upsert(payload, { onConflict: 'id' });
+    if (error) console.error("Error saving quotes to Supabase:", error);
   }
 }
 
@@ -133,7 +136,8 @@ export async function deleteQuoteFromDb(id: string, userId?: string): Promise<vo
   safeSet(KEYS.quotes, updated);
   if (!userId) return;
 
-  await supabase.from("quotes").delete().eq("id", id).eq("user_id", userId);
+  const { error } = await supabase.from("quotes").delete().eq("id", id).eq("user_id", userId);
+  if (error) console.error("Error deleting quote from Supabase:", error);
 }
 
 export async function saveInvoices(invoices: Invoice[], userId?: string): Promise<void> {
@@ -157,7 +161,8 @@ export async function saveInvoices(invoices: Invoice[], userId?: string): Promis
     user_id: userId,
   }));
   if (payload.length > 0) {
-    await supabase.from("invoices").upsert(payload, { onConflict: 'id' });
+    const { error } = await supabase.from("invoices").upsert(payload, { onConflict: 'id' });
+    if (error) console.error("Error saving invoices to Supabase:", error);
   }
 }
 
@@ -167,14 +172,15 @@ export async function deleteInvoiceFromDb(id: string, userId?: string): Promise<
   safeSet(KEYS.invoices, updated);
   if (!userId) return;
 
-  await supabase.from("invoices").delete().eq("id", id).eq("user_id", userId);
+  const { error } = await supabase.from("invoices").delete().eq("id", id).eq("user_id", userId);
+  if (error) console.error("Error deleting invoice from Supabase:", error);
 }
 
 export async function saveSettings(settings: Settings, userId?: string): Promise<void> {
   safeSet(KEYS.settings, settings);
   if (!userId) return;
 
-  await supabase.from("settings").upsert({
+  const { error } = await supabase.from("settings").upsert({
     user_id: userId,
     company_name: settings.company_name,
     company_address: settings.company_address || "",
@@ -190,6 +196,7 @@ export async function saveSettings(settings: Settings, userId?: string): Promise
     accent_color: settings.accent_color || "#051b38",
     currency: settings.currency || "R",
   }, { onConflict: 'user_id' });
+  if (error) console.error("Error saving settings to Supabase:", error);
 }
 
 export async function saveHistory(history: HistoryRecord[], userId?: string): Promise<void> {
@@ -208,7 +215,8 @@ export async function saveHistory(history: HistoryRecord[], userId?: string): Pr
     user_id: userId,
   }));
   if (payload.length > 0) {
-    await supabase.from("history").upsert(payload, { onConflict: 'id' });
+    const { error } = await supabase.from("history").upsert(payload, { onConflict: 'id' });
+    if (error) console.error("Error saving history to Supabase:", error);
   }
 }
 
@@ -265,11 +273,11 @@ export async function initData(userId?: string): Promise<{
       { data: settings, error: settingsErr },
       { data: history, error: historyErr },
     ] = await Promise.all([
-      supabase.from("clients").select("*"),
-      supabase.from("quotes").select("*"),
-      supabase.from("invoices").select("*"),
-      supabase.from("settings").select("*").maybeSingle(),
-      supabase.from("history").select("*"),
+      supabase.from("clients").select("*").eq("user_id", userId),
+      supabase.from("quotes").select("*").eq("user_id", userId),
+      supabase.from("invoices").select("*").eq("user_id", userId),
+      supabase.from("settings").select("*").eq("user_id", userId).maybeSingle(),
+      supabase.from("history").select("*").eq("user_id", userId),
     ]);
 
     if (clientsErr) console.warn("Supabase clients fetch error:", clientsErr);

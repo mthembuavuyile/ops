@@ -13,6 +13,7 @@ interface SidebarProps {
   onCloseSidebar: () => void;
   session: UserSession | null;
   onLogout: () => void;
+  onSync?: () => void;
 }
 
 interface NavItem {
@@ -48,6 +49,7 @@ export default function Sidebar({
   onCloseSidebar,
   session,
   onLogout,
+  onSync,
 }: SidebarProps) {
   const handleNav = (view: AppView) => {
     onNavigate(view);
@@ -86,14 +88,22 @@ export default function Sidebar({
           {session ? (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900 truncate max-w-[140px]">
+                <span className="font-bold text-slate-900 truncate max-w-[130px]">
                   {session.name}
                 </span>
                 <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
-                  <i className="fa-solid fa-shield-halved text-[9px]" /> PRO
+                  <i className="fa-solid fa-cloud text-[9px]" /> CLOUD
                 </span>
               </div>
               <p className="text-[10px] text-slate-500 truncate">{session.email}</p>
+              {onSync && (
+                <button
+                  onClick={onSync}
+                  className="w-full mt-1.5 flex items-center justify-center gap-1.5 py-1 px-2 text-[10px] font-bold text-brand-accent bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 transition-colors"
+                >
+                  <i className="fa-solid fa-rotate text-[9px]" /> Sync Cloud Data
+                </button>
+              )}
             </div>
           ) : (
             <div className="space-y-2">

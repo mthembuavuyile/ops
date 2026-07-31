@@ -41,6 +41,9 @@ export interface AppData {
   exportBackup: () => string;
   importBackup: (jsonStr: string) => boolean;
 
+  // Sync
+  refreshCloudData: () => Promise<void>;
+
   // Ready state
   ready: boolean;
 }
@@ -63,6 +66,18 @@ export function useAppData(): AppData {
     dueDate: "",
     tone: "gentle",
   });
+
+  const refreshCloudData = useCallback(async () => {
+    const currentSession = db.getSession();
+    const userId = session?.id || currentSession?.id;
+    if (!userId) return;
+    const data = await db.initData(userId);
+    setClients(data.clients);
+    setQuotes(data.quotes);
+    setInvoices(data.invoices);
+    setSettings(data.settings);
+    setHistory(data.history);
+  }, [session?.id]);
 
   // Initialise data from localStorage/Supabase on mount
   useEffect(() => {
@@ -128,6 +143,26 @@ export function useAppData(): AppData {
       });
     }
   }, []);
+
+  // Window focus & interval auto-sync for multi-device sync
+  useEffect(() => {
+    const activeUserId = session?.id;
+    if (!activeUserId) return;
+
+    const onFocus = () => {
+      refreshCloudData();
+    };
+
+    window.addEventListener("focus", onFocus);
+    const interval = setInterval(() => {
+      refreshCloudData();
+    }, 10000);
+
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      clearInterval(interval);
+    };
+  }, [session?.id, refreshCloudData]);
 
   const logout = useCallback(() => {
     db.clearSession();
@@ -242,6 +277,7 @@ export function useAppData(): AppData {
     resetData,
     exportBackup,
     importBackup,
+    refreshCloudData,
     ready,
   };
 }
