@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import type { AppView, UserSession } from "@/lib/types";
 
@@ -49,6 +49,17 @@ export default function Sidebar({
   onLogout,
   onSync,
 }: SidebarProps) {
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen]);
+
   const handleNav = (view: AppView) => {
     onNavigate(view);
     onCloseSidebar();

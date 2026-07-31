@@ -323,6 +323,7 @@ body {
   position: sticky;
   top: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* Toast */
