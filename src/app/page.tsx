@@ -111,14 +111,24 @@ export default function OpsApp() {
         return;
       }
 
-      // Update quote status
+      const client = app.clients.find((c) => c.id === quote.client_id);
+      const acceptedAt = new Date().toISOString();
+      const acceptedBy = client?.contact_name || client?.name || "Client";
+
+      // Update quote status with timestamp
       const updatedQuotes = app.quotes.map((q) =>
-        q.id === quoteId ? { ...q, status: "accepted" as const } : q
+        q.id === quoteId
+          ? {
+              ...q,
+              status: "accepted" as const,
+              accepted_at: acceptedAt,
+              accepted_by: acceptedBy,
+            }
+          : q
       );
       app.updateQuotes(updatedQuotes);
 
       // Create invoice from quote
-      const client = app.clients.find((c) => c.id === quote.client_id);
       const clientInvoices = app.invoices.filter((i) => i.client_id === quote.client_id);
       const prefix = client?.prefix || "INV";
       const invoiceNum = `${prefix}-2026-${String(clientInvoices.length + 1).padStart(3, "0")}`;

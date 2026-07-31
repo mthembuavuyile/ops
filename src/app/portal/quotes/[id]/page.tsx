@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import type { Quote, Client, Invoice, Settings } from "@/lib/types";
-import { formatCurrency, formatDateLabel, currencyName, todayISO, futureDateISO } from "@/lib/formatters";
+import { formatCurrency, formatDateLabel, formatDateTimeLabel, currencyName, todayISO, futureDateISO } from "@/lib/formatters";
 import { supabase } from "@/lib/supabase";
 
 export default function QuotePortal() {
@@ -63,10 +63,17 @@ export default function QuotePortal() {
   const handleAccept = async () => {
     if (!quote || !client || !settings) return;
     
+    const acceptedAt = new Date().toISOString();
+    const acceptedBy = client.contact_name || client.name;
+
     // Update quote status in Supabase
     const { error: updateError } = await supabase
       .from("quotes")
-      .update({ status: "accepted" })
+      .update({
+        status: "accepted",
+        accepted_at: acceptedAt,
+        accepted_by: acceptedBy,
+      })
       .eq("id", quote.id);
 
     if (updateError) {
@@ -107,7 +114,12 @@ export default function QuotePortal() {
       setLinkedInvoice(newInvoice);
     }
 
-    setQuote({ ...quote, status: "accepted" });
+    setQuote({
+      ...quote,
+      status: "accepted",
+      accepted_at: acceptedAt,
+      accepted_by: acceptedBy,
+    });
     setAccepted(true);
   };
 
@@ -282,6 +294,26 @@ export default function QuotePortal() {
               <span className="font-bold" style={{ color: accentColor }}>Reference:</span>{" "}
               <span className="font-mono font-bold text-slate-900">{linkedInvoice?.invoice_number || quote.quote_number}</span>
             </p>
+
+            {/* Timestamped Acceptance Audit Banner */}
+            <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
+                  ✓
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                    Verified Acceptance Record
+                  </div>
+                  <div className="text-xs text-emerald-700 mt-0.5">
+                    Accepted on <strong className="font-mono">{formatDateTimeLabel(quote.accepted_at) || "Verified"}</strong> by {quote.accepted_by || client?.contact_name || client?.name || "Client"}
+                  </div>
+                </div>
+              </div>
+              <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                AUDIT VERIFIED
+              </span>
+            </div>
           </div>
         )}
       </div>

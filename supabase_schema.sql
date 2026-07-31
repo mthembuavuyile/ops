@@ -56,6 +56,8 @@ CREATE TABLE public.quotes (
     vat NUMERIC NOT NULL,
     total NUMERIC NOT NULL,
     notes TEXT,
+    accepted_at TIMESTAMP WITH TIME ZONE,
+    accepted_by TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 

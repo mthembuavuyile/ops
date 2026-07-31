@@ -118,6 +118,8 @@ export async function saveQuotes(quotes: Quote[], userId: string): Promise<void>
     total: q.total,
     notes: q.notes || "",
     share_token: q.share_token || null,
+    accepted_at: q.accepted_at || null,
+    accepted_by: q.accepted_by || null,
     user_id: userId,
   }));
   if (payload.length > 0) {

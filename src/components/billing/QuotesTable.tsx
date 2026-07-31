@@ -2,7 +2,7 @@
 
 import React from "react";
 import type { Quote, Client } from "@/lib/types";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, formatDateTimeLabel } from "@/lib/formatters";
 import StatusBadge from "@/components/shared/StatusBadge";
 
 interface QuotesTableProps {
@@ -43,7 +43,15 @@ export default function QuotesTable({ quotes, clients, currency, onOpenPortal, o
                     <td className="font-mono font-bold text-slate-900">{q.quote_number}</td>
                     <td className="font-semibold text-slate-700">{client?.name || "Unknown"}</td>
                     <td className="text-right font-bold text-slate-900 font-mono">{formatCurrency(q.total, currency)}</td>
-                    <td><StatusBadge status={q.status} /></td>
+                    <td>
+                      <StatusBadge status={q.status} />
+                      {q.status === "accepted" && q.accepted_at && (
+                        <div className="text-[10px] text-emerald-600 font-medium mt-1">
+                          <i className="fa-solid fa-clock mr-1" />
+                          {formatDateTimeLabel(q.accepted_at)}
+                        </div>
+                      )}
+                    </td>
                     <td className="text-center">
                       <div className="flex items-center justify-center gap-1.5">
                         <button onClick={() => onOpenPortal(q.id)} className="ops-btn-secondary !py-1 !px-2 !text-[11px] !rounded-md" title="Open Portal Preview">

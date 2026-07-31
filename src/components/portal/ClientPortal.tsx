@@ -2,7 +2,7 @@
 
 import React from "react";
 import type { Quote, Invoice, Client, Settings } from "@/lib/types";
-import { formatCurrency, formatDateLabel, currencyName } from "@/lib/formatters";
+import { formatCurrency, formatDateLabel, formatDateTimeLabel, currencyName } from "@/lib/formatters";
 import { generatePdfFromElement } from "@/lib/pdf";
 import { buildWhatsAppUrl, generateShareMessage } from "@/lib/whatsapp";
 
@@ -309,6 +309,24 @@ export default function ClientPortal({
                 <span style={s.refBold}>
                   {linkedInvoice?.invoice_number || quote.quote_number}
                 </span>
+              </div>
+
+              {/* Timestamped Verification Stamp */}
+              <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px stroke #e2e8f0", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", padding: "16px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ color: "#16a34a", fontSize: "16px" }}>✓</span>
+                  <div>
+                    <div style={{ fontWeight: 700, color: "#15803d", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      Official Acceptance Verification
+                    </div>
+                    <div style={{ fontSize: "11px", color: "#166534", marginTop: "2px" }}>
+                      Accepted by {quote.accepted_by || client.contact_name || client.name} on <strong style={{ fontFamily: "monospace" }}>{formatDateTimeLabel(quote.accepted_at) || "Verified"}</strong>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ fontSize: "10px", color: "#15803d", fontWeight: 700, letterSpacing: "0.05em", background: "#dcfce7", padding: "4px 10px", borderRadius: "20px" }}>
+                  AUDIT VERIFIED
+                </div>
               </div>
             </div>
           )}

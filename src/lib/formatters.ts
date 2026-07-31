@@ -31,6 +31,26 @@ export function formatDateLabel(dateStr: string): string {
 }
 
 /**
+ * Format an ISO timestamp string or Date object into a readable date and time label.
+ * e.g. "2026-07-31T15:53:08.000Z" => "31 Jul 2026 at 15:53"
+ */
+export function formatDateTimeLabel(isoStr?: string | null): string {
+  if (!isoStr) return "";
+  try {
+    const d = new Date(isoStr);
+    if (isNaN(d.getTime())) return isoStr;
+    const day = d.getDate();
+    const month = MONTH_NAMES[d.getMonth()].substring(0, 3);
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, "0");
+    const mins = String(d.getMinutes()).padStart(2, "0");
+    return `${day} ${month} ${year} at ${hours}:${mins}`;
+  } catch {
+    return isoStr;
+  }
+}
+
+/**
  * Get today's date as YYYY-MM-DD.
  */
 export function todayISO(): string {

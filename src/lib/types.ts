@@ -35,6 +35,8 @@ export interface Quote {
   vat: number;
   total: number;
   notes: string;
+  accepted_at?: string | null;
+  accepted_by?: string | null;
 }
 
 export type InvoiceStatus = "unpaid" | "paid" | "overdue" | "cancelled";
