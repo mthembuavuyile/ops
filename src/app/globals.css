@@ -319,10 +319,12 @@ body {
   flex-direction: column;
   width: 260px;
   height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
   flex-shrink: 0;
   position: sticky;
   top: 0;
-  overflow-y: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
 }
 
@@ -443,6 +445,11 @@ body {
 @media (max-width: 768px) {
   .ops-sidebar {
     position: fixed;
+    top: 0;
+    bottom: 0;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     left: -280px;
     z-index: 50;
     transition: left 0.3s ease;

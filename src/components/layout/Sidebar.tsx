@@ -76,10 +76,10 @@ export default function Sidebar({
       )}
 
       <aside
-        className={`ops-sidebar ${sidebarOpen ? "open" : ""} md:!left-0 md:!relative flex flex-col`}
+        className={`ops-sidebar ${sidebarOpen ? "open" : ""} md:!left-0 md:!relative flex flex-col h-full h-[100dvh] max-h-[100dvh] overflow-hidden`}
       >
         {/* Brand */}
-        <div className="p-6 flex items-center justify-between border-b border-slate-200">
+        <div className="p-6 flex items-center justify-between border-b border-slate-200 shrink-0">
           <button
             onClick={() => handleNav("dashboard")}
             className="flex items-center gap-1 text-xl font-extrabold tracking-tight text-slate-900"
@@ -93,7 +93,7 @@ export default function Sidebar({
         </div>
 
         {/* Account status card */}
-        <div className="mx-4 mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        <div className="mx-4 mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs shrink-0">
           {session && (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
@@ -118,7 +118,7 @@ export default function Sidebar({
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto min-h-0">
           <div className="text-slate-400 text-[10px] uppercase font-bold tracking-widest px-3 mb-2">
             Workspace
           </div>
@@ -170,7 +170,7 @@ export default function Sidebar({
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+        <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 shrink-0">
           <button
             onClick={onLogout}
             className="flex items-center gap-1.5 hover:text-rose-600 font-medium transition-colors"
