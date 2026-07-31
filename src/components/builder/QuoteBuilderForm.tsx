@@ -28,6 +28,12 @@ export default function QuoteBuilderForm({ clients, quotes, currency, onSubmit, 
   const [notes, setNotes] = useState("");
   const [rows, setRows] = useState<FormRow[]>([{ id: ++rowCounter, description: "", qty: 1, rate: 0 }]);
 
+  React.useEffect(() => {
+    if (!clientId && clients.length > 0) {
+      setClientId(clients[0].id);
+    }
+  }, [clients, clientId]);
+
   const quoteNumber = `Q-2026-${String(quotes.length + 1).padStart(3, "0")}`;
 
   const addRow = () => setRows((prev) => [...prev, { id: ++rowCounter, description: "", qty: 1, rate: 0 }]);

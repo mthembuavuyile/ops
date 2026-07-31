@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: Settings = {
   payshap_id: "",
   accent_color: "#051b38",
   currency: "R",
+  show_verified_badge: true,
 };
 
 // ================= SAFE LOCALSTORAGE HELPERS =================
@@ -192,6 +193,7 @@ export async function saveSettings(settings: Settings, userId: string): Promise<
     payshap_id: settings.payshap_id || "",
     accent_color: settings.accent_color || "#051b38",
     currency: settings.currency || "R",
+    show_verified_badge: settings.show_verified_badge ?? true,
   }, { onConflict: 'user_id' });
   if (error) {
     console.error("Error saving settings to Supabase:", error);

@@ -25,6 +25,7 @@ CREATE TABLE public.settings (
     payshap_id TEXT DEFAULT '',
     accent_color TEXT DEFAULT '#051b38',
     currency TEXT DEFAULT 'R',
+    show_verified_badge BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
@@ -111,11 +112,24 @@ ON public.clients FOR ALL TO authenticated
 USING (auth.uid() = user_id) 
 WITH CHECK (auth.uid() = user_id);
 
+CREATE POLICY "Public can view clients for portal"
+ON public.clients FOR SELECT TO anon, authenticated
+USING (true);
+
 -- Policies for 'quotes'
 CREATE POLICY "Users can manage their own quotes" 
 ON public.quotes FOR ALL TO authenticated 
 USING (auth.uid() = user_id) 
 WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Public can view quotes with share token"
+ON public.quotes FOR SELECT TO anon, authenticated
+USING (true);
+
+CREATE POLICY "Public can accept quotes"
+ON public.quotes FOR UPDATE TO anon, authenticated
+USING (true)
+WITH CHECK (true);
 
 -- Policies for 'invoices'
 CREATE POLICY "Users can manage their own invoices" 
@@ -123,11 +137,23 @@ ON public.invoices FOR ALL TO authenticated
 USING (auth.uid() = user_id) 
 WITH CHECK (auth.uid() = user_id);
 
+CREATE POLICY "Public can view invoices for portal"
+ON public.invoices FOR SELECT TO anon, authenticated
+USING (true);
+
+CREATE POLICY "Public can create invoices on quote accept"
+ON public.invoices FOR INSERT TO anon, authenticated
+WITH CHECK (true);
+
 -- Policies for 'settings'
 CREATE POLICY "Users can manage their own settings" 
 ON public.settings FOR ALL TO authenticated 
 USING (auth.uid() = user_id) 
 WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Public can view business settings for portal"
+ON public.settings FOR SELECT TO anon, authenticated
+USING (true);
 
 -- Policies for 'history'
 CREATE POLICY "Users can manage their own history" 

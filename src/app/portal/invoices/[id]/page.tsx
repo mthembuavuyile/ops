@@ -41,13 +41,13 @@ export default function InvoicePortal() {
           .from("invoices")
           .select("*")
           .or(`id.eq.${invoiceIdOrNum},invoice_number.eq.${invoiceIdOrNum}`)
-          .single();
+          .maybeSingle();
 
         if (invData) {
           setInvoice(invData);
           const [{ data: clientData }, { data: settingsData }] = await Promise.all([
-            supabase.from("clients").select("*").eq("id", invData.client_id).single(),
-            supabase.from("settings").select("*").eq("user_id", invData.user_id).single(),
+            supabase.from("clients").select("*").eq("id", invData.client_id).maybeSingle(),
+            supabase.from("settings").select("*").eq("user_id", invData.user_id).maybeSingle(),
           ]);
           if (clientData) setClient(clientData);
           if (settingsData) setSettings(settingsData);

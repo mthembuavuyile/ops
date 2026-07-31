@@ -25,7 +25,7 @@ export default function QuotePortal() {
           .from("quotes")
           .select("*")
           .or(`share_token.eq.${quoteIdOrNum},id.eq.${quoteIdOrNum}`)
-          .single();
+          .maybeSingle();
 
         if (quoteError || !quoteData) {
           console.error("Quote not found", quoteError);
@@ -42,8 +42,8 @@ export default function QuotePortal() {
           { data: settingsData },
           { data: invoiceData },
         ] = await Promise.all([
-          supabase.from("clients").select("*").eq("id", quoteData.client_id).single(),
-          supabase.from("settings").select("*").eq("user_id", quoteData.user_id).single(),
+          supabase.from("clients").select("*").eq("id", quoteData.client_id).maybeSingle(),
+          supabase.from("settings").select("*").eq("user_id", quoteData.user_id).maybeSingle(),
           supabase.from("invoices").select("*").eq("quote_id", quoteData.id).maybeSingle(),
         ]);
 
