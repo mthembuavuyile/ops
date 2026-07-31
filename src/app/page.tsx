@@ -237,8 +237,12 @@ export default function OpsApp() {
   );
 
   const handleReset = useCallback(() => {
+    if (app.session) {
+      showToast("🔒 Reset is only available in Guest Mode. Your cloud database is safe.", "info");
+      return;
+    }
     app.resetData();
-    showToast("🔄 All data reset to defaults.", "warning");
+    showToast("🔄 Local guest workspace reset to defaults.", "warning");
   }, [app, showToast]);
 
   // Loading state

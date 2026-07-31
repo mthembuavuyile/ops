@@ -200,14 +200,16 @@ export default function Sidebar({
               <span className="font-medium text-slate-600">Guest User</span>
             </div>
           )}
-          <button
-            onClick={onReset}
-            className="flex items-center gap-1 hover:text-amber-600 transition-colors"
-            title="Reset all data to defaults"
-          >
-            <i className="fa-solid fa-rotate-left" />
-            Reset
-          </button>
+          {!session && (
+            <button
+              onClick={onReset}
+              className="flex items-center gap-1 hover:text-amber-600 transition-colors"
+              title="Reset local guest data to defaults"
+            >
+              <i className="fa-solid fa-rotate-left" />
+              Reset
+            </button>
+          )}
         </div>
       </aside>
     </>
