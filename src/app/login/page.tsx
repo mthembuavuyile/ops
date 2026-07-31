@@ -37,8 +37,6 @@ export default function Login() {
         cancelAnimationFrame(handle);
         clearInterval(timer);
       };
-    } else {
-      setRemainingSecs(0);
     }
   }, [backoffTime]);
 
