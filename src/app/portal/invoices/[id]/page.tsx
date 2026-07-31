@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import type { Invoice, Client, Settings } from "@/lib/types";
 import { getInvoices, getClients, getSettings } from "@/lib/data";
 import { formatCurrency, formatDateLabel, currencyName } from "@/lib/formatters";
+import { supabase } from "@/lib/supabase";
 
 export default function InvoicePortal() {
   const params = useParams();
@@ -16,19 +17,49 @@ export default function InvoicePortal() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const s = getSettings();
-    setSettings(s);
-    const allInvoices = getInvoices();
-    const allClients = getClients();
+    async function fetchInvoice() {
+      try {
+        const s = getSettings();
+        setSettings(s);
 
-    const found = allInvoices.find(
-      (i) => i.id === invoiceIdOrNum || i.invoice_number === invoiceIdOrNum
-    );
-    if (found) {
-      setInvoice(found);
-      setClient(allClients.find((c) => c.id === found.client_id) || null);
+        // 1. Check local storage first
+        const allInvoices = getInvoices();
+        const allClients = getClients();
+        const foundLocal = allInvoices.find(
+          (i) => i.id === invoiceIdOrNum || i.invoice_number === invoiceIdOrNum
+        );
+
+        if (foundLocal) {
+          setInvoice(foundLocal);
+          setClient(allClients.find((c) => c.id === foundLocal.client_id) || null);
+          setLoading(false);
+          return;
+        }
+
+        // 2. Fetch from Supabase cloud if not in local cache
+        const { data: invData } = await supabase
+          .from("invoices")
+          .select("*")
+          .or(`id.eq.${invoiceIdOrNum},invoice_number.eq.${invoiceIdOrNum}`)
+          .single();
+
+        if (invData) {
+          setInvoice(invData);
+          const [{ data: clientData }, { data: settingsData }] = await Promise.all([
+            supabase.from("clients").select("*").eq("id", invData.client_id).single(),
+            supabase.from("settings").select("*").eq("user_id", invData.user_id).single(),
+          ]);
+          if (clientData) setClient(clientData);
+          if (settingsData) setSettings(settingsData);
+        }
+      } catch (err) {
+        console.error("Error loading invoice portal:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-    setLoading(false);
+
+    fetchInvoice();
   }, [invoiceIdOrNum]);
 
   if (loading) {
