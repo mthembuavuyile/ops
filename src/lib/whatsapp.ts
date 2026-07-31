@@ -22,14 +22,16 @@ export function generateShareMessage(
   docNumber: string,
   clientContactName: string,
   total: number,
-  settings: Settings
+  settings: Settings,
+  baseUrl: string,
+  shareId: string
 ): string {
   const formatted = formatCurrency(total, settings.currency);
-  const cleanDocNum = docNumber.replace(/[^a-zA-Z0-9-]/g, "");
-  const portalUrl = `https://ops.vylex.co.za/portal/${type}/${cleanDocNum}`;
+  const route = type === "quote" ? "quotes" : "invoices";
+  const portalUrl = `${baseUrl}/portal/${route}/${shareId}`;
   const companyName = settings.company_name || "Our Company";
 
-  return `Hi ${clientContactName},\n\nHere is the link to review your ${type} ${docNumber} (total: ${formatted}) from ${companyName}:\n\n${portalUrl}\n\nKind regards,\n${companyName}`;
+  return `Hi ${clientContactName},\n\nHere is the secure link to view and accept your ${type} (${docNumber}) from ${companyName}.\n\nTotal: ${formatted}\n\nView online here:\n${portalUrl}\n\nKind regards,\n${companyName}`;
 }
 
 /**

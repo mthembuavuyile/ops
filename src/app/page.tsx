@@ -158,6 +158,7 @@ export default function OpsApp() {
       let clientName = "";
       let total = 0;
       let phone = "";
+      let shareId = "";
 
       if (type === "quote") {
         const q = app.quotes.find((q) => q.id === id);
@@ -167,6 +168,7 @@ export default function OpsApp() {
         clientName = c.contact_name || c.name;
         total = q.total;
         phone = c.phone;
+        shareId = q.share_token || q.id;
       } else {
         const inv = app.invoices.find((i) => i.id === id);
         const c = inv ? app.clients.find((c) => c.id === inv.client_id) : null;
@@ -175,9 +177,11 @@ export default function OpsApp() {
         clientName = c.contact_name || c.name;
         total = inv.total;
         phone = c.phone;
+        shareId = inv.id;
       }
 
-      const msg = generateShareMessage(type, docNum, clientName, total, app.settings);
+      const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://ops.vylex.co.za";
+      const msg = generateShareMessage(type, docNum, clientName, total, app.settings, baseUrl, shareId);
       const url = buildWhatsAppUrl(phone, msg);
       window.open(url, "_blank");
       showToast(`💬 WhatsApp link opened for ${docNum}!`, "success");
