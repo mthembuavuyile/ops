@@ -41,46 +41,30 @@ export default function ResetPassword() {
       return;
     }
 
-    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { error } = await supabase.auth.updateUser({
+        password: password,
+      });
 
-    if (hasSupabaseKey) {
-      try {
-        const { supabase } = await import("@/lib/supabase");
-        // Update user will use the active session (established from the URL hash by Supabase)
-        const { error } = await supabase.auth.updateUser({
-          password: password,
+      if (error) {
+        console.error("Update password error:", error);
+        setMessage({
+          type: "error",
+          text: "Failed to reset password. The link may have expired or is invalid.",
         });
-
-        if (error) {
-          console.error("Supabase update password error:", error);
-          setMessage({
-            type: "error",
-            text: "Failed to reset password. The link may have expired or is invalid.",
-          });
-        } else {
-          setMessage({
-            type: "success",
-            text: "Password updated successfully! Redirecting to login...",
-          });
-          setTimeout(() => {
-            router.push("/login");
-          }, 3000);
-        }
-      } catch (err: unknown) {
-        console.error("Supabase update error:", err);
-        setMessage({ type: "error", text: "An unexpected error occurred. Please try again." });
-      }
-    } else {
-      // Demo mode fallback
-      setTimeout(() => {
+      } else {
         setMessage({
           type: "success",
-          text: "Demo Mode: Password would be updated here. Redirecting...",
+          text: "Password updated successfully! Redirecting to login...",
         });
         setTimeout(() => {
           router.push("/login");
-        }, 2000);
-      }, 600);
+        }, 3000);
+      }
+    } catch (err: unknown) {
+      console.error("Update error:", err);
+      setMessage({ type: "error", text: "An unexpected error occurred. Please try again." });
     }
 
     setLoading(false);
