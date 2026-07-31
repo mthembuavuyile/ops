@@ -118,9 +118,11 @@ export function useAppData(): AppData {
         });
       });
     } else {
-      const localSession = db.getSession();
-      setSessionState(localSession);
-      loadData(localSession?.id);
+      requestAnimationFrame(() => {
+        const localSession = db.getSession();
+        setSessionState(localSession);
+        loadData(localSession?.id);
+      });
     }
   }, []);
 
@@ -139,27 +141,27 @@ export function useAppData(): AppData {
   const updateClients = useCallback((c: Client[]) => {
     setClients(c);
     db.saveClients(c, session?.id);
-  }, [session?.id]);
+  }, [session]);
 
   const updateQuotes = useCallback((q: Quote[]) => {
     setQuotes(q);
     db.saveQuotes(q, session?.id);
-  }, [session?.id]);
+  }, [session]);
 
   const updateInvoices = useCallback((inv: Invoice[]) => {
     setInvoices(inv);
     db.saveInvoices(inv, session?.id);
-  }, [session?.id]);
+  }, [session]);
 
   const updateSettings = useCallback((s: Settings) => {
     setSettings(s);
     db.saveSettings(s, session?.id);
-  }, [session?.id]);
+  }, [session]);
 
   const updateHistory = useCallback((h: HistoryRecord[]) => {
     setHistory(h);
     db.saveHistory(h, session?.id);
-  }, [session?.id]);
+  }, [session]);
 
   const resetData = useCallback(() => {
     const data = db.resetToDefaults();
@@ -195,7 +197,7 @@ export function useAppData(): AppData {
     } catch {
       return false;
     }
-  }, [session?.id]);
+  }, [session]);
 
   return {
     clients,

@@ -66,7 +66,7 @@ export default function ResetPassword() {
             router.push("/login");
           }, 3000);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Supabase update error:", err);
         setMessage({ type: "error", text: "An unexpected error occurred. Please try again." });
       }

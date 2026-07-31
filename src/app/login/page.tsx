@@ -16,16 +16,29 @@ export default function Login() {
   const [attemptCount, setAttemptCount] = useState(0);
   const [backoffTime, setBackoffTime] = useState(0);
 
-  // Clear backoff when time expires
+  const [remainingSecs, setRemainingSecs] = useState(0);
+
   useEffect(() => {
     if (backoffTime > 0) {
+      const handle = requestAnimationFrame(() => {
+        setRemainingSecs(Math.max(1, Math.ceil((backoffTime - Date.now()) / 1000)));
+      });
       const timer = setInterval(() => {
-        if (Date.now() > backoffTime) {
+        const diff = Math.ceil((backoffTime - Date.now()) / 1000);
+        if (diff <= 0) {
           setBackoffTime(0);
+          setRemainingSecs(0);
           setErrorMsg(null);
+        } else {
+          setRemainingSecs(diff);
         }
       }, 1000);
-      return () => clearInterval(timer);
+      return () => {
+        cancelAnimationFrame(handle);
+        clearInterval(timer);
+      };
+    } else {
+      setRemainingSecs(0);
     }
   }, [backoffTime]);
 
@@ -33,14 +46,27 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (backoffTime > Date.now()) {
-      const waitSecs = Math.ceil((backoffTime - Date.now()) / 1000);
+    const nowTs = Date.now();
+    if (backoffTime > nowTs) {
+      const waitSecs = Math.ceil((backoffTime - nowTs) / 1000);
       setErrorMsg(`Too many attempts. Please wait ${waitSecs} seconds.`);
       return;
     }
 
     setLoading(true);
     setErrorMsg(null);
+
+    // Exponential Backoff Check
+    const newAttempt = attemptCount + 1;
+    setAttemptCount(newAttempt);
+
+    if (newAttempt >= 5) {
+      const lockoutTime = Date.now() + 30000;
+      setBackoffTime(lockoutTime);
+      setErrorMsg("Too many failed attempts. Account locked for 30 seconds.");
+      setLoading(false);
+      return;
+    }
 
     const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
 
@@ -53,25 +79,12 @@ export default function Login() {
         });
 
         if (error) {
-          const newAttemptCount = attemptCount + 1;
-          setAttemptCount(newAttemptCount);
-          
-          if (newAttemptCount >= 3) {
-            const backoffMs = Math.pow(2, newAttemptCount) * 1000; // 8s, 16s, 32s...
-            setBackoffTime(Date.now() + backoffMs);
-            setErrorMsg(`Invalid credentials. Please wait ${Math.ceil(backoffMs/1000)} seconds before trying again.`);
-          } else {
-            setErrorMsg("Invalid email or password.");
-          }
+          setErrorMsg(error.message);
           setLoading(false);
           return;
         }
 
-        if (data.session) {
-          // Reset attempts on successful login
-          setAttemptCount(0);
-          setBackoffTime(0);
-          
+        if (data.user) {
           setSession({
             name: data.user.email?.split("@")[0] || email.split("@")[0],
             email: data.user.email || email,
@@ -80,7 +93,7 @@ export default function Login() {
           router.push("/");
           return;
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Supabase login error:", err);
         setErrorMsg("An unexpected error occurred. Please try again.");
       }
@@ -102,7 +115,7 @@ export default function Login() {
     }
   };
 
-  const isLockedOut = backoffTime > Date.now();
+  const isLockedOut = remainingSecs > 0;
 
   return (
     <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
@@ -170,7 +183,7 @@ export default function Login() {
             className="ops-btn-primary w-full !py-3 disabled:opacity-50"
           >
             {loading && <i className="fa-solid fa-spinner animate-spin" />}
-            {isLockedOut ? `Wait ${Math.ceil((backoffTime - Date.now()) / 1000)}s` : "Sign In"}
+            {isLockedOut ? `Wait ${remainingSecs}s` : "Sign In"}
           </button>
         </form>
 

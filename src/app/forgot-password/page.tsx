@@ -35,7 +35,7 @@ export default function ForgotPassword() {
             text: "If an account exists with this email, a password reset link has been sent.",
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Supabase reset error:", err);
         setMessage({ type: "error", text: "An unexpected error occurred. Please try again." });
       }

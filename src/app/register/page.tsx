@@ -84,7 +84,7 @@ export default function Register() {
           setLoading(false);
         }
         return;
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Supabase registration error:", err);
         setErrorMsg("An unexpected error occurred. Please try again.");
       }

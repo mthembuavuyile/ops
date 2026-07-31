@@ -11,11 +11,13 @@ export default function GuestBanner() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    if (typeof window !== "undefined") {
-      const wasDismissed = localStorage.getItem(DISMISS_KEY) === "true";
-      setDismissed(wasDismissed);
-    }
+    const handle = requestAnimationFrame(() => {
+      setMounted(true);
+      if (typeof window !== "undefined") {
+        setDismissed(localStorage.getItem(DISMISS_KEY) === "true");
+      }
+    });
+    return () => cancelAnimationFrame(handle);
   }, []);
 
   const handleDismiss = () => {

@@ -19,14 +19,15 @@ export default function SettingsForm({
   onImportBackup,
 }: SettingsFormProps) {
   const [form, setForm] = useState<Settings>({ ...settings });
-  const [importText, setImportText] = useState("");
-  const [showImportArea, setShowImportArea] = useState(false);
 
   useEffect(() => {
-    setForm({ ...settings });
+    const handle = requestAnimationFrame(() => {
+      setForm({ ...settings });
+    });
+    return () => cancelAnimationFrame(handle);
   }, [settings]);
 
-  const update = (field: keyof Settings, value: any) => {
+  const update = (field: keyof Settings, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
