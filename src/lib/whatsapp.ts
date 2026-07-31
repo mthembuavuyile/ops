@@ -22,16 +22,18 @@ export function generateShareMessage(
   docNumber: string,
   clientContactName: string,
   total: number,
-  settings: Settings,
-  baseUrl: string,
-  shareId: string
+  settings?: Settings | null,
+  baseUrl: string = "",
+  shareId: string = ""
 ): string {
-  const formatted = formatCurrency(total, settings.currency);
+  const currency = settings?.currency || "ZAR";
+  const formatted = formatCurrency(total, currency);
   const route = type === "quote" ? "quotes" : "invoices";
-  const portalUrl = `${baseUrl}/portal/${route}/${shareId}`;
-  const companyName = settings.company_name || "Our Company";
+  const portalUrl = baseUrl && shareId ? `${baseUrl}/portal/${route}/${shareId}` : "";
+  const companyName = settings?.company_name || "Our Company";
+  const portalSection = portalUrl ? `\n\nView online here:\n${portalUrl}` : "";
 
-  return `Hi ${clientContactName},\n\nHere is the secure link to view and accept your ${type} (${docNumber}) from ${companyName}.\n\nTotal: ${formatted}\n\nView online here:\n${portalUrl}\n\nKind regards,\n${companyName}`;
+  return `Hi ${clientContactName},\n\nHere is the secure link to view and accept your ${type} (${docNumber}) from ${companyName}.\n\nTotal: ${formatted}${portalSection}\n\nKind regards,\n${companyName}`;
 }
 
 /**

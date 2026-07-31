@@ -46,7 +46,9 @@ export default function ClientPortal({
     const inv = invoices.find((i) => i.quote_id === quote.id);
     const type = isAccepted && inv ? "invoice" : "quote";
     const docNum = isAccepted && inv ? inv.invoice_number : quote.quote_number;
-    const msg = generateShareMessage(type, docNum, client.contact_name || client.name, quote.total, settings);
+    const shareId = isAccepted && inv ? inv.id : (quote.share_token || quote.id);
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+    const msg = generateShareMessage(type, docNum, client.contact_name || client.name, quote.total, settings, baseUrl, shareId);
     const url = buildWhatsAppUrl(client.phone, msg);
     window.open(url, "_blank");
     showToast(`💬 WhatsApp share link opened for ${docNum}!`, "success");
