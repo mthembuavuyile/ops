@@ -56,7 +56,7 @@ export default function OpsApp() {
 
   const handleLogout = useCallback(() => {
     app.logout();
-    showToast("👋 Logged out of account. Continuing in Guest Mode.", "info");
+    showToast("👋 Signed out successfully.", "info");
   }, [app, showToast]);
 
   const handleSyncCloud = useCallback(async () => {
@@ -236,10 +236,6 @@ export default function OpsApp() {
     [app, showToast]
   );
 
-  const handleReset = useCallback(() => {
-    app.resetData();
-    showToast("🔄 Workspace reset to defaults.", "warning");
-  }, [app, showToast]);
 
   // Loading state or not authenticated — show loading spinner
   // (useAppData will redirect to /login if not authenticated)
@@ -269,7 +265,6 @@ export default function OpsApp() {
             app.setActivePortalQuoteId(app.quotes[app.quotes.length - 1].id);
           }
         }}
-        onReset={handleReset}
         companyName={app.settings.company_name}
         sidebarOpen={sidebarOpen}
         onCloseSidebar={() => setSidebarOpen(false)}
@@ -289,13 +284,9 @@ export default function OpsApp() {
             {(app.settings.company_name || "VYLEX").toUpperCase()}
             <span className="text-brand-accent">OPS</span>
           </span>
-          {app.session ? (
-            <button onClick={handleSyncCloud} className="text-brand-accent p-2 rounded-lg active:bg-blue-50 text-xs font-bold flex items-center gap-1" title="Sync Cloud Data">
-              <i className="fa-solid fa-rotate" />
-            </button>
-          ) : (
-            <div className="w-8" />
-          )}
+          <button onClick={handleSyncCloud} className="text-brand-accent p-2 rounded-lg active:bg-blue-50 text-xs font-bold flex items-center gap-1" title="Sync Cloud Data">
+            <i className="fa-solid fa-rotate" />
+          </button>
         </div>
 
         <div className="p-4 md:p-8 max-w-7xl mx-auto">

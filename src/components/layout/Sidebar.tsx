@@ -7,7 +7,6 @@ import type { AppView, UserSession } from "@/lib/types";
 interface SidebarProps {
   activeView: AppView;
   onNavigate: (view: AppView) => void;
-  onReset: () => void;
   companyName: string;
   sidebarOpen: boolean;
   onCloseSidebar: () => void;
@@ -43,7 +42,6 @@ const SANDBOX_NAV: NavItem[] = [
 export default function Sidebar({
   activeView,
   onNavigate,
-  onReset,
   companyName,
   sidebarOpen,
   onCloseSidebar,

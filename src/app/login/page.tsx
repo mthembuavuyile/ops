@@ -54,18 +54,6 @@ export default function Login() {
     setLoading(true);
     setErrorMsg(null);
 
-    // Exponential Backoff Check
-    const newAttempt = attemptCount + 1;
-    setAttemptCount(newAttempt);
-
-    if (newAttempt >= 5) {
-      const lockoutTime = Date.now() + 30000;
-      setBackoffTime(lockoutTime);
-      setErrorMsg("Too many failed attempts. Account locked for 30 seconds.");
-      setLoading(false);
-      return;
-    }
-
     try {
       const { supabase } = await import("@/lib/supabase");
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -74,12 +62,24 @@ export default function Login() {
       });
 
       if (error) {
-        setErrorMsg(error.message);
+        // Increment attempt count on failure
+        const newAttempt = attemptCount + 1;
+        setAttemptCount(newAttempt);
+
+        if (newAttempt >= 5) {
+          const lockoutTime = Date.now() + 30000;
+          setBackoffTime(lockoutTime);
+          setAttemptCount(0); // Reset counter after lockout starts
+          setErrorMsg("Too many failed attempts. Locked for 30 seconds.");
+        } else {
+          setErrorMsg(error.message);
+        }
         setLoading(false);
         return;
       }
 
       if (data.user) {
+        setAttemptCount(0); // Reset on success
         setSession({
           id: data.user.id,
           name: data.user.user_metadata?.company_name || data.user.email?.split("@")[0] || email.split("@")[0],
