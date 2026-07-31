@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-slate-900 selection:text-white">
-      
+
       {/* HEADER */}
       <header className="border-b border-slate-200 bg-white sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -108,7 +108,7 @@ export default function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
+
           <div className="bg-white border border-slate-200 rounded-xl p-6">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">01 / Quoting</div>
             <h3 className="text-base font-bold text-slate-900">Quotations & Client Portal</h3>
@@ -194,7 +194,7 @@ export default function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          
+
           {/* LOCAL MODE */}
           <div className="bg-white border border-slate-200 rounded-xl p-8 flex flex-col justify-between">
             <div>
