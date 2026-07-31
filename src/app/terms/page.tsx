@@ -147,12 +147,22 @@ export default function TermsPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-6 text-slate-400">
+            <Link href="/" className="hover:text-white transition-colors">Workspace</Link>
+            <Link href="/landing" className="hover:text-white transition-colors">Home</Link>
             <Link href="/about" className="hover:text-white transition-colors">About</Link>
             <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
             <Link href="/login" className="hover:text-white transition-colors">Login</Link>
             <Link href="/register" className="hover:text-white transition-colors">Register</Link>
+            <a
+              href="https://vylex.co.za"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Vylex Home
+            </a>
           </div>
         </div>
       </footer>

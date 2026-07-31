@@ -189,60 +189,24 @@ export default function LandingPage() {
       <section id="access" className="py-20 max-w-6xl mx-auto px-6">
         <div className="mb-14 text-center max-w-2xl mx-auto">
           <h2 className="text-xs font-bold text-sky-600 uppercase tracking-widest">Free Access</h2>
-          <p className="text-2xl font-bold text-slate-900 mt-2">Choose how you want to use Vylex Ops.</p>
-          <p className="text-xs text-slate-500 mt-2">Both options are completely free to use with zero hidden fees.</p>
+          <p className="text-2xl font-bold text-slate-900 mt-2">Get started with Vylex Ops today.</p>
+          <p className="text-xs text-slate-500 mt-2">Completely free to use with zero hidden fees.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-
-          {/* LOCAL MODE */}
-          <div className="bg-white border border-slate-200 rounded-xl p-8 flex flex-col justify-between">
-            <div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Instant Local Mode</div>
-              <div className="text-3xl font-extrabold text-slate-900 mt-2">Free</div>
-              <div className="text-xs text-slate-500 mt-1">No sign-up required / Saved in your browser</div>
-              <ul className="mt-6 space-y-3 text-xs text-slate-700 border-t border-slate-100 pt-6">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-                  Unlimited quotes, invoices & client profiles
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-                  Save & print PDF documents directly
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-                  WhatsApp reminder message generator
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-                  Manual JSON data backup export & import
-                </li>
-              </ul>
-            </div>
-            <div className="mt-8">
-              <Link
-                href="/"
-                className="block text-center text-xs font-semibold text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-300 py-3 rounded-lg transition-colors"
-              >
-                Launch Local App
-              </Link>
-            </div>
-          </div>
-
-          {/* CLOUD SYNC MODE */}
-          <div className="bg-white border-2 border-slate-900 rounded-xl p-8 flex flex-col justify-between relative">
+        <div className="max-w-xl mx-auto">
+          {/* CLOUD ACCOUNT CARD */}
+          <div className="bg-white border-2 border-slate-900 rounded-xl p-8 flex flex-col justify-between relative shadow-lg">
             <div className="absolute -top-3 right-6 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
-              Recommended
+              Free Always
             </div>
             <div>
-              <div className="text-xs font-bold text-sky-600 uppercase tracking-wider">Cloud Sync Account</div>
+              <div className="text-xs font-bold text-sky-600 uppercase tracking-wider">Cloud Account</div>
               <div className="text-3xl font-extrabold text-slate-900 mt-2">Free</div>
-              <div className="text-xs text-slate-500 mt-1">Sync your data across all your devices</div>
+              <div className="text-xs text-slate-500 mt-1">Sync your quotes, invoices & clients across all devices</div>
               <ul className="mt-6 space-y-3 text-xs text-slate-700 border-t border-slate-100 pt-6">
-                <li className="flex items-center gap-2 font-medium text-slate-900">
+                <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
-                  Everything included in Local Mode
+                  Unlimited quotes, invoices & client profiles
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
@@ -250,24 +214,31 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
-                  Secure account login (Supabase authentication)
+                  Shareable client portal links for quote acceptance
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
-                  Shareable client portal links for quote acceptance
+                  Save & print PDF documents directly
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
+                  WhatsApp payment reminder message generator
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-sky-600 rounded-full" />
+                  Secure authentication & cloud backups
                 </li>
               </ul>
             </div>
             <div className="mt-8">
               <Link
                 href="/register"
-                className="block text-center text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 py-3 rounded-lg transition-colors"
+                className="block text-center text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 py-3.5 rounded-lg transition-colors"
               >
                 Create Free Account
               </Link>
             </div>
           </div>
-
         </div>
       </section>
 
@@ -283,14 +254,14 @@ export default function LandingPage() {
             <div className="border border-slate-200 rounded-xl p-6">
               <h3 className="text-sm font-bold text-slate-900">Is Vylex Ops really free to use?</h3>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Yes. Vylex Ops is completely free. You can use it immediately without registering in Local Mode, or create a free account to sync your billing data securely across multiple devices.
+                Yes. Vylex Ops is completely free. You can create a free account to sync your billing data securely across all your devices.
               </p>
             </div>
 
             <div className="border border-slate-200 rounded-xl p-6">
               <h3 className="text-sm font-bold text-slate-900">Where is my data stored?</h3>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                In Local Mode, data is stored exclusively in your browser&apos;s local storage (`localStorage`). When logged into a free account, your data syncs securely to your personal database profile on Supabase.
+                Your data syncs securely to your personal database profile on Supabase, making it accessible from any browser or device.
               </p>
             </div>
 
@@ -330,8 +301,12 @@ export default function LandingPage() {
             <p className="mt-1 text-slate-500">Free business billing and operations management system.</p>
           </div>
 
-          <div className="flex items-center gap-6 text-slate-400">
+          <div className="flex flex-wrap items-center gap-6 text-slate-400">
             <Link href="/" className="hover:text-white transition-colors">Workspace</Link>
+            <Link href="/about" className="hover:text-white transition-colors">About</Link>
+            <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
             <Link href="/login" className="hover:text-white transition-colors">Login</Link>
             <Link href="/register" className="hover:text-white transition-colors">Register</Link>
             <a
