@@ -2,6 +2,13 @@
 -- VYLEX OPS: SUPABASE SCHEMA MIGRATION
 -- ==========================================
 
+-- 0. Drop existing tables (Clean slate for testing)
+DROP TABLE IF EXISTS public.history CASCADE;
+DROP TABLE IF EXISTS public.invoices CASCADE;
+DROP TABLE IF EXISTS public.quotes CASCADE;
+DROP TABLE IF EXISTS public.clients CASCADE;
+DROP TABLE IF EXISTS public.settings CASCADE;
+
 -- 1. Create tables
 CREATE TABLE public.settings (
     user_id UUID REFERENCES auth.users NOT NULL PRIMARY KEY,
@@ -82,51 +89,48 @@ CREATE TABLE public.history (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 2. Enable Row Level Security (RLS)
+-- 2. Grant basic access to the authenticated role for all tables
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.clients TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.quotes TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.invoices TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.settings TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.history TO authenticated;
+
+-- 3. Enable Row Level Security (RLS) on all tables
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quotes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.history ENABLE ROW LEVEL SECURITY;
 
--- 3. Create Security Policies
+-- 4. Create RLS Policies so users can only access their own data
 
--- SETTINGS: Users can read and write their own settings
-CREATE POLICY "Users can read own settings" ON public.settings FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own settings" ON public.settings FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own settings" ON public.settings FOR UPDATE USING (auth.uid() = user_id);
--- Public access: Allow unauthenticated users to read settings
-CREATE POLICY "Public can read settings" ON public.settings FOR SELECT USING (true);
+-- Policies for 'clients'
+CREATE POLICY "Users can manage their own clients" 
+ON public.clients FOR ALL TO authenticated 
+USING (auth.uid() = user_id) 
+WITH CHECK (auth.uid() = user_id);
 
--- CLIENTS: Users can read and write their own clients
-CREATE POLICY "Users can read own clients" ON public.clients FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own clients" ON public.clients FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own clients" ON public.clients FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own clients" ON public.clients FOR DELETE USING (auth.uid() = user_id);
--- Public access: Allow public to read clients
-CREATE POLICY "Public can read clients" ON public.clients FOR SELECT USING (true);
+-- Policies for 'quotes'
+CREATE POLICY "Users can manage their own quotes" 
+ON public.quotes FOR ALL TO authenticated 
+USING (auth.uid() = user_id) 
+WITH CHECK (auth.uid() = user_id);
 
--- QUOTES: Users can do everything to their own quotes
-CREATE POLICY "Users can read own quotes" ON public.quotes FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own quotes" ON public.quotes FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own quotes" ON public.quotes FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own quotes" ON public.quotes FOR DELETE USING (auth.uid() = user_id);
--- Public access: Anyone can read a quote by its share_token or ID
-CREATE POLICY "Public can read quotes" ON public.quotes FOR SELECT USING (true);
--- Public access: Anyone can UPDATE a quote
-CREATE POLICY "Public can update quotes" ON public.quotes FOR UPDATE USING (true);
+-- Policies for 'invoices'
+CREATE POLICY "Users can manage their own invoices" 
+ON public.invoices FOR ALL TO authenticated 
+USING (auth.uid() = user_id) 
+WITH CHECK (auth.uid() = user_id);
 
--- INVOICES: Users can do everything to their own invoices
-CREATE POLICY "Users can read own invoices" ON public.invoices FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own invoices" ON public.invoices FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own invoices" ON public.invoices FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own invoices" ON public.invoices FOR DELETE USING (auth.uid() = user_id);
--- Public access: Anyone can read an invoice by ID
-CREATE POLICY "Public can read invoices" ON public.invoices FOR SELECT USING (true);
-CREATE POLICY "Public can insert invoices" ON public.invoices FOR INSERT WITH CHECK (true);
+-- Policies for 'settings'
+CREATE POLICY "Users can manage their own settings" 
+ON public.settings FOR ALL TO authenticated 
+USING (auth.uid() = user_id) 
+WITH CHECK (auth.uid() = user_id);
 
--- HISTORY: Users can do everything to their own history
-CREATE POLICY "Users can read own history" ON public.history FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own history" ON public.history FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own history" ON public.history FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own history" ON public.history FOR DELETE USING (auth.uid() = user_id);
+-- Policies for 'history'
+CREATE POLICY "Users can manage their own history" 
+ON public.history FOR ALL TO authenticated 
+USING (auth.uid() = user_id) 
+WITH CHECK (auth.uid() = user_id);
