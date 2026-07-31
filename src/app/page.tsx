@@ -71,8 +71,7 @@ export default function OpsApp() {
   }, [app, showToast]);
 
   const handleDeleteClient = useCallback((id: string) => {
-    const updated = app.clients.filter(c => c.id !== id);
-    app.updateClients(updated);
+    app.deleteClient(id);
     showToast("🗑️ Client deleted", "warning");
   }, [app, showToast]);
 

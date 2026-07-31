@@ -84,7 +84,8 @@ export default function Login() {
 
         if (data.user) {
           setSession({
-            name: data.user.email?.split("@")[0] || email.split("@")[0],
+            id: data.user.id,
+            name: data.user.user_metadata?.company_name || data.user.email?.split("@")[0] || email.split("@")[0],
             email: data.user.email || email,
             loggedInAt: new Date().toISOString(),
           });

@@ -30,8 +30,11 @@ export interface AppData {
 
   // Data mutations & backup
   updateClients: (clients: Client[]) => void;
+  deleteClient: (id: string) => void;
   updateQuotes: (quotes: Quote[]) => void;
+  deleteQuote: (id: string) => void;
   updateInvoices: (invoices: Invoice[]) => void;
+  deleteInvoice: (id: string) => void;
   updateSettings: (settings: Settings) => void;
   updateHistory: (history: HistoryRecord[]) => void;
   resetData: () => void;
@@ -143,14 +146,29 @@ export function useAppData(): AppData {
     db.saveClients(c, session?.id);
   }, [session]);
 
+  const deleteClient = useCallback((id: string) => {
+    setClients(prev => prev.filter(c => c.id !== id));
+    db.deleteClientFromDb(id, session?.id);
+  }, [session]);
+
   const updateQuotes = useCallback((q: Quote[]) => {
     setQuotes(q);
     db.saveQuotes(q, session?.id);
   }, [session]);
 
+  const deleteQuote = useCallback((id: string) => {
+    setQuotes(prev => prev.filter(q => q.id !== id));
+    db.deleteQuoteFromDb(id, session?.id);
+  }, [session]);
+
   const updateInvoices = useCallback((inv: Invoice[]) => {
     setInvoices(inv);
     db.saveInvoices(inv, session?.id);
+  }, [session]);
+
+  const deleteInvoice = useCallback((id: string) => {
+    setInvoices(prev => prev.filter(i => i.id !== id));
+    db.deleteInvoiceFromDb(id, session?.id);
   }, [session]);
 
   const updateSettings = useCallback((s: Settings) => {
@@ -214,8 +232,11 @@ export function useAppData(): AppData {
     reminder,
     setReminder,
     updateClients,
+    deleteClient,
     updateQuotes,
+    deleteQuote,
     updateInvoices,
+    deleteInvoice,
     updateSettings,
     updateHistory,
     resetData,

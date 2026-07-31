@@ -64,16 +64,19 @@ export default function Register() {
         }
 
         const currentSettings = getSettings();
-        saveSettings({
+        const newSettings: Settings = {
           ...currentSettings,
           company_name: companyName,
           email: email,
           contact_name: companyName,
-        });
+        };
+        const userId = data.session?.user?.id || data.user?.id;
+        saveSettings(newSettings, userId);
 
         // Depending on whether confirm email is on, session might be null.
         if (data.session) {
           setSession({
+            id: data.session.user.id,
             name: companyName,
             email,
             loggedInAt: new Date().toISOString(),
