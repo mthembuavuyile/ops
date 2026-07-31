@@ -34,12 +34,12 @@ export default function ClientManager({ clients, onSaveClient, onDeleteClient }:
 
   const handleOpenEdit = (c: Client) => {
     setEditingId(c.id);
-    setName(c.name);
-    setPrefix(c.prefix);
-    setEmail(c.email);
-    setContactName(c.contact_name);
-    setPhone(c.phone);
-    setAddress(c.address);
+    setName(c.name || "");
+    setPrefix(c.prefix || "");
+    setEmail(c.email || "");
+    setContactName(c.contact_name || "");
+    setPhone(c.phone || "");
+    setAddress(c.address || "");
     setIsModalOpen(true);
   };
 

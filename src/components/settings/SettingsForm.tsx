@@ -18,21 +18,54 @@ export default function SettingsForm({
   onExportBackup,
   onImportBackup,
 }: SettingsFormProps) {
-  const [form, setForm] = useState<Settings>({ ...settings });
+  const [form, setForm] = useState<Settings>({
+    company_name: settings?.company_name || "",
+    contact_name: settings?.contact_name || "",
+    email: settings?.email || "",
+    phone: settings?.phone || "",
+    website: settings?.website || "",
+    company_address: settings?.company_address || "",
+    bank_name: settings?.bank_name || "",
+    account_name: settings?.account_name || "",
+    account_number: settings?.account_number || "",
+    branch_code: settings?.branch_code || "",
+    payshap_id: settings?.payshap_id || "",
+    accent_color: settings?.accent_color || "#051b38",
+    currency: settings?.currency || "R",
+    show_verified_badge: settings?.show_verified_badge ?? true,
+  });
+
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    const handle = requestAnimationFrame(() => {
-      setForm({ ...settings });
-    });
-    return () => cancelAnimationFrame(handle);
-  }, [settings]);
+    if (!isDirty) {
+      setForm({
+        company_name: settings?.company_name || "",
+        contact_name: settings?.contact_name || "",
+        email: settings?.email || "",
+        phone: settings?.phone || "",
+        website: settings?.website || "",
+        company_address: settings?.company_address || "",
+        bank_name: settings?.bank_name || "",
+        account_name: settings?.account_name || "",
+        account_number: settings?.account_number || "",
+        branch_code: settings?.branch_code || "",
+        payshap_id: settings?.payshap_id || "",
+        accent_color: settings?.accent_color || "#051b38",
+        currency: settings?.currency || "R",
+        show_verified_badge: settings?.show_verified_badge ?? true,
+      });
+    }
+  }, [settings, isDirty]);
 
   const update = (field: keyof Settings, value: string | boolean) => {
+    setIsDirty(true);
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsDirty(false);
     onSave(form);
   };
 
@@ -64,12 +97,12 @@ export default function SettingsForm({
               <i className="fa-solid fa-briefcase text-slate-300 mr-2" />Business Profile
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div><label className="ops-label">Company / Trading Name *</label><input type="text" value={form.company_name} onChange={(e) => update("company_name", e.target.value)} className="ops-input" required /></div>
-              <div><label className="ops-label">Contact Person *</label><input type="text" value={form.contact_name} onChange={(e) => update("contact_name", e.target.value)} className="ops-input" required /></div>
-              <div><label className="ops-label">Contact Email *</label><input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} className="ops-input" required /></div>
-              <div><label className="ops-label">Phone Number *</label><input type="text" value={form.phone} onChange={(e) => update("phone", e.target.value)} className="ops-input" required /></div>
-              <div><label className="ops-label">Website Domain</label><input type="text" value={form.website} onChange={(e) => update("website", e.target.value)} className="ops-input" placeholder="e.g. vylex.co.za" /></div>
-              <div><label className="ops-label">Physical Address</label><textarea value={form.company_address} onChange={(e) => update("company_address", e.target.value)} className="ops-input" rows={2} /></div>
+              <div><label className="ops-label">Company / Trading Name *</label><input type="text" value={form.company_name || ""} onChange={(e) => update("company_name", e.target.value)} className="ops-input" required /></div>
+              <div><label className="ops-label">Contact Person *</label><input type="text" value={form.contact_name || ""} onChange={(e) => update("contact_name", e.target.value)} className="ops-input" required /></div>
+              <div><label className="ops-label">Contact Email *</label><input type="email" value={form.email || ""} onChange={(e) => update("email", e.target.value)} className="ops-input" required /></div>
+              <div><label className="ops-label">Phone Number *</label><input type="text" value={form.phone || ""} onChange={(e) => update("phone", e.target.value)} className="ops-input" required /></div>
+              <div><label className="ops-label">Website Domain</label><input type="text" value={form.website || ""} onChange={(e) => update("website", e.target.value)} className="ops-input" placeholder="e.g. vylex.co.za" /></div>
+              <div><label className="ops-label">Physical Address</label><textarea value={form.company_address || ""} onChange={(e) => update("company_address", e.target.value)} className="ops-input" rows={2} /></div>
             </div>
           </div>
 
@@ -79,11 +112,11 @@ export default function SettingsForm({
               <i className="fa-solid fa-building-columns text-slate-300 mr-2" />Banking Details (EFT & PayShap)
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div><label className="ops-label">Bank Name</label><input type="text" value={form.bank_name} onChange={(e) => update("bank_name", e.target.value)} className="ops-input" /></div>
-              <div><label className="ops-label">Account Holder</label><input type="text" value={form.account_name} onChange={(e) => update("account_name", e.target.value)} className="ops-input" /></div>
-              <div><label className="ops-label">Account Number</label><input type="text" value={form.account_number} onChange={(e) => update("account_number", e.target.value)} className="ops-input font-mono" /></div>
-              <div><label className="ops-label">Branch Code</label><input type="text" value={form.branch_code} onChange={(e) => update("branch_code", e.target.value)} className="ops-input font-mono" /></div>
-              <div><label className="ops-label">PayShap ID / Cell</label><input type="text" value={form.payshap_id} onChange={(e) => update("payshap_id", e.target.value)} className="ops-input" /></div>
+              <div><label className="ops-label">Bank Name</label><input type="text" value={form.bank_name || ""} onChange={(e) => update("bank_name", e.target.value)} className="ops-input" /></div>
+              <div><label className="ops-label">Account Holder</label><input type="text" value={form.account_name || ""} onChange={(e) => update("account_name", e.target.value)} className="ops-input" /></div>
+              <div><label className="ops-label">Account Number</label><input type="text" value={form.account_number || ""} onChange={(e) => update("account_number", e.target.value)} className="ops-input font-mono" /></div>
+              <div><label className="ops-label">Branch Code</label><input type="text" value={form.branch_code || ""} onChange={(e) => update("branch_code", e.target.value)} className="ops-input font-mono" /></div>
+              <div><label className="ops-label">PayShap ID / Cell</label><input type="text" value={form.payshap_id || ""} onChange={(e) => update("payshap_id", e.target.value)} className="ops-input" /></div>
             </div>
           </div>
 
@@ -96,13 +129,13 @@ export default function SettingsForm({
               <div>
                 <label className="ops-label">Brand Accent Color</label>
                 <div className="flex items-center gap-3">
-                  <input type="color" value={form.accent_color} onChange={(e) => update("accent_color", e.target.value)} className="h-10 w-20 border border-slate-200 rounded-lg cursor-pointer" />
-                  <span className="text-xs text-slate-400 font-mono">{form.accent_color}</span>
+                  <input type="color" value={form.accent_color || "#051b38"} onChange={(e) => update("accent_color", e.target.value)} className="h-10 w-20 border border-slate-200 rounded-lg cursor-pointer" />
+                  <span className="text-xs text-slate-400 font-mono">{form.accent_color || "#051b38"}</span>
                 </div>
               </div>
               <div>
                 <label className="ops-label">Primary Currency</label>
-                <select value={form.currency} onChange={(e) => update("currency", e.target.value)} className="ops-input">
+                <select value={form.currency || "R"} onChange={(e) => update("currency", e.target.value)} className="ops-input">
                   <option value="R">R (ZAR - South African Rand)</option>
                   <option value="$">$ (USD - United States Dollar)</option>
                   <option value="£">£ (GBP - British Pound)</option>
