@@ -325,7 +325,7 @@ export default function InvoiceMakerForm({ settings, clients = [], onSaveClient,
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Quick Invoice Maker</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900">New Invoice Generator</h1>
         <p className="text-slate-500 text-sm mt-1">Generate a quick PDF invoice on-the-fly with saved clients, business addresses, and bank accounts.</p>
       </div>
 

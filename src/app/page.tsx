@@ -338,7 +338,7 @@ export default function OpsApp() {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-extrabold text-slate-900">Quotes & Invoices Log</h1>
+                  <h1 className="text-2xl font-extrabold text-slate-900">Billing Pipeline Log</h1>
                   <p className="text-slate-500 text-sm mt-1">Track conversions and status of your billing pipeline.</p>
                 </div>
                 
