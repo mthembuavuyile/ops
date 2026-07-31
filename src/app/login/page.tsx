@@ -100,12 +100,24 @@ export default function Login() {
   const isLockedOut = remainingSecs > 0;
 
   return (
-    <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
+    <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md bg-white border border-slate-200 p-8 md:p-10 rounded-2xl shadow-lg space-y-8">
         <div className="text-center">
-          <Link href="/" className="text-2xl font-extrabold tracking-tight text-slate-900">
+          <Link href="/landing" className="inline-block text-2xl font-extrabold tracking-tight text-slate-900 hover:opacity-90 transition-opacity">
             VYLEX<span className="text-brand-accent">OPS</span>
           </Link>
+          <div className="text-[11px] font-semibold text-slate-400 tracking-wide mt-0.5">
+            by{" "}
+            <a
+              href="https://vylex.co.za"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-accent hover:underline inline-flex items-center gap-1"
+            >
+              vylex.co.za
+              <i className="fa-solid fa-arrow-up-right-from-square text-[9px]" />
+            </a>
+          </div>
           <h2 className="text-sm font-bold uppercase tracking-wider mt-4 text-slate-900">Login</h2>
           <p className="text-slate-500 text-xs mt-1">Access your billing workspace.</p>
         </div>
@@ -170,13 +182,52 @@ export default function Login() {
         </form>
 
 
-        <div className="text-center text-xs font-medium text-slate-500 pt-2 border-t border-slate-200">
-          New here?{" "}
-          <Link href="/register" className="text-brand-accent hover:underline font-bold">
-            Create Account
-          </Link>
+        <div className="space-y-4 pt-4 border-t border-slate-200 text-center">
+          <div className="text-xs font-medium text-slate-500">
+            New here?{" "}
+            <Link href="/register" className="text-brand-accent hover:underline font-bold">
+              Create Account
+            </Link>
+          </div>
+
+          <div className="flex items-center justify-center gap-3 text-xs font-medium text-slate-500 pt-3 border-t border-slate-100">
+            <Link
+              href="/landing"
+              className="inline-flex items-center gap-1.5 hover:text-slate-900 transition-colors text-slate-600"
+            >
+              <i className="fa-solid fa-house text-slate-400 text-xs" />
+              <span>Landing Page</span>
+            </Link>
+            <span className="text-slate-300">•</span>
+            <a
+              href="https://vylex.co.za"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-slate-900 transition-colors text-slate-600"
+            >
+              <i className="fa-solid fa-globe text-slate-400 text-xs" />
+              <span>vylex.co.za</span>
+              <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-400" />
+            </a>
+          </div>
         </div>
       </div>
+
+      <footer className="mt-6 text-center text-xs text-slate-400 flex items-center justify-center gap-3">
+        <Link href="/landing" className="hover:text-slate-600 transition-colors">
+          About Vylex Ops
+        </Link>
+        <span>•</span>
+        <a
+          href="https://vylex.co.za"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-slate-600 transition-colors inline-flex items-center gap-1"
+        >
+          vylex.co.za
+          <i className="fa-solid fa-arrow-up-right-from-square text-[9px]" />
+        </a>
+      </footer>
     </main>
   );
 }
