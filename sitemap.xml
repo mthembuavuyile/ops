@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="https://www.xml-sitemaps.com/css/sitemap.css"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+       <loc>https://ops.vylex.co.za/landing</loc>
+       <lastmod>2026-07-31T16:04:41+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://ops.vylex.co.za/</loc>
+       <lastmod>2026-07-31T16:04:41+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://ops.vylex.co.za/about</loc>
+       <lastmod>2026-07-31T16:04:41+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://ops.vylex.co.za/pricing</loc>
+       <lastmod>2026-07-31T16:04:41+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://ops.vylex.co.za/privacy</loc>
+       <lastmod>2026-07-31T16:04:41+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://ops.vylex.co.za/terms</loc>
+       <lastmod>2026-07-31T16:04:41+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+</urlset>
