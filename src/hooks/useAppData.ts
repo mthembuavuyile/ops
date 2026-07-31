@@ -71,11 +71,51 @@ export function useAppData(): AppData {
     setHistory(data.history);
     setSessionState(db.getSession());
     setReady(true);
+
+    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+    if (hasSupabaseKey) {
+      import("@/lib/supabase").then(({ supabase }) => {
+        // Initial session check
+        supabase.auth.getSession().then(({ data: { session: supaSession } }) => {
+          if (supaSession) {
+             const userSession = {
+                name: supaSession.user.user_metadata?.company_name || supaSession.user.email?.split('@')[0] || "User",
+                email: supaSession.user.email || "",
+                loggedInAt: new Date().toISOString(),
+             };
+             setSessionState(userSession);
+             db.setSession(userSession);
+          }
+        });
+
+        // Listen for auth changes (login, logout, token refresh)
+        supabase.auth.onAuthStateChange((_event, supaSession) => {
+          if (supaSession) {
+             const userSession = {
+                name: supaSession.user.user_metadata?.company_name || supaSession.user.email?.split('@')[0] || "User",
+                email: supaSession.user.email || "",
+                loggedInAt: new Date().toISOString(),
+             };
+             setSessionState(userSession);
+             db.setSession(userSession);
+          } else {
+             setSessionState(null);
+             db.clearSession();
+          }
+        });
+      });
+    }
   }, []);
 
   const logout = useCallback(() => {
     db.clearSession();
     setSessionState(null);
+    const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+    if (hasSupabaseKey) {
+       import("@/lib/supabase").then(({ supabase }) => {
+          supabase.auth.signOut();
+       });
+    }
   }, []);
 
   // Persistence wrappers
