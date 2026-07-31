@@ -61,16 +61,19 @@ export function useAppData(): AppData {
     tone: "gentle",
   });
 
-  // Initialise data from localStorage on mount
+  // Initialise data from localStorage/Supabase on mount
   useEffect(() => {
-    const data = db.initData();
-    setClients(data.clients);
-    setQuotes(data.quotes);
-    setInvoices(data.invoices);
-    setSettings(data.settings);
-    setHistory(data.history);
-    setSessionState(db.getSession());
-    setReady(true);
+    let currentUserId: string | undefined = undefined;
+
+    const loadData = async (userId?: string) => {
+      const data = await db.initData(userId);
+      setClients(data.clients);
+      setQuotes(data.quotes);
+      setInvoices(data.invoices);
+      setSettings(data.settings);
+      setHistory(data.history);
+      setReady(true);
+    };
 
     const hasSupabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
     if (hasSupabaseKey) {
@@ -79,31 +82,45 @@ export function useAppData(): AppData {
         supabase.auth.getSession().then(({ data: { session: supaSession } }) => {
           if (supaSession) {
              const userSession = {
+                id: supaSession.user.id,
                 name: supaSession.user.user_metadata?.company_name || supaSession.user.email?.split('@')[0] || "User",
                 email: supaSession.user.email || "",
                 loggedInAt: new Date().toISOString(),
              };
+             currentUserId = userSession.id;
              setSessionState(userSession);
              db.setSession(userSession);
+          } else {
+             const localSession = db.getSession();
+             if (localSession?.id) currentUserId = localSession.id;
+             setSessionState(localSession);
           }
+          loadData(currentUserId);
         });
 
         // Listen for auth changes (login, logout, token refresh)
         supabase.auth.onAuthStateChange((_event, supaSession) => {
           if (supaSession) {
              const userSession = {
+                id: supaSession.user.id,
                 name: supaSession.user.user_metadata?.company_name || supaSession.user.email?.split('@')[0] || "User",
                 email: supaSession.user.email || "",
                 loggedInAt: new Date().toISOString(),
              };
              setSessionState(userSession);
              db.setSession(userSession);
+             loadData(userSession.id);
           } else {
              setSessionState(null);
              db.clearSession();
+             loadData(undefined);
           }
         });
       });
+    } else {
+      const localSession = db.getSession();
+      setSessionState(localSession);
+      loadData(localSession?.id);
     }
   }, []);
 
@@ -121,28 +138,28 @@ export function useAppData(): AppData {
   // Persistence wrappers
   const updateClients = useCallback((c: Client[]) => {
     setClients(c);
-    db.saveClients(c);
-  }, []);
+    db.saveClients(c, session?.id);
+  }, [session?.id]);
 
   const updateQuotes = useCallback((q: Quote[]) => {
     setQuotes(q);
-    db.saveQuotes(q);
-  }, []);
+    db.saveQuotes(q, session?.id);
+  }, [session?.id]);
 
   const updateInvoices = useCallback((inv: Invoice[]) => {
     setInvoices(inv);
-    db.saveInvoices(inv);
-  }, []);
+    db.saveInvoices(inv, session?.id);
+  }, [session?.id]);
 
   const updateSettings = useCallback((s: Settings) => {
     setSettings(s);
-    db.saveSettings(s);
-  }, []);
+    db.saveSettings(s, session?.id);
+  }, [session?.id]);
 
   const updateHistory = useCallback((h: HistoryRecord[]) => {
     setHistory(h);
-    db.saveHistory(h);
-  }, []);
+    db.saveHistory(h, session?.id);
+  }, [session?.id]);
 
   const resetData = useCallback(() => {
     const data = db.resetToDefaults();
@@ -165,11 +182,20 @@ export function useAppData(): AppData {
       setInvoices(data.invoices);
       setSettings(data.settings);
       setHistory(data.history);
+      
+      // Sync to cloud if logged in
+      if (session?.id) {
+        db.saveClients(data.clients, session.id);
+        db.saveQuotes(data.quotes, session.id);
+        db.saveInvoices(data.invoices, session.id);
+        db.saveSettings(data.settings, session.id);
+        db.saveHistory(data.history, session.id);
+      }
       return true;
     } catch {
       return false;
     }
-  }, []);
+  }, [session?.id]);
 
   return {
     clients,

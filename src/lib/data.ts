@@ -1,9 +1,10 @@
 // ================= DATA SERVICE LAYER =================
-// 100% localStorage — no backend needed
+// Supabase Cloud Sync Integration
 
 import type { Client, Quote, Invoice, Settings, HistoryRecord, UserSession } from "./types";
+import { supabase } from "./supabase";
 
-// Storage keys
+// Storage keys for local caching (optimistic UI)
 const KEYS = {
   clients: "vylex_ops_clients",
   quotes: "vylex_ops_quotes",
@@ -36,9 +37,6 @@ const DEFAULT_SETTINGS: Settings = {
 
 const DEFAULT_HISTORY: HistoryRecord[] = [];
 
-// Storage key to ensure migration to clean state once
-const CLEAN_SEED_KEY = "vylex_ops_empty_seeded_v1";
-
 // ================= SAFE LOCALSTORAGE HELPERS =================
 function safeGet<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
@@ -55,7 +53,7 @@ function safeSet(key: string, value: unknown): void {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-// ================= DATA ACCESSORS =================
+// ================= DATA ACCESSORS (LOCAL CACHE) =================
 export function getClients(): Client[] {
   return safeGet<Client[]>(KEYS.clients) || [...DEFAULT_CLIENTS];
 }
@@ -76,39 +74,52 @@ export function getHistory(): HistoryRecord[] {
   return safeGet<HistoryRecord[]>(KEYS.history) || [...DEFAULT_HISTORY];
 }
 
-// ================= DATA MUTATORS =================
-export function saveClients(clients: Client[]): void {
+// ================= DATA MUTATORS (SYNC TO SUPABASE) =================
+export async function saveClients(clients: Client[], userId?: string): Promise<void> {
   safeSet(KEYS.clients, clients);
+  if (!userId) return;
+  
+  const payload = clients.map(c => ({ ...c, user_id: userId }));
+  if (payload.length > 0) {
+    await supabase.from("clients").upsert(payload, { onConflict: 'id' });
+  }
 }
 
-export function saveQuotes(quotes: Quote[]): void {
+export async function saveQuotes(quotes: Quote[], userId?: string): Promise<void> {
   safeSet(KEYS.quotes, quotes);
+  if (!userId) return;
+
+  const payload = quotes.map(q => ({ ...q, user_id: userId }));
+  if (payload.length > 0) {
+    await supabase.from("quotes").upsert(payload, { onConflict: 'id' });
+  }
 }
 
-export function saveInvoices(invoices: Invoice[]): void {
+export async function saveInvoices(invoices: Invoice[], userId?: string): Promise<void> {
   safeSet(KEYS.invoices, invoices);
+  if (!userId) return;
+
+  const payload = invoices.map(i => ({ ...i, user_id: userId }));
+  if (payload.length > 0) {
+    await supabase.from("invoices").upsert(payload, { onConflict: 'id' });
+  }
 }
 
-export function saveSettings(settings: Settings): void {
+export async function saveSettings(settings: Settings, userId?: string): Promise<void> {
   safeSet(KEYS.settings, settings);
+  if (!userId) return;
+
+  await supabase.from("settings").upsert({ ...settings, user_id: userId }, { onConflict: 'user_id' });
 }
 
-export function saveHistory(history: HistoryRecord[]): void {
+export async function saveHistory(history: HistoryRecord[], userId?: string): Promise<void> {
   safeSet(KEYS.history, history);
-}
+  if (!userId) return;
 
-export function saveAll(
-  clients: Client[],
-  quotes: Quote[],
-  invoices: Invoice[],
-  settings: Settings,
-  history: HistoryRecord[]
-): void {
-  saveClients(clients);
-  saveQuotes(quotes);
-  saveInvoices(invoices);
-  saveSettings(settings);
-  saveHistory(history);
+  const payload = history.map(h => ({ ...h, user_id: userId }));
+  if (payload.length > 0) {
+    await supabase.from("history").upsert(payload, { onConflict: 'id' });
+  }
 }
 
 // ================= RESET / SEED =================
@@ -126,46 +137,69 @@ export function resetToDefaults(): {
     settings: { ...DEFAULT_SETTINGS },
     history: [...DEFAULT_HISTORY],
   };
-  saveAll(data.clients, data.quotes, data.invoices, data.settings, data.history);
-  if (typeof window !== "undefined") {
-    localStorage.setItem(CLEAN_SEED_KEY, "true");
-  }
+  safeSet(KEYS.clients, data.clients);
+  safeSet(KEYS.quotes, data.quotes);
+  safeSet(KEYS.invoices, data.invoices);
+  safeSet(KEYS.settings, data.settings);
+  safeSet(KEYS.history, data.history);
   return data;
 }
 
 /**
- * Initialise data: load from localStorage or seed defaults.
+ * Initialise data: load from Supabase if logged in, otherwise local cache.
  */
-export function initData(): {
+export async function initData(userId?: string): Promise<{
   clients: Client[];
   quotes: Quote[];
   invoices: Invoice[];
   settings: Settings;
   history: HistoryRecord[];
-} {
-  if (typeof window !== "undefined") {
-    const isCleaned = localStorage.getItem(CLEAN_SEED_KEY) === "true";
-    if (!isCleaned) {
-      return resetToDefaults();
-    }
+}> {
+  if (!userId) {
+    // Guest mode: load from local storage
+    return {
+      clients: getClients(),
+      quotes: getQuotes(),
+      invoices: getInvoices(),
+      settings: getSettings(),
+      history: getHistory(),
+    };
   }
 
-  const hasData = typeof window !== "undefined" && localStorage.getItem(KEYS.clients) !== null;
+  // Logged in: fetch from Supabase
+  const [
+    { data: clients },
+    { data: quotes },
+    { data: invoices },
+    { data: settings },
+    { data: history },
+  ] = await Promise.all([
+    supabase.from("clients").select("*"),
+    supabase.from("quotes").select("*"),
+    supabase.from("invoices").select("*"),
+    supabase.from("settings").select("*").single(),
+    supabase.from("history").select("*"),
+  ]);
 
-  if (!hasData) {
-    return resetToDefaults();
-  }
-
-  return {
-    clients: getClients(),
-    quotes: getQuotes(),
-    invoices: getInvoices(),
-    settings: getSettings(),
-    history: getHistory(),
+  const freshData = {
+    clients: clients || [],
+    quotes: quotes || [],
+    invoices: invoices || [],
+    settings: settings || DEFAULT_SETTINGS,
+    history: history || [],
   };
+
+  // Update local cache
+  safeSet(KEYS.clients, freshData.clients);
+  safeSet(KEYS.quotes, freshData.quotes);
+  safeSet(KEYS.invoices, freshData.invoices);
+  safeSet(KEYS.settings, freshData.settings);
+  safeSet(KEYS.history, freshData.history);
+
+  return freshData;
 }
 
-// ================= SESSION (Simple localStorage login) =================
+// ================= SESSION (Local Cache) =================
 export function getSession(): UserSession | null {
   return safeGet<UserSession>(KEYS.session);
 }
@@ -210,7 +244,14 @@ export function importDataJSON(jsonStr: string): {
   const invoices = Array.isArray(parsed.invoices) ? parsed.invoices : getInvoices();
   const settings = parsed.settings && typeof parsed.settings === "object" ? { ...getSettings(), ...parsed.settings } : getSettings();
   const history = Array.isArray(parsed.history) ? parsed.history : getHistory();
+  
+  // Note: For a logged in user, they should trigger a sync after import, handled in useAppData
+  safeSet(KEYS.clients, clients);
+  safeSet(KEYS.quotes, quotes);
+  safeSet(KEYS.invoices, invoices);
+  safeSet(KEYS.settings, settings);
+  safeSet(KEYS.history, history);
 
-  saveAll(clients, quotes, invoices, settings, history);
   return { clients, quotes, invoices, settings, history };
 }
+

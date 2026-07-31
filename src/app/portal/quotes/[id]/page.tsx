@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import type { Quote, Client, Invoice, Settings } from "@/lib/types";
-import { getQuotes, getClients, getInvoices, getSettings, saveQuotes, saveInvoices } from "@/lib/data";
 import { formatCurrency, formatDateLabel, currencyName, todayISO, futureDateISO } from "@/lib/formatters";
+import { supabase } from "@/lib/supabase";
 
 export default function QuotePortal() {
   const params = useParams();
@@ -18,38 +18,68 @@ export default function QuotePortal() {
   const [linkedInvoice, setLinkedInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
-    const s = getSettings();
-    setSettings(s);
-    const allQuotes = getQuotes();
-    const allClients = getClients();
-    const allInvoices = getInvoices();
+    async function fetchPortalData() {
+      try {
+        // 1. Fetch Quote (by share_token or id)
+        const { data: quoteData, error: quoteError } = await supabase
+          .from("quotes")
+          .select("*")
+          .or(`share_token.eq.${quoteIdOrNum},id.eq.${quoteIdOrNum}`)
+          .single();
 
-    const found = allQuotes.find(
-      (q) => q.share_token === quoteIdOrNum || q.id === quoteIdOrNum || q.quote_number === quoteIdOrNum
-    );
-    if (found) {
-      setQuote(found);
-      setClient(allClients.find((c) => c.id === found.client_id) || null);
-      setAccepted(found.status === "accepted");
-      const inv = allInvoices.find((i) => i.quote_id === found.id);
-      if (inv) setLinkedInvoice(inv);
+        if (quoteError || !quoteData) {
+          console.error("Quote not found", quoteError);
+          setLoading(false);
+          return;
+        }
+
+        setQuote(quoteData);
+        setAccepted(quoteData.status === "accepted");
+
+        // 2. Fetch linked Client & Settings & Invoice
+        const [
+          { data: clientData },
+          { data: settingsData },
+          { data: invoiceData },
+        ] = await Promise.all([
+          supabase.from("clients").select("*").eq("id", quoteData.client_id).single(),
+          supabase.from("settings").select("*").eq("user_id", quoteData.user_id).single(),
+          supabase.from("invoices").select("*").eq("quote_id", quoteData.id).maybeSingle(),
+        ]);
+
+        if (clientData) setClient(clientData);
+        if (settingsData) setSettings(settingsData);
+        if (invoiceData) setLinkedInvoice(invoiceData);
+      } catch (err) {
+        console.error("Error fetching portal data:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-    setLoading(false);
+
+    fetchPortalData();
   }, [quoteIdOrNum]);
 
-  const handleAccept = () => {
-    if (!quote || !client) return;
-    const allQuotes = getQuotes();
-    const allInvoices = getInvoices();
+  const handleAccept = async () => {
+    if (!quote || !client || !settings) return;
+    
+    // Update quote status in Supabase
+    const { error: updateError } = await supabase
+      .from("quotes")
+      .update({ status: "accepted" })
+      .eq("id", quote.id);
 
-    const updatedQuotes = allQuotes.map((q) =>
-      q.id === quote.id ? { ...q, status: "accepted" as const } : q
-    );
-    saveQuotes(updatedQuotes);
+    if (updateError) {
+      console.error("Failed to accept quote:", updateError);
+      alert("Failed to accept quote. Please try again.");
+      return;
+    }
 
+    // Attempt to generate invoice 
+    // In a production app with secure RLS, you'd typically use a Supabase Edge Function to generate the invoice securely.
+    // For this demonstration with public insert access, we insert it directly.
     const prefix = client.prefix || "INV";
-    const clientInvs = allInvoices.filter((i) => i.client_id === quote.client_id);
-    const invoiceNum = `${prefix}-2026-${String(clientInvs.length + 1).padStart(3, "0")}`;
+    const invoiceNum = `${prefix}-2026-${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`;
 
     const newInvoice: Invoice = {
       id: `inv-${Date.now()}`,
@@ -66,11 +96,19 @@ export default function QuotePortal() {
       notes: quote.notes,
       paid_at: null,
     };
-    saveInvoices([...allInvoices, newInvoice]);
+
+    const { error: invError } = await supabase
+      .from("invoices")
+      .insert({ ...newInvoice, user_id: quote.user_id });
+      
+    if (invError) {
+      console.error("Warning: Invoice could not be automatically generated", invError);
+    } else {
+      setLinkedInvoice(newInvoice);
+    }
 
     setQuote({ ...quote, status: "accepted" });
     setAccepted(true);
-    setLinkedInvoice(newInvoice);
   };
 
   if (loading) {

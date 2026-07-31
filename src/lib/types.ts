@@ -3,6 +3,7 @@
 
 export interface Client {
   id: string;
+  user_id?: string;
   name: string;
   prefix: string;
   email: string;
@@ -22,6 +23,7 @@ export type QuoteStatus = "draft" | "sent" | "accepted" | "declined";
 
 export interface Quote {
   id: string;
+  user_id?: string;
   client_id: string;
   share_token?: string;
   quote_number: string;
@@ -39,6 +41,7 @@ export type InvoiceStatus = "unpaid" | "paid" | "overdue" | "cancelled";
 
 export interface Invoice {
   id: string;
+  user_id?: string;
   client_id: string;
   quote_id: string | null;
   invoice_number: string;
@@ -54,6 +57,7 @@ export interface Invoice {
 }
 
 export interface Settings {
+  user_id?: string;
   company_name: string;
   company_address: string;
   contact_name: string;
@@ -83,6 +87,7 @@ export interface DebtorReminder {
 
 export interface HistoryRecord {
   id: string;
+  user_id?: string;
   docNumber: string;
   clientName: string;
   clientPhone: string;
@@ -106,6 +111,7 @@ export type AppView =
 
 // Session for simple localStorage login
 export interface UserSession {
+  id?: string;
   name: string;
   email: string;
   loggedInAt: string;
