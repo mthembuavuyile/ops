@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import type { Invoice, Client, Settings } from "@/lib/types";
-import { getInvoices, getClients, getSettings } from "@/lib/data";
+import { getCachedInvoices as getInvoices, getCachedClients as getClients, getCachedSettings as getSettings } from "@/lib/data";
 import { formatCurrency, formatDateLabel, currencyName } from "@/lib/formatters";
 import { supabase } from "@/lib/supabase";
 
