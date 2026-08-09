@@ -399,8 +399,10 @@ export default function OpsApp() {
                     invoices={app.invoices}
                     clients={app.clients}
                     currency={app.settings.currency}
+                    settings={app.settings}
                     onMarkPaid={markInvoicePaid}
                     onShareWhatsApp={handleShareWhatsApp}
+                    showToast={showToast}
                   />
                 )}
               </div>
@@ -424,6 +426,9 @@ export default function OpsApp() {
               settings={app.settings}
               clients={app.clients}
               onSaveClient={handleSaveClient}
+              onSaveInvoice={(inv) => {
+                app.updateInvoices([...app.invoices, inv]);
+              }}
               showToast={showToast}
             />
           )}

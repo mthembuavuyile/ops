@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import type { Invoice, Client, Settings } from "@/lib/types";
 import { getCachedInvoices as getInvoices, getCachedClients as getClients, getCachedSettings as getSettings } from "@/lib/data";
 import { formatCurrency, formatDateLabel, currencyName } from "@/lib/formatters";
 import { supabase } from "@/lib/supabase";
+import ReceiptDownload from "@/components/shared/ReceiptDownload";
 
 export default function InvoicePortal() {
   const params = useParams();
@@ -15,6 +16,12 @@ export default function InvoicePortal() {
   const [client, setClient] = useState<Client | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const showToast = useCallback((msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3000);
+  }, []);
 
   useEffect(() => {
     async function fetchInvoice() {
@@ -211,7 +218,35 @@ export default function InvoicePortal() {
             <span className="font-bold" style={{ color: accentColor }}>Reference:</span>{" "}
             <span className="font-mono font-bold text-slate-900">{invoice.invoice_number}</span>
           </p>
+
+          {/* Receipt Download for Paid Invoices */}
+          {isPaid && (
+            <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">✓</div>
+                <div>
+                  <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Payment Confirmed</div>
+                  <div className="text-xs text-emerald-700 mt-0.5">
+                    Paid on <strong className="font-mono">{invoice.paid_at ? formatDateLabel(invoice.paid_at) : "Confirmed"}</strong>
+                  </div>
+                </div>
+              </div>
+              <ReceiptDownload
+                invoice={invoice}
+                client={client}
+                settings={settings}
+                showToast={showToast}
+              />
+            </div>
+          )}
         </div>
+
+        {/* Toast */}
+        {toastMsg && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-5 py-3 rounded-xl shadow-lg z-50 animate-fade-in">
+            {toastMsg}
+          </div>
+        )}
       </div>
     </main>
   );

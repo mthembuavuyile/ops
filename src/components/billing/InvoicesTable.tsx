@@ -1,19 +1,22 @@
 "use client";
 
 import React from "react";
-import type { Invoice, Client } from "@/lib/types";
+import type { Invoice, Client, Settings } from "@/lib/types";
 import { formatCurrency } from "@/lib/formatters";
 import StatusBadge from "@/components/shared/StatusBadge";
+import ReceiptDownload from "@/components/shared/ReceiptDownload";
 
 interface InvoicesTableProps {
   invoices: Invoice[];
   clients: Client[];
   currency: string;
+  settings: Settings;
   onMarkPaid: (id: string) => void;
   onShareWhatsApp: (type: "invoice", id: string) => void;
+  showToast: (msg: string, type?: "info" | "success" | "warning" | "error") => void;
 }
 
-export default function InvoicesTable({ invoices, clients, currency, onMarkPaid, onShareWhatsApp }: InvoicesTableProps) {
+export default function InvoicesTable({ invoices, clients, currency, settings, onMarkPaid, onShareWhatsApp, showToast }: InvoicesTableProps) {
   return (
     <div className="ops-card">
       <div className="p-6 border-b border-slate-100">
@@ -51,7 +54,13 @@ export default function InvoicesTable({ invoices, clients, currency, onMarkPaid,
                             <i className="fa-solid fa-circle-check" /> Collect
                           </button>
                         ) : (
-                          <span className="text-xs text-slate-400 font-semibold"><i className="fa-solid fa-check mr-1" />Settled</span>
+                          <ReceiptDownload
+                            invoice={inv}
+                            client={client}
+                            settings={settings}
+                            showToast={showToast}
+                            compact
+                          />
                         )}
                         <button onClick={() => onShareWhatsApp("invoice", inv.id)} className="ops-btn-whatsapp !py-1 !px-2 !text-[11px] !rounded-md" title="Share via WhatsApp">
                           <i className="fa-brands fa-whatsapp" />
@@ -68,3 +77,4 @@ export default function InvoicesTable({ invoices, clients, currency, onMarkPaid,
     </div>
   );
 }
+

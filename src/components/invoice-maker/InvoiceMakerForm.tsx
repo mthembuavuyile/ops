@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import type { Settings, Client, BusinessAddress, BankAccount } from "@/lib/types";
+import type { Settings, Client, Invoice, BusinessAddress, BankAccount } from "@/lib/types";
 import { formatDateLabel, todayISO, futureDateISO, currencyLabel } from "@/lib/formatters";
 import { generatePdfFromElement } from "@/lib/pdf";
 
@@ -9,6 +9,7 @@ interface InvoiceMakerProps {
   settings: Settings;
   clients?: Client[];
   onSaveClient?: (client: Client) => void;
+  onSaveInvoice?: (invoice: Invoice) => void;
   showToast: (msg: string, type?: "info" | "success" | "warning" | "error") => void;
 }
 
@@ -16,7 +17,7 @@ interface MakerRow { id: number; description: string; amount: number; }
 
 let makerRowId = 0;
 
-export default function InvoiceMakerForm({ settings, clients = [], onSaveClient, showToast }: InvoiceMakerProps) {
+export default function InvoiceMakerForm({ settings, clients = [], onSaveClient, onSaveInvoice, showToast }: InvoiceMakerProps) {
   const [accentColor, setAccentColor] = useState(settings.accent_color || "#051b38");
   const [currency, setCurrency] = useState(settings.currency || "R");
   const [companyName, setCompanyName] = useState(settings.company_name || "My Business");
@@ -133,12 +134,53 @@ export default function InvoiceMakerForm({ settings, clients = [], onSaveClient,
 
   const total = rows.reduce((s, r) => s + (r.amount || 0), 0);
 
+  const buildInvoiceRecord = useCallback((): Invoice => {
+    const line_items = rows.map((r) => ({
+      description: r.description || "Item",
+      qty: 1,
+      rate: r.amount || 0,
+    }));
+
+    return {
+      id: `inv-${Date.now()}`,
+      client_id: selectedClientId || "",
+      quote_id: null,
+      invoice_number: invoiceNumber,
+      status: "unpaid",
+      issued_at: invoiceDate,
+      due_at: dueDate,
+      line_items,
+      subtotal: total,
+      vat: 0,
+      total,
+      notes: "",
+      paid_at: null,
+    };
+  }, [rows, selectedClientId, invoiceNumber, invoiceDate, dueDate, total]);
+
   const handleDownloadPdf = useCallback(async () => {
     showToast("⏳ Generating PDF...", "info");
     const ok = await generatePdfFromElement("maker-invoice-preview", invoiceNumber || "Invoice");
     if (ok) showToast(`📄 PDF generated for ${invoiceNumber}`, "success");
     else showToast("Failed to generate PDF", "error");
   }, [invoiceNumber, showToast]);
+
+  const handleSaveAndDownload = useCallback(async () => {
+    if (!onSaveInvoice) {
+      handleDownloadPdf();
+      return;
+    }
+    if (!invoiceNumber.trim()) {
+      showToast("Please enter an invoice number.", "warning");
+      return;
+    }
+    const inv = buildInvoiceRecord();
+    onSaveInvoice(inv);
+    showToast("⏳ Saving invoice & generating PDF...", "info");
+    const ok = await generatePdfFromElement("maker-invoice-preview", invoiceNumber || "Invoice");
+    if (ok) showToast(`✅ Invoice ${invoiceNumber} saved & PDF downloaded!`, "success");
+    else showToast(`✅ Invoice ${invoiceNumber} saved! PDF generation failed.`, "warning");
+  }, [onSaveInvoice, invoiceNumber, buildInvoiceRecord, handleDownloadPdf, showToast]);
 
   // Shared inline styles for the preview (ensures html2canvas captures them correctly)
   const previewStyles = {
@@ -505,9 +547,16 @@ export default function InvoiceMakerForm({ settings, clients = [], onSaveClient,
             </button>
           </div>
 
-          <button type="button" onClick={handleDownloadPdf} className="ops-btn-primary w-full !py-3">
-            <i className="fa-solid fa-file-pdf" /> Download PDF Invoice
-          </button>
+          <div className="flex flex-col gap-2">
+            {onSaveInvoice && (
+              <button type="button" onClick={handleSaveAndDownload} className="ops-btn-primary w-full !py-3">
+                <i className="fa-solid fa-floppy-disk" /> Save Invoice & Download PDF
+              </button>
+            )}
+            <button type="button" onClick={handleDownloadPdf} className={`w-full !py-3 ${onSaveInvoice ? 'ops-btn-secondary' : 'ops-btn-primary'}`}>
+              <i className="fa-solid fa-file-pdf" /> Download PDF Only
+            </button>
+          </div>
         </div>
 
         {/* Live Preview — hidden on mobile unless toggled, always visible on desktop */}
