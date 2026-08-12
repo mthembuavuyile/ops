@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Logo from "@/components/shared/Logo";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -39,9 +40,7 @@ export default function ForgotPassword() {
     <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md bg-white border border-slate-200 p-8 md:p-10 rounded-2xl shadow-lg space-y-8">
         <div className="text-center">
-          <Link href="/landing" className="inline-block text-2xl font-extrabold tracking-tight text-slate-900 hover:opacity-90 transition-opacity">
-            VYLEX<span className="text-brand-accent">OPS</span>
-          </Link>
+          <Logo href="/landing" mode="light" size="md" />
           <div className="text-[11px] font-semibold text-slate-400 tracking-wide mt-0.5">
             by{" "}
             <a

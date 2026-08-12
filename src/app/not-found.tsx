@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import Logo from "@/components/shared/Logo";
 
 export const metadata: Metadata = {
   title: "404 Page Not Found",
@@ -11,9 +12,7 @@ export default function NotFound() {
     <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans selection:bg-slate-900 selection:text-white">
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-xl p-8 text-center space-y-6 shadow-xs">
         <div>
-          <Link href="/" className="text-base font-extrabold tracking-tight text-slate-900 uppercase inline-block">
-            VYLEX<span className="text-sky-600">OPS</span>
-          </Link>
+          <Logo href="/" mode="light" size="sm" />
         </div>
 
         <div className="py-4">
