@@ -1,15 +1,16 @@
 import React from "react";
 import Link from "next/link";
+import Logo from "@/components/shared/Logo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — Vylex Ops",
+  title: "Terms of Service",
   description: "Terms of Service and usage conditions for the Vylex Ops platform.",
   alternates: {
     canonical: "https://ops.vylex.co.za/terms",
   },
   openGraph: {
-    title: "Terms of Service — Vylex Ops",
+    title: "Terms of Service | Vylex Ops",
     description: "Terms of Service and usage conditions for the Vylex Ops platform.",
     url: "https://ops.vylex.co.za/terms",
     siteName: "Vylex Ops",
@@ -23,9 +24,7 @@ export default function TermsPage() {
         {/* HEADER */}
         <header className="border-b border-slate-200 bg-white sticky top-0 z-30">
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <Link href="/landing" className="text-base font-extrabold tracking-tight text-slate-900 uppercase">
-              VYLEX<span className="text-sky-600">OPS</span>
-            </Link>
+            <Logo href="/landing" mode="light" size="sm" />
 
             <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-600 uppercase tracking-wider">
               <Link href="/landing#features" className="hover:text-slate-900 transition-colors">Features</Link>

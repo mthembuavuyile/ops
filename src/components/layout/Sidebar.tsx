@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import Link from "next/link";
+import Logo from "@/components/shared/Logo";
 import type { AppView, UserSession } from "@/lib/types";
 
 interface SidebarProps {
@@ -79,13 +80,12 @@ export default function Sidebar({
         className={`ops-sidebar ${sidebarOpen ? "open" : ""} md:!left-0 md:!relative flex flex-col h-full h-[100dvh] max-h-[100dvh] overflow-hidden`}
       >
         {/* Brand */}
-        <div className="p-6 flex items-center justify-between border-b border-slate-200 shrink-0">
+        <div className="p-5 flex items-center justify-between border-b border-slate-200 shrink-0">
           <button
             onClick={() => handleNav("dashboard")}
-            className="flex items-center gap-1 text-xl font-extrabold tracking-tight text-slate-900"
+            className="text-left"
           >
-            VYLEX
-            <span className="text-brand-accent">OPS</span>
+            <Logo mode="light" size="sm" />
           </button>
           <span className="bg-brand-accentLight text-brand-accent border border-blue-200 text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded">
             v2.0

@@ -3,20 +3,80 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ops.vylex.co.za"),
-  title: "Vylex Ops | Business Billing & Client Workflow Automation",
+  title: {
+    default: "Vylex Ops | Business Operations & Billing Software",
+    template: "%s | Vylex Ops",
+  },
   description:
-    "The operations and billing tool built for South African service businesses. Run your quoting, invoicing, payment reminders, and client management — all in one place.",
+    "Streamlined business operations and billing software for quotes, invoices, payment reminders, and client management.",
+  keywords: [
+    "Vylex Ops",
+    "business billing software",
+    "free invoicing tool",
+    "quote generator",
+    "payment reminders",
+    "WhatsApp invoicing",
+    "South Africa business software",
+    "OTS operations",
+  ],
+  authors: [{ name: "Vylex", url: "https://vylex.co.za" }],
+  creator: "Vylex",
+  publisher: "Vylex",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   alternates: {
     canonical: "https://ops.vylex.co.za",
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
-    title: "Vylex Ops | Business Billing & Client Workflow Automation",
+    title: "Vylex Ops | Business Operations & Billing Software",
     description:
-      "The operations and billing tool built for South African service businesses. Run your quoting, invoicing, payment reminders, and client management — all in one place.",
+      "Streamlined business operations and billing software for quotes, invoices, payment reminders, and client management.",
     url: "https://ops.vylex.co.za",
     siteName: "Vylex Ops",
     locale: "en_ZA",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vylex Ops | Business Operations & Billing Software",
+    description:
+      "Streamlined business operations and billing software for quotes, invoices, payment reminders, and client management.",
+    creator: "@vylex",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Vylex Ops",
+  "operatingSystem": "Web",
+  "applicationCategory": "BusinessApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "ZAR",
+  },
+  "description":
+    "Streamlined business operations, quoting, invoicing, and client management tool.",
+  "url": "https://ops.vylex.co.za",
+  "author": {
+    "@type": "Organization",
+    "name": "Vylex",
+    "url": "https://vylex.co.za",
   },
 };
 
@@ -40,7 +100,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
-
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body className="h-full font-sans antialiased bg-slate-50 text-slate-900">
         {children}
@@ -48,3 +111,4 @@ export default function RootLayout({
     </html>
   );
 }
+

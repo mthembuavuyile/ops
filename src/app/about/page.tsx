@@ -1,16 +1,19 @@
 import React from "react";
 import Link from "next/link";
+import Logo from "@/components/shared/Logo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Vylex Ops — Minimalist Business Billing & Operations",
-  description: "Learn about Vylex Ops, a streamlined billing operations tool designed for freelancers and small businesses.",
+  title: "About Us | Business Billing & Operations",
+  description:
+    "Learn about Vylex Ops, a streamlined billing operations tool designed for freelancers and small businesses.",
   alternates: {
     canonical: "https://ops.vylex.co.za/about",
   },
   openGraph: {
-    title: "About Vylex Ops — Minimalist Business Billing & Operations",
-    description: "Learn about Vylex Ops, a streamlined billing operations tool designed for freelancers and small businesses.",
+    title: "About Us | Business Billing & Operations | Vylex Ops",
+    description:
+      "Learn about Vylex Ops, a streamlined billing operations tool designed for freelancers and small businesses.",
     url: "https://ops.vylex.co.za/about",
     siteName: "Vylex Ops",
   },
@@ -23,9 +26,7 @@ export default function AboutPage() {
         {/* HEADER */}
         <header className="border-b border-slate-200 bg-white sticky top-0 z-30">
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <Link href="/landing" className="text-base font-extrabold tracking-tight text-slate-900 uppercase">
-              VYLEX<span className="text-sky-600">OPS</span>
-            </Link>
+            <Logo href="/landing" mode="light" size="sm" />
 
             <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-600 uppercase tracking-wider">
               <Link href="/landing#features" className="hover:text-slate-900 transition-colors">Features</Link>

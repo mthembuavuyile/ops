@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "404 — Page Not Found | Vylex Ops",
+  title: "404 Page Not Found",
   description: "The requested page does not exist.",
 };
 

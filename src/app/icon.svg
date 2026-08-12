@@ -1,4 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" fill="#0F2A47"/>
-  <path d="M 160 120 L 256 392 L 352 120 L 310 120 L 256 296 L 202 120 Z" fill="#E8A838"/>
+  <defs>
+    <linearGradient id="vylexFaviconBlue" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="50%" stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+
+    <linearGradient id="vylexFaviconOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+
+    <mask id="vylexFaviconMask">
+      <rect width="512" height="512" fill="white"/>
+      <polygon points="256,256 420,50 500,130 256,256" fill="black"/>
+    </mask>
+  </defs>
+
+  <rect width="512" height="512" rx="128" fill="#0F2847"/>
+
+  <g mask="url(#vylexFaviconMask)">
+    <circle cx="256" cy="256" r="160" stroke="url(#vylexFaviconBlue)" stroke-width="72" fill="none"/>
+    <path d="M 256 96 A 160 160 0 0 1 375 148" stroke="url(#vylexFaviconOrange)" stroke-width="72" fill="none" stroke-linecap="butt"/>
+  </g>
 </svg>
