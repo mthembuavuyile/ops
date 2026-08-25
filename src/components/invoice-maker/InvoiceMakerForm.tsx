@@ -4,6 +4,8 @@ import React, { useState, useCallback, useEffect } from "react";
 import type { Settings, Client, Invoice, BusinessAddress, BankAccount } from "@/lib/types";
 import { formatDateLabel, todayISO, futureDateISO, currencyLabel } from "@/lib/formatters";
 import { generatePdfFromElement } from "@/lib/pdf";
+import { refineDescription } from "@/lib/ai";
+import AiButton from "@/components/shared/AiButton";
 
 interface InvoiceMakerProps {
   settings: Settings;
@@ -18,6 +20,9 @@ interface MakerRow { id: number; description: string; amount: number; }
 let makerRowId = 0;
 
 export default function InvoiceMakerForm({ settings, clients = [], onSaveClient, onSaveInvoice, showToast }: InvoiceMakerProps) {
+  // AI refine state
+  const [refiningRowId, setRefiningRowId] = useState<number | null>(null);
+
   const [accentColor, setAccentColor] = useState(settings.accent_color || "#051b38");
   const [currency, setCurrency] = useState(settings.currency || "R");
   const [companyName, setCompanyName] = useState(settings.company_name || "My Business");
@@ -131,6 +136,20 @@ export default function InvoiceMakerForm({ settings, clients = [], onSaveClient,
   const updateRow = (id: number, field: keyof MakerRow, value: string | number) => {
     setRows((prev) => prev.map((r) => r.id === id ? { ...r, [field]: value } : r));
   };
+
+  // AI: Refine a vague line item description
+  const handleRefineDescription = useCallback(async (rowId: number) => {
+    const row = rows.find((r) => r.id === rowId);
+    if (!row || !row.description.trim()) return;
+    setRefiningRowId(rowId);
+    const res = await refineDescription(row.description);
+    if (res.result) {
+      setRows((prev) => prev.map((r) => r.id === rowId ? { ...r, description: res.result as string } : r));
+    } else if (res.error) {
+      showToast(`AI: ${res.error}`, "warning");
+    }
+    setRefiningRowId(null);
+  }, [rows, showToast]);
 
   const total = rows.reduce((s, r) => s + (r.amount || 0), 0);
 
@@ -496,7 +515,19 @@ export default function InvoiceMakerForm({ settings, clients = [], onSaveClient,
             <div className="space-y-2">
               {rows.map((row) => (
                 <div key={row.id} className="flex gap-2 items-center">
-                  <div className="flex-1 min-w-0"><input type="text" value={row.description} onChange={(e) => updateRow(row.id, "description", e.target.value)} className="ops-input !text-xs !py-1.5" placeholder="Item description" /></div>
+                  <div className="flex-1 min-w-0 relative">
+                    <input type="text" value={row.description} onChange={(e) => updateRow(row.id, "description", e.target.value)} className="ops-input !text-xs !py-1.5 !pr-9" placeholder="Item description" />
+                    {row.description.trim().length > 3 && (
+                      <div className="absolute top-1/2 -translate-y-1/2 right-1.5">
+                        <AiButton
+                          onClick={() => handleRefineDescription(row.id)}
+                          loading={refiningRowId === row.id}
+                          compact
+                          title="AI: Refine into professional description"
+                        />
+                      </div>
+                    )}
+                  </div>
                   <div className="w-24 flex-shrink-0"><input type="number" value={row.amount || ""} onChange={(e) => updateRow(row.id, "amount", Number(e.target.value))} className="ops-input !text-xs !py-1.5 text-right font-mono" placeholder="0.00" min={0} step={0.01} /></div>
                   <button type="button" onClick={() => deleteRow(row.id)} className="text-rose-400 hover:text-rose-600 transition-colors flex-shrink-0 p-1"><i className="fa-solid fa-trash-can text-xs" /></button>
                 </div>

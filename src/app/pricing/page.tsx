@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Pricing | 100% Free Billing Tool",
   description:
-    "Simple and transparent pricing. Vylex Ops is completely free to use with secure cloud account sync.",
+    "Simple and transparent pricing. Vylex Ops is completely free with cloud sync, PDF invoicing, WhatsApp sharing, and AI-assisted billing.",
   alternates: {
     canonical: "https://ops.vylex.co.za/pricing",
   },
@@ -78,7 +78,7 @@ export default function PricingPage() {
               <span className="text-xs text-slate-500 font-medium">/ forever</span>
             </div>
             <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-              Create an account and immediately start managing quotes, invoices, and client portals across all your devices.
+              Create an account and start managing quotes, invoices, and client portals across all your devices. AI assist features are included.
             </p>
 
             <div className="mt-6 border-t border-slate-100 pt-6 space-y-3 text-xs text-slate-700">
@@ -104,7 +104,19 @@ export default function PricingPage() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span><strong>Cloud Synchronization:</strong> Secure cloud storage via Supabase</span>
+                <span><strong>Cloud Synchronization:</strong> Secure cloud storage via Supabase with auto-refresh</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span><strong>Multiple Bank Accounts & Addresses:</strong> Store and switch between multiple business profiles</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span><strong>AI Assist:</strong> Text-to-line-items parsing, description refinement, and reminder drafting</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span><strong>Data Backup:</strong> Export/import JSON backups and CSV history export</span>
               </div>
             </div>
 
@@ -149,7 +161,17 @@ export default function PricingPage() {
                   <tr className="hover:bg-slate-50">
                     <td className="p-4 font-bold text-slate-900">Multi-Device Sync</td>
                     <td className="p-4 text-emerald-600 font-bold">Included</td>
-                    <td className="p-4 text-slate-600">Access your business database safely across your computer and mobile browser.</td>
+                    <td className="p-4 text-slate-600">Access your data across browser and mobile. Auto-refreshes on window focus.</td>
+                  </tr>
+                  <tr className="hover:bg-slate-50">
+                    <td className="p-4 font-bold text-slate-900">AI Assist</td>
+                    <td className="p-4 text-emerald-600 font-bold">Included</td>
+                    <td className="p-4 text-slate-600">Optional text parsing, description refinement, and reminder drafting via free OpenRouter models.</td>
+                  </tr>
+                  <tr className="hover:bg-slate-50">
+                    <td className="p-4 font-bold text-slate-900">Data Backup & Export</td>
+                    <td className="p-4 text-emerald-600 font-bold">Included</td>
+                    <td className="p-4 text-slate-600">Full JSON backup export/import and CSV history export for spreadsheets.</td>
                   </tr>
                 </tbody>
               </table>

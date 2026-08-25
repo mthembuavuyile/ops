@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import type { DebtorReminder, ReminderTone, Settings } from "@/lib/types";
 import { generateReminderMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
+import { draftReminder } from "@/lib/ai";
+import AiButton from "@/components/shared/AiButton";
 
 interface PaymentReminderFormProps {
   reminder: DebtorReminder;
@@ -18,17 +20,69 @@ const TONES: { id: ReminderTone; label: string; emoji: string }[] = [
 ];
 
 export default function PaymentReminderForm({ reminder, setReminder, settings, showToast }: PaymentReminderFormProps) {
+  // AI draft state
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [customContext, setCustomContext] = useState("");
+
   const update = (field: keyof DebtorReminder, value: string) => {
     setReminder({ ...reminder, [field]: value });
+    // Clear AI message when user changes fields so they can re-draft
+    if (aiMessage) setAiMessage(null);
   };
 
-  const message = generateReminderMessage(
+  // Standard template message (existing behavior)
+  const templateMessage = generateReminderMessage(
     reminder,
     settings.currency || "R",
     settings.bank_name || "",
     settings.account_number || "",
     reminder.invNo
   );
+
+  // Use AI message if available, otherwise use template
+  const message = aiMessage || templateMessage;
+
+  // Calculate days overdue
+  const daysOverdue = reminder.dueDate
+    ? Math.max(0, Math.floor((Date.now() - new Date(reminder.dueDate).getTime()) / (1000 * 60 * 60 * 24)))
+    : 0;
+
+  // ——— AI: Draft a context-aware reminder ———
+  const handleAiDraft = useCallback(async () => {
+    if (!reminder.name && !reminder.amount) {
+      showToast("Fill in client name and amount first.", "warning");
+      return;
+    }
+
+    setAiLoading(true);
+    const res = await draftReminder({
+      clientName: reminder.name,
+      amount: reminder.amount,
+      currency: settings.currency || "R",
+      invoiceNumber: reminder.invNo,
+      dueDate: reminder.dueDate,
+      daysOverdue,
+      tone: reminder.tone,
+      bankName: settings.bank_name,
+      accountNumber: settings.account_number,
+      branchCode: settings.branch_code,
+      customContext: customContext || undefined,
+    });
+
+    if (res.result) {
+      setAiMessage(res.result);
+      showToast("✨ AI draft generated — review before sending.", "success");
+    } else {
+      showToast(res.error || "AI drafting failed. Using template instead.", "warning");
+    }
+
+    setAiLoading(false);
+  }, [reminder, settings, daysOverdue, customContext, showToast]);
+
+  const handleClearAiDraft = () => {
+    setAiMessage(null);
+  };
 
   const handleSend = () => {
     const url = buildWhatsAppUrl(reminder.phone, message);
@@ -95,13 +149,54 @@ export default function PaymentReminderForm({ reminder, setReminder, settings, s
               })}
             </div>
           </div>
+
+          {/* AI Draft Section */}
+          <div className="border-t border-slate-100 pt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="ops-label mb-0">AI Custom Draft (Optional)</label>
+              <AiButton
+                onClick={handleAiDraft}
+                loading={aiLoading}
+                label="AI Draft"
+                title="Generate a context-aware message using AI"
+              />
+            </div>
+            <input
+              type="text"
+              value={customContext}
+              onChange={(e) => setCustomContext(e.target.value)}
+              className="ops-input !text-xs"
+              placeholder="e.g. Client made 50% deposit, offer split payment for balance..."
+            />
+            <p className="text-[10px] text-slate-400">
+              Optional: Add extra context for the AI to craft a more specific message.
+            </p>
+          </div>
         </div>
 
         {/* Preview */}
         <div className="ops-card-padded space-y-5">
-          <div className="flex items-center gap-2 text-lg font-bold text-slate-900">
-            <i className="fa-brands fa-whatsapp text-whatsapp" /> Live WhatsApp Preview
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-lg font-bold text-slate-900">
+              <i className="fa-brands fa-whatsapp text-whatsapp" /> Live WhatsApp Preview
+            </div>
+            {aiMessage && (
+              <button
+                type="button"
+                onClick={handleClearAiDraft}
+                className="text-[10px] text-slate-400 hover:text-slate-600 font-medium flex items-center gap-1 transition-colors"
+                title="Revert to template message"
+              >
+                <i className="fa-solid fa-arrow-rotate-left text-[9px]" /> Use Template
+              </button>
+            )}
           </div>
+
+          {aiMessage && (
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 rounded-lg px-3 py-1.5">
+              <i className="fa-solid fa-wand-magic-sparkles text-[9px]" /> AI-generated draft — review before sending
+            </div>
+          )}
 
           <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
             <div className="ops-wa-bubble">{message}</div>
